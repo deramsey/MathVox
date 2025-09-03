@@ -1,0 +1,116 @@
+@import url("./node_module/mathlive/mathlive-fonts.css");
+@import url("./node_module/mathlive/mathlive-static.css");
+
+*{
+    box-sizing: border-box;
+    font-family: 'Tahoma' sans-serif;
+}
+
+:root{
+    --blue: #235678;
+}
+
+html, body{
+    margin: 0;
+    padding: 0;
+}
+
+header, footer{
+    min-height: 10vh;
+    background-color: var(--blue);
+}
+
+header{
+    background: linear-gradient(180deg,#525252 0%, #525252 78%, #404040 100%);
+    display: grid;
+    align-items: center;
+    grid-template-columns: 1fr 3fr;
+}
+
+
+
+footer{
+    background-color: var(--blue);
+    filter: brightness(35%);
+}
+
+#logo{
+    padding: 2rem;
+    width: 100%;
+    display: block;
+}
+
+main{
+    width: 80%;
+    margin: 0 auto;
+    border-left: 2px solid var(--blue);
+    border-right: 2px solid var(--blue);
+    min-height: 80vh;
+    padding: 1px;
+}
+
+#mf-sizer{
+    width: 80%;
+    margin: 2em auto;
+    padding: 1px;
+}
+
+math-field{
+    width: 100%;
+    --smart-fence-color: var(var(--blue));
+}
+
+math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
+    color: var(--blue);
+}
+
+#buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .8em;
+    margin-top: .8em;
+}
+
+#buttons > button{
+    width: 100%;
+    font-size: 1.2em;
+    background-color: var(--blue);
+    color: white;
+    border: 2px solid var(--blue);
+    padding: .2em;
+}
+
+#buttons > button:hover{
+    text-decoration: underline;
+}
+
+#buttons > button:active{
+    background-color: white;
+    color: var(--blue);
+    
+}
+
+#text-output{
+    min-height: 200px;
+    width: 80%;
+    margin: 0 auto;
+    border: 1px solid var(--blue);
+    font-family: "Tahoma" !important;
+    padding: .8rem;
+    position: relative;
+}
+
+#copy{
+    position: absolute;
+    bottom: .25rem;
+    right: .25rem;
+    color: var(--blue);
+    background-color: white;
+    border: 1px solid var(--blue);
+    font-size: 2rem;
+}
+
+#copy:active{
+    color: white;
+    background-color: var(--blue);
+}

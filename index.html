@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathVox | Voice the Equation</title>
+    <script src="./node_modules/mathlive/mathlive.js"></script>
+    <link rel="stylesheet" href="./resources/style.css" type="text/css"/>
+    <link rel="manifest" href="./resources/manifest.json" />
+</head>
+<body>
+    <header>
+        <img src="./resources/MathVox_logo.png" alt="Math Vox" title="MathVox" id="logo"/>
+    </header>
+    <main>
+        <div id="mf-sizer">
+    <math-field id="formula"></math-field>
+    <section id="buttons">
+    <button id="read">Read Equation</button><button id="show-text">Show Description</button>
+    </section>
+        </div>
+        <section id="text-output"><div id="text-cont"></div><button id="copy" title="Copy to Clipboard">⎘</button></section>
+    </main>
+    <footer></footer>
+    <script src="./resources/script.js"></script>
+</body>
+</html>
