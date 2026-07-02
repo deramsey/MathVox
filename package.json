@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "mathlive": "^0.105.3"
+    "@cortex-js/compute-engine": "^0.66.0",
+    "mathlive": "^0.105.3",
+    "speech-rule-engine": "^5.0.0-rc.3"
   }
 }

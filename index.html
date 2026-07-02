@@ -5,25 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MathVox | Voice the Equation</title>
     <script src="./node_modules/mathlive/mathlive.js"></script>
+    <script>
+        // Tell Speech Rule Engine where to load its locale/rule files from
+        // (must be set before sre.js is loaded).
+        var SREfeature = { json: './node_modules/speech-rule-engine/lib/mathmaps/' };
+    </script>
+    <script src="./node_modules/speech-rule-engine/lib/sre.js"></script>
     <link rel="stylesheet" href="./resources/style.css" type="text/css"/>
     <link rel="manifest" href="./resources/manifest.json" />
-    <script src="https://cdn.jsdelivr.net/npm/mathlive@0.107.0/mathlive.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mathlive@0.107.0/mathlive-static.min.css">
 </head>
 <body>
+    <a class="skip-link" href="#formula">Skip to equation input</a>
     <header>
         <img src="./resources/MathVox_logo.png" alt="Math Vox" title="MathVox" id="logo"/>
+        <div id="a11y-controls">
+            <button id="theme-toggle" type="button" aria-pressed="false">Dark Mode</button>
+            <button id="dyslexia-toggle" type="button" aria-pressed="false">Dyslexia-Friendly Font</button>
+        </div>
     </header>
     <main>
         <div id="mf-sizer">
-    <math-field id="formula"></math-field>
-    <section id="buttons">
-    <button id="read">Read Equation</button><button id="show-text">Show Description</button>
-    </section>
+            <label for="formula" class="sr-only">Enter a math expression</label>
+            <math-field id="formula"></math-field>
+            <section id="buttons">
+                <button id="read">Read Equation Aloud</button>
+            </section>
         </div>
-        <section id="text-output"><div id="text-cont"></div><button id="copy" title="Copy to Clipboard">⎘</button></section>
+
+        <section id="format-picker">
+            <label for="format-select">Accessible output format</label>
+            <select id="format-select">
+                <option value="latex" selected>LaTeX</option>
+                <option value="ascii-math">ASCII Math</option>
+                <option value="math-ml">MathML</option>
+                <option value="math-json">MathJSON</option>
+                <option value="spoken-text">Description (plain-language text)</option>
+                <option value="braille">Braille (Nemeth)</option>
+            </select>
+        </section>
+
+        <section id="text-output" aria-live="polite">
+            <h2 id="format-name">LaTeX</h2>
+            <div id="text-cont">Enter a math expression above to see it here.</div>
+            <button id="copy" title="Copy to clipboard" aria-label="Copy LaTeX output to clipboard">⎘</button>
+        </section>
     </main>
     <footer></footer>
-    <script src="./resources/script.js"></script>
+    <script type="module" src="./resources/script.js"></script>
 </body>
 </html>

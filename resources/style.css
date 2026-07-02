@@ -1,18 +1,70 @@
-@import url("./node_module/mathlive/mathlive-fonts.css");
-@import url("./node_module/mathlive/mathlive-static.css");
+@import url("../node_modules/mathlive/mathlive-fonts.css");
+@import url("../node_modules/mathlive/mathlive-static.css");
 
 *{
     box-sizing: border-box;
-    font-family: 'Tahoma' sans-serif;
+    font-family: 'Tahoma', sans-serif;
 }
 
 :root{
     --blue: #235678;
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --panel-bg: #ffffff;
+    --panel-border: var(--blue);
+    --header-grad-top: #525252;
+    --header-grad-bottom: #404040;
+    --focus-ring: #ffb703;
+}
+
+html.theme-dark{
+    --bg: #121417;
+    --fg: #f2f2f2;
+    --panel-bg: #1c2024;
+    --panel-border: #6fa8c9;
+    --blue: #4a90bf;
+    --header-grad-top: #2c2c2c;
+    --header-grad-bottom: #1a1a1a;
 }
 
 html, body{
     margin: 0;
     padding: 0;
+    background-color: var(--bg);
+    color: var(--fg);
+}
+
+/* Visually hidden until focused: skip link and screen-reader-only labels */
+.sr-only{
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.skip-link{
+    position: absolute;
+    left: -999px;
+    top: 0;
+    background: var(--blue);
+    color: white;
+    padding: .6em 1em;
+    z-index: 100;
+}
+
+.skip-link:focus{
+    left: .5em;
+    top: .5em;
+}
+
+:focus-visible{
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
 }
 
 header, footer{
@@ -21,13 +73,35 @@ header, footer{
 }
 
 header{
-    background: linear-gradient(180deg,#525252 0%, #525252 78%, #404040 100%);
+    background: linear-gradient(180deg, var(--header-grad-top) 0%, var(--header-grad-top) 78%, var(--header-grad-bottom) 100%);
     display: grid;
     align-items: center;
-    grid-template-columns: 1fr 3fr;
+    grid-template-columns: 1fr auto;
+    gap: 1em;
+    padding-right: 1.5em;
 }
 
+#a11y-controls{
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5em;
+    justify-content: flex-end;
+}
 
+#a11y-controls > button{
+    font-size: .95em;
+    background-color: var(--panel-bg);
+    color: var(--blue);
+    border: 2px solid var(--blue);
+    padding: .5em .8em;
+    border-radius: .3em;
+    cursor: pointer;
+}
+
+#a11y-controls > button[aria-pressed="true"]{
+    background-color: var(--blue);
+    color: white;
+}
 
 footer{
     background-color: var(--blue);
@@ -43,10 +117,11 @@ footer{
 main{
     width: 80%;
     margin: 0 auto;
-    border-left: 2px solid var(--blue);
-    border-right: 2px solid var(--blue);
+    border-left: 2px solid var(--panel-border);
+    border-right: 2px solid var(--panel-border);
     min-height: 80vh;
     padding: 1px;
+    background-color: var(--bg);
 }
 
 #mf-sizer{
@@ -66,7 +141,7 @@ math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
 
 #buttons {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: .8em;
     margin-top: .8em;
 }
@@ -78,6 +153,7 @@ math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
     color: white;
     border: 2px solid var(--blue);
     padding: .2em;
+    cursor: pointer;
 }
 
 #buttons > button:hover{
@@ -87,17 +163,62 @@ math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
 #buttons > button:active{
     background-color: white;
     color: var(--blue);
-    
+}
+
+#format-picker{
+    width: 80%;
+    margin: 0 auto 1.5em auto;
+    display: flex;
+    flex-direction: column;
+    gap: .4em;
+}
+
+#format-picker label{
+    font-weight: bold;
+}
+
+#format-picker select{
+    font-size: 1.1em;
+    padding: .5em;
+    border: 2px solid var(--blue);
+    border-radius: .3em;
+    background-color: var(--panel-bg);
+    color: var(--fg);
 }
 
 #text-output{
     min-height: 200px;
     width: 80%;
     margin: 0 auto;
-    border: 1px solid var(--blue);
-    font-family: "Tahoma" !important;
+    border: 1px solid var(--panel-border);
+    background-color: var(--panel-bg);
+    font-family: "Tahoma", sans-serif !important;
     padding: .8rem;
     position: relative;
+}
+
+#format-name{
+    margin: 0 0 .5em 0;
+    font-size: 1em;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--blue);
+}
+
+#text-cont{
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding-bottom: 2.5rem;
+}
+
+/* Braille (Nemeth) output is Unicode braille dot patterns; a larger,
+   generously spaced monospace rendering makes the dot patterns easier
+   to distinguish visually and on braille-capable displays. */
+#text-cont.braille-output{
+    font-size: 1.6rem;
+    letter-spacing: .2em;
+    line-height: 2;
+    font-family: "Consolas", "Cambria Math", monospace, "Tahoma", sans-serif;
 }
 
 #copy{
@@ -105,12 +226,23 @@ math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
     bottom: .25rem;
     right: .25rem;
     color: var(--blue);
-    background-color: white;
-    border: 1px solid var(--blue);
+    background-color: var(--panel-bg);
+    border: 1px solid var(--panel-border);
     font-size: 2rem;
+    cursor: pointer;
 }
 
 #copy:active{
     color: white;
     background-color: var(--blue);
+}
+
+/* Dyslexia-friendly font toggle: swaps to a plainer, more open font
+   stack with extra letter/line spacing. This is a reasonable built-in
+   approximation; for true OpenDyslexic support a font file would need
+   to be bundled with the app. */
+html.dyslexia-font, html.dyslexia-font *{
+    font-family: "Verdana", "Trebuchet MS", "Tahoma", sans-serif !important;
+    letter-spacing: .03em;
+    line-height: 1.6;
 }
