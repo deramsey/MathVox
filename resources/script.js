@@ -1,4 +1,4 @@
-import { ComputeEngine } from '../node_modules/@cortex-js/compute-engine/dist/compute-engine.min.esm.js';
+import { ComputeEngine } from './vendor/compute-engine/compute-engine.min.esm.js';
 
 // MathLive needs a Compute Engine instance available before it can export
 // the "math-json" format. This must be set before any getValue('math-json')

@@ -1,5 +1,5 @@
-@import url("../node_modules/mathlive/mathlive-fonts.css");
-@import url("../node_modules/mathlive/mathlive-static.css");
+@import url("vendor/mathlive/mathlive-fonts.css");
+@import url("vendor/mathlive/mathlive-static.css");
 
 *{
     box-sizing: border-box;

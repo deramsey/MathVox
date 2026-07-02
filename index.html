@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MathVox | Voice the Equation</title>
-    <script src="./node_modules/mathlive/mathlive.js"></script>
+    <script src="./resources/vendor/mathlive/mathlive.js"></script>
     <script>
         // Tell Speech Rule Engine where to load its locale/rule files from
         // (must be set before sre.js is loaded).
-        var SREfeature = { json: './node_modules/speech-rule-engine/lib/mathmaps/' };
+        var SREfeature = { json: './resources/vendor/speech-rule-engine/mathmaps/' };
     </script>
-    <script src="./node_modules/speech-rule-engine/lib/sre.js"></script>
+    <script src="./resources/vendor/speech-rule-engine/sre.js"></script>
     <link rel="stylesheet" href="./resources/style.css" type="text/css"/>
     <link rel="manifest" href="./resources/manifest.json" />
 </head>
