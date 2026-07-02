@@ -109,8 +109,9 @@ footer{
 }
 
 #logo{
-    padding: 2rem;
-    width: 100%;
+    padding: 1rem;
+    max-height: 56px;
+    width: auto;
     display: block;
 }
 
