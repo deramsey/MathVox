@@ -8,6 +8,13 @@
 
 :root{
     --blue: #235678;
+    /* --blue-text: blue used for text against the page/panel background.
+       --blue-solid: blue used as a solid fill behind white text.
+       In light mode --blue already has enough contrast for both jobs; dark
+       mode needs two different shades (see below) to pass WCAG AA in both
+       directions. */
+    --blue-text: var(--blue);
+    --blue-solid: var(--blue);
     --bg: #ffffff;
     --fg: #1a1a1a;
     --panel-bg: #ffffff;
@@ -23,6 +30,13 @@ html.theme-dark{
     --panel-bg: #1c2024;
     --panel-border: #6fa8c9;
     --blue: #4a90bf;
+    /* Lighter blue for text/icons on the dark panel background (~9:1 against
+       #1c2024) -- fixes the low-contrast "Dyslexia-Friendly Font" label. */
+    --blue-text: #8ecae6;
+    /* Darker blue for solid button fills behind white text (~5.8:1) -- fixes
+       the "Light Mode" pressed-state button, which previously only passed
+       WCAG AA for large text (~3.5:1). */
+    --blue-solid: #2f6b8f;
     --header-grad-top: #2c2c2c;
     --header-grad-bottom: #1a1a1a;
 }
@@ -90,16 +104,18 @@ header{
 
 #a11y-controls > button{
     font-size: .95em;
+    font-weight: 600;
     background-color: var(--panel-bg);
-    color: var(--blue);
-    border: 2px solid var(--blue);
+    color: var(--blue-text);
+    border: 2px solid var(--blue-text);
     padding: .5em .8em;
     border-radius: .3em;
     cursor: pointer;
 }
 
 #a11y-controls > button[aria-pressed="true"]{
-    background-color: var(--blue);
+    background-color: var(--blue-solid);
+    border-color: var(--blue-solid);
     color: white;
 }
 
@@ -137,7 +153,7 @@ math-field{
 }
 
 math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
-    color: var(--blue);
+    color: var(--blue-text);
 }
 
 #buttons {
@@ -150,9 +166,10 @@ math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
 #buttons > button{
     width: 100%;
     font-size: 1.2em;
-    background-color: var(--blue);
+    font-weight: 600;
+    background-color: var(--blue-solid);
     color: white;
-    border: 2px solid var(--blue);
+    border: 2px solid var(--blue-solid);
     padding: .2em;
     cursor: pointer;
 }
@@ -163,15 +180,103 @@ math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
 
 #buttons > button:active{
     background-color: white;
-    color: var(--blue);
+    color: var(--blue-solid);
+}
+
+/* Convert is a secondary action next to Read Equation Aloud -- outlined
+   instead of solid-filled so the visual hierarchy matches their relative
+   importance, using the same contrast-safe text-blue as the header toggles. */
+#buttons > button.secondary{
+    background-color: var(--panel-bg);
+    color: var(--blue-text);
+    border-color: var(--blue-text);
+}
+
+#buttons > button.secondary:active{
+    background-color: var(--blue-text);
+    color: var(--panel-bg);
 }
 
 #format-picker{
     width: 80%;
-    margin: 0 auto 1.5em auto;
+    margin: 2em auto 1.5em auto;
     display: flex;
     flex-direction: column;
     gap: .4em;
+}
+
+.hint{
+    margin: 0;
+    font-size: .9em;
+    opacity: .85;
+}
+
+.hint code{
+    font-family: "Consolas", monospace;
+}
+
+#kbd-help{
+    margin-top: .8em;
+    border: 1px solid var(--panel-border);
+    border-radius: .3em;
+    padding: .6em .8em;
+    background-color: var(--panel-bg);
+}
+
+#kbd-help summary{
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--blue-text);
+}
+
+#kbd-help summary:focus-visible{
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+.kbd-help-body{
+    margin-top: .6em;
+}
+
+.kbd-help-body ul{
+    padding-left: 1.2em;
+}
+
+.kbd-help-body li{
+    margin-bottom: .5em;
+}
+
+kbd{
+    font-family: "Consolas", monospace;
+    font-size: .9em;
+    background-color: var(--bg);
+    border: 1px solid var(--panel-border);
+    border-bottom-width: 2px;
+    border-radius: .25em;
+    padding: .05em .4em;
+}
+
+#latex-editor{
+    margin-top: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: .4em;
+}
+
+#latex-editor label{
+    font-weight: bold;
+}
+
+#latex-editor textarea{
+    width: 100%;
+    font-size: 1.1em;
+    font-family: "Consolas", monospace;
+    padding: .5em;
+    border: 2px solid var(--panel-border);
+    border-radius: .3em;
+    background-color: var(--panel-bg);
+    color: var(--fg);
+    resize: vertical;
 }
 
 #format-picker label{
@@ -203,7 +308,7 @@ math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
     font-size: 1em;
     text-transform: uppercase;
     letter-spacing: .05em;
-    color: var(--blue);
+    color: var(--blue-text);
 }
 
 #text-cont{
@@ -226,7 +331,7 @@ math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
     position: absolute;
     bottom: .25rem;
     right: .25rem;
-    color: var(--blue);
+    color: var(--blue-text);
     background-color: var(--panel-bg);
     border: 1px solid var(--panel-border);
     font-size: 2rem;
@@ -235,7 +340,7 @@ math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
 
 #copy:active{
     color: white;
-    background-color: var(--blue);
+    background-color: var(--blue-solid);
 }
 
 /* Dyslexia-friendly font toggle: swaps to a plainer, more open font

@@ -15,7 +15,7 @@
     <link rel="manifest" href="./resources/manifest.json" />
 </head>
 <body>
-    <a class="skip-link" href="#formula">Skip to equation input</a>
+    <a class="skip-link" href="#format-select">Skip to main content</a>
     <header>
         <img src="./resources/MathVox_logo.png" alt="Math Vox" title="MathVox" id="logo"/>
         <div id="a11y-controls">
@@ -24,14 +24,6 @@
         </div>
     </header>
     <main>
-        <div id="mf-sizer">
-            <label for="formula" class="sr-only">Enter a math expression</label>
-            <math-field id="formula"></math-field>
-            <section id="buttons">
-                <button id="read">Read Equation Aloud</button>
-            </section>
-        </div>
-
         <section id="format-picker">
             <label for="format-select">Accessible output format</label>
             <select id="format-select">
@@ -42,7 +34,40 @@
                 <option value="spoken-text">Description (plain-language text)</option>
                 <option value="braille">Braille (Nemeth)</option>
             </select>
+            <p class="hint">Choose a format before entering your equation below so the output is ready as soon as you're done.</p>
         </section>
+
+        <div id="mf-sizer">
+            <label for="formula" class="sr-only">Enter a math expression</label>
+            <math-field id="formula"></math-field>
+
+            <details id="kbd-help">
+                <summary>Keyboard help for the equation field</summary>
+                <div class="kbd-help-body">
+                    <p>You don't need to reach the small keyboard/menu icons in the corner of the equation field to use them &mdash; the same actions are available as keyboard shortcuts from anywhere inside the field:</p>
+                    <ul>
+                        <li><kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>Space</kbd> (<kbd>Shift</kbd>+<kbd>Option</kbd>+<kbd>Space</kbd> on Mac) &mdash; show or hide the on-screen math keyboard</li>
+                        <li><kbd>Alt</kbd>+<kbd>Space</kbd> (<kbd>Option</kbd>+<kbd>Space</kbd> on Mac) &mdash; open the field's options menu</li>
+                        <li><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> &mdash; jump to the next/previous placeholder (e.g. into or out of a fraction)</li>
+                        <li>Arrow keys &mdash; move through the expression; <kbd>Space</kbd> moves out of a group (like out of an exponent)</li>
+                        <li><kbd>/</kbd> for a fraction, <kbd>^</kbd> for an exponent, <kbd>_</kbd> for a subscript, or type a backslash (<kbd>\</kbd>) to enter raw LaTeX at the cursor</li>
+                        <li><kbd>Alt</kbd>+<kbd>Ctrl</kbd>+<kbd>&darr;</kbd> &mdash; have the whole expression read aloud from inside the field (same as the Read Equation Aloud button below)</li>
+                    </ul>
+                    <p>Prefer not to use the visual editor at all? Type or paste LaTeX directly into the text box below and select Convert &mdash; that loads it into the equation field and updates every output format.</p>
+                </div>
+            </details>
+
+            <section id="latex-editor">
+                <label for="latex-input">Enter or edit the equation as LaTeX text</label>
+                <textarea id="latex-input" rows="2" spellcheck="false" autocomplete="off"></textarea>
+                <p class="hint">Example: <code>e=mc^2</code>. Useful for fixing things like braces that are hard to edit in the visual field above. Select Convert (or press Ctrl+Enter) to apply it.</p>
+            </section>
+
+            <section id="buttons">
+                <button id="convert" type="button" class="secondary">Convert</button>
+                <button id="read" type="button">Read Equation Aloud</button>
+            </section>
+        </div>
 
         <section id="text-output" aria-live="polite">
             <h2 id="format-name">LaTeX</h2>
