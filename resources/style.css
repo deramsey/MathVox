@@ -21,7 +21,13 @@
     --panel-border: var(--blue);
     --header-grad-top: #525252;
     --header-grad-bottom: #404040;
-    --focus-ring: #ffb703;
+    /* Full contrast audit (July 2026) found the original single amber focus
+       ring (#ffb703) was only ~1.75:1 against a white background -- well
+       under the 3:1 WCAG needs for a visible focus indicator/UI component.
+       This darker amber is ~6.25:1 against white. */
+    --focus-ring: #a83e00;
+    /* ~6.5:1 against white -- passes WCAG AA for normal text */
+    --error-text: #b3261e;
 }
 
 html.theme-dark{
@@ -39,6 +45,11 @@ html.theme-dark{
     --blue-solid: #2f6b8f;
     --header-grad-top: #2c2c2c;
     --header-grad-bottom: #1a1a1a;
+    /* The original amber (#ffb703) is ~10.5:1 against the dark background --
+       already well past 3:1, so dark mode keeps it as-is. */
+    --focus-ring: #ffb703;
+    /* ~7.2:1 against the dark panel background -- passes WCAG AA */
+    --error-text: #ff8a80;
 }
 
 html, body{
@@ -65,7 +76,9 @@ html, body{
     position: absolute;
     left: -999px;
     top: 0;
-    background: var(--blue);
+    /* Solid fill behind white text -- same contrast fix as the other
+       buttons; --blue alone fails WCAG AA here in dark mode. */
+    background: var(--blue-solid);
     color: white;
     padding: .6em 1em;
     z-index: 100;
@@ -154,6 +167,12 @@ math-field{
 
 math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
     color: var(--blue-text);
+    /* WCAG 2.5.5 target size: at least 44x44 CSS px for icon-only controls.
+       These parts live in MathLive's shadow DOM, so this is best-effort --
+       confirm visually, since internal padding/sizing MathLive applies
+       could still win depending on specificity. */
+    min-width: 44px;
+    min-height: 44px;
 }
 
 #buttons {
@@ -277,6 +296,19 @@ kbd{
     background-color: var(--panel-bg);
     color: var(--fg);
     resize: vertical;
+    /* Grows with content (see autoGrowLatexInput() in script.js); hidden
+       overflow avoids a flash of scrollbar while the height catches up. */
+    overflow: hidden;
+}
+
+.error-text{
+    margin: 0;
+    font-weight: 600;
+    color: var(--error-text);
+}
+
+.error-text:empty{
+    display: none;
 }
 
 #format-picker label{
@@ -301,6 +333,51 @@ kbd{
     font-family: "Tahoma", sans-serif !important;
     padding: .8rem;
     position: relative;
+}
+
+/* Portable SVG preview: deliberately fixed white/light regardless of
+   MathVox's own theme. The exported SVG hardcodes black strokes (see
+   MATHJAX_SVG_IMPLEMENTATION_PLAN.md), so previewing it on a dark background
+   would make it unreadable in the very panel meant to let you check it
+   before copying -- and a light card is also a more honest preview of how
+   it'll look pasted into Word/Canvas/a plain web page. */
+#svg-preview{
+    background-color: #ffffff;
+    border: 1px solid var(--panel-border);
+    border-radius: .3em;
+    padding: .75rem;
+    margin-bottom: .8rem;
+    overflow-x: auto;
+}
+
+#svg-preview[hidden]{
+    display: none;
+}
+
+#svg-alt-suggestion{
+    margin-bottom: .8rem;
+}
+
+#svg-alt-suggestion:empty{
+    display: none;
+    margin-bottom: 0;
+}
+
+#mathml-notes{
+    margin-top: .8rem;
+    margin-bottom: 0;
+}
+
+#mathml-notes:empty{
+    display: none;
+    margin-top: 0;
+}
+
+#svg-preview svg{
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
 }
 
 #format-name{
@@ -336,6 +413,13 @@ kbd{
     border: 1px solid var(--panel-border);
     font-size: 2rem;
     cursor: pointer;
+    /* WCAG 2.5.5 target size: icon-only button, so guarantee a 44x44 CSS px
+       hit area rather than relying on the glyph's own rendered size. */
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #copy:active{
