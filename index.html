@@ -35,11 +35,12 @@
     <script src="./resources/vendor/mathjax/startup.js"></script>
     <link rel="stylesheet" href="./resources/style.css" type="text/css"/>
     <link rel="manifest" href="./resources/manifest.json" />
+    <link rel="icon" type="image/png" href="./resources/icons/198.png" />
 </head>
 <body>
     <a class="skip-link" href="#format-select">Skip to main content</a>
-    <h1 class="sr-only">MathVox — Voice the Equation</h1>
     <header>
+        <h1 class="sr-only">MathVox — Voice the Equation</h1>
         <img src="./resources/MathVox_logo.png" alt="Math Vox" title="MathVox" id="logo"/>
         <div id="a11y-controls">
             <button id="theme-toggle" type="button" aria-pressed="false">Dark Mode</button>
@@ -65,7 +66,10 @@
         <div id="mf-sizer">
             <h2 class="sr-only">Enter your equation</h2>
             <label for="formula" class="sr-only">Enter a math expression</label>
-            <math-field id="formula"></math-field>
+            <!-- aria-label as well as the <label>: <math-field> isn't a native
+                 form control, so label-for doesn't give it (or the editable
+                 element inside its shadow DOM) an accessible name. -->
+            <math-field id="formula" aria-label="Enter a math expression"></math-field>
 
             <details id="kbd-help">
                 <summary>Keyboard help for the equation field</summary>
@@ -96,8 +100,18 @@
             </section>
         </div>
 
-        <section id="text-output" aria-live="polite">
+        <!-- Not aria-live itself: the output can be thousands of characters
+             (SVG path data, full MathML), which a screen reader would read
+             out on every change. #output-status below announces a short
+             summary instead; the output itself stays readable in place. -->
+        <section id="text-output" aria-labelledby="format-name">
             <h2 id="format-name">LaTeX</h2>
+            <!-- Short announcements: "MathML output updated.", "Copied ...". -->
+            <p id="output-status" class="sr-only" role="status"></p>
+            <!-- Shown when the MathML behind this output is visibly missing part
+                 of the equation (a MathLive exporter gap MathVox couldn't work
+                 around) -- see updateConversionWarning() in script.js. -->
+            <p id="conversion-warning" class="error-text" role="status"></p>
             <!-- Decorative preview of the rendered SVG (Portable SVG format only).
                  aria-hidden because the accessible representation of the equation
                  is already handled by the Description/Braille/Read Aloud features
@@ -107,27 +121,48 @@
                  black strokes (see MATHJAX_SVG_IMPLEMENTATION_PLAN.md), so this
                  mirrors how it'll actually look pasted into an external document. -->
             <div id="svg-preview" aria-hidden="true" hidden></div>
+            <!-- Download the exported SVG as a standalone .svg file -- for
+                 anyone who wants an actual image file (to attach, upload to
+                 an LMS, etc.) rather than pasting the raw markup shown below.
+                 Shown/hidden together with #svg-preview in updateOutput(). -->
+            <button id="download-svg" type="button" hidden><svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 1.5v8m0 0-2.75-2.75M8 9.5l2.75-2.75M2.5 11v1.5A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Download as .svg file</span></button>
             <!-- SVG has no "alt" attribute of its own (that's an <img>-only
                  HTML attribute) -- the <title> baked into the SVG source above
                  covers pasting it as inline markup. If someone instead saves it
                  as an image file and references it with <img>, the embedded
                  <title> is typically ignored, so this gives them the same
-                 description to paste into that <img>'s own alt attribute. -->
-            <p id="svg-alt-suggestion" class="hint"></p>
-            <div id="text-cont">Enter a math expression above to see it here.</div>
+                 description to paste into that <img>'s own alt attribute.
+                 Wrapped with its own copy button since the suggested text
+                 needs to be copied separately from the SVG markup itself. -->
+            <div id="svg-alt-wrap" hidden>
+                <p id="svg-alt-suggestion" class="hint"></p>
+                <button id="copy-alt-text" type="button" aria-label="Copy suggested alt text"><svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="5.5" y="5.5" width="8.5" height="8.5" rx="1.3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M3 10.5H2.3A1.3 1.3 0 0 1 1 9.2V2.3A1.3 1.3 0 0 1 2.3 1h6.9A1.3 1.3 0 0 1 10.5 2.3V3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Copy</span></button>
+            </div>
+            <!-- Collapsible only for Portable SVG (class "collapsible", set in
+                 updateOutput()), whose markup runs to thousands of characters
+                 and pushed the Copy/Link buttons far down the page. Every
+                 other format keeps it open with the summary hidden. Copy
+                 copies the full code either way. -->
+            <details id="code-details" open>
+                <summary id="code-summary">Show SVG code</summary>
+                <div id="text-cont">Enter a math expression above to see it here.</div>
+            </details>
             <!-- MathML format only: flags known-ambiguous notation shapes
-                 (e.g. "(a, b)" as point vs. interval vs. GCD) that MathML's
-                 newer "intent" attribute (MathML 4) exists to resolve, but
-                 that MathVox's underlying libraries don't yet support adding.
-                 See MATHML_SEMANTIC_LINT_PLAN.md. Kept in its own element
-                 (not appended into #text-cont) so the Copy button still
+                 (e.g. "(a, b)" as point vs. interval vs. GCD) and offers a
+                 "what does it mean?" picker for each one, which adds a MathML 4
+                 "intent" attribute to the output (see renderIntentPicker() in
+                 script.js and MATHML_SEMANTIC_LINT_PLAN.md). Kept in its own
+                 element (not appended into #text-cont) so the Copy button still
                  copies clean MathML, not this note along with it. -->
-            <p id="mathml-notes" class="hint"></p>
+            <div id="mathml-notes"></div>
             <!-- Shareable link: copies the current page URL, whose hash
                  already encodes the equation and chosen format (kept in
                  sync as you type/pick a format -- see updateUrlHash() in
                  script.js), so following the link reproduces this exact
                  equation/format instead of the blank app. -->
+            <!-- Same action as #download-svg above, repeated in the corner
+                 icon row so it sits with Copy/Link. Portable SVG only. -->
+            <button id="download-svg-corner" type="button" title="Download as .svg file" aria-label="Download the equation as an .svg file" hidden><svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 1.5v8m0 0-2.75-2.75M8 9.5l2.75-2.75M2.5 11v1.5A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
             <button id="share-link" title="Copy shareable link" aria-label="Copy a shareable link to this equation and format">🔗</button>
             <button id="copy" title="Copy to clipboard" aria-label="Copy LaTeX output to clipboard">⎘</button>
         </section>

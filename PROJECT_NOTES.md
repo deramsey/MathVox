@@ -89,6 +89,39 @@ folder and update paths/config if the internal file layout changed.
   own address reproduces the exact equation and output format instead of a
   blank app. See "Feature ideas raised in conversation" below for the
   implementation notes.
+- **Windows High Contrast Mode / `prefers-contrast: more` support** (built
+  September 2026) -- pure CSS, no JS: a `@media (forced-colors: active)`
+  block keeps the pressed a11y-toggle buttons and active button states
+  distinguishable using system colors (`Highlight`/`HighlightText`) once the
+  browser strips author colors, and opts the Portable SVG preview panel out
+  of forced-colors recoloring (`forced-color-adjust: none`) since it's
+  meant to stay a faithful white/black preview of the exported artifact
+  regardless of theme; a separate `@media (prefers-contrast: more)` block
+  thickens borders and the focus ring as a lighter-touch enhancement for
+  people who asked for more contrast without forced-colors kicking in. See
+  the block comment above `@media (forced-colors: active)` in
+  `resources/style.css` for the full reasoning. Not verified against real
+  Windows hardware/a VM in High Contrast Mode -- see "Open items" below.
+- **"Download as .svg file" button and "Copy suggested alt text" button**
+  (built September 2026), both alongside the Portable SVG preview -- the
+  download button saves the last generated SVG (with an XML declaration
+  prepended, since a downloaded file needs to stand alone) as
+  `mathvox-equation.svg` via a `Blob`/object-URL/temporary-`<a>` pattern;
+  the copy button copies just the suggested alt-text payload itself
+  (`lastAltText`), not the full "Suggested alt text (if you save
+  this..." lead-in sentence shown next to it. Both are hidden except
+  when the current format is Portable SVG and a render has actually
+  succeeded (`updateOutput()` toggles them alongside `#svg-preview`).
+  Given a visual pass shortly after (same session): both buttons got a
+  small inline `currentColor` SVG icon (so it tracks the button's own
+  color in light/dark/forced-colors with no extra CSS), the Download
+  button became a shrink-to-fit centered pill (`display:flex;
+  width:fit-content`) instead of a full-width slab, the Copy button's
+  visible label was shortened to "Copy" with the full description moved
+  to `aria-label="Copy suggested alt text"` (still satisfies WCAG 2.5.3
+  Label in Name, since "Copy" is a substring of the accessible name),
+  and `#svg-alt-wrap` switched from a stacked column to a wrapping row
+  so the hint text and the now-compact Copy button sit inline together.
 
 | Format | Source |
 |---|---|
@@ -162,16 +195,19 @@ folder and update paths/config if the internal file layout changed.
     format, reset on every `updateOutput()` call — kept separate from
     `#text-cont` (same pattern as the SVG preview/suggested-alt-text) so the
     Copy button still copies clean MathML, not the note along with it.
-  - **Not yet verified against real MathLive/browser output** — the test
-    harness uses hand-built representative MathML snippets (best-effort
-    approximations of what MathLive is documented to produce), not real
-    MathLive output, since no browser is available in this sandbox. Two
-    specific unknowns flagged for real-browser confirmation: the exact
-    character(s)/attributes MathLive emits for `|`/`\vert`/stretchy fences
-    (the detector matches a candidate set — `|`, `∣` U+2223, `‖` U+2016 —
-    rather than one hardcoded character), and whether `doc.querySelector('parsererror')`
-    reliably detects malformed-XML parse failures across browsers the way it
-    does in the `@xmldom/xmldom` test harness.
+  - **Update (September 2026): this was checked against real MathLive
+    output and found broken, then redesigned and fixed** -- see "MathML
+    semantic ambiguity audit needed a redesign" under "Open items" (now
+    struck through) for the full story. Short version: the original
+    hand-built test snippets guessed wrong about MathLive's real nesting
+    (a comma-separated group inside parens turned out to be one level
+    deeper than assumed) and the vertical-bar character set (MathLive
+    tags "|" as `<mi>`, not `<mo>`). Both are fixed now, with regression
+    tests built against the confirmed real shapes using `@xmldom/xmldom`.
+    Still open, not resolvable without a real browser: whether
+    `doc.querySelector('parsererror')` reliably detects malformed-XML
+    parse failures the same way it does in the `@xmldom/xmldom` test
+    harness.
   - **Explicitly deferred, larger follow-on** (not part of this build):
     auto-injecting correct `intent` values for the subset of cases where the
     *LaTeX command itself* already unambiguously implies the meaning — e.g.
@@ -386,6 +422,233 @@ existing math-field. That instantly makes every existing (and future) output for
 available for it — no separate code path to maintain. See "Current feature set"
 above.
 
+### MathML intent picker — ✅ built (September 2026)
+
+Turns the ambiguity audit's warning into a fix. For each flagged shape, the
+MathML panel now shows a "Say what it means" `<select>`, and the choice is
+written into the MathML output as a MathML 4 `intent` attribute (plus `arg`
+on each operand) -- what MathCAT (the math engine in NVDA/JAWS) reads
+instead of guessing. E.g. `(0,5)` as an open interval:
+
+    <mrow intent="open-interval($a1,$a2)"><mo>(</mo><mrow><mn arg="a1">0</mn><mo separator="true">,</mo><mn arg="a2">5</mn></mrow><mo>)</mo></mrow>
+
+- **Meanings offered** (names checked against the W3C Core Concept list,
+  https://w3c.github.io/mathml-docs/intent-core-concepts/, September 2026):
+  `(a, b)` -> `coordinate` / `open-interval` (only when exactly two
+  endpoints) / `greatest-common-divisor`; `|x|` -> `absolute-value` /
+  `cardinality` / `determinant`. Set-builder "such that" is not a Core
+  concept (and a single bar isn't flagged anyway), so the old
+  "absolute value vs. set-builder" framing was dropped from the note text;
+  the kind key `absolute-value-or-set-builder` was kept unchanged.
+- **Speech Rule Engine does not read `intent`** -- zero references in the
+  vendored `sre.js` or its mathmaps. So this only changes the MathML
+  output; Description, Braille, and Read Aloud are unaffected, and the
+  picker says so on the page. Worth re-checking when SRE 5.0.0 stable ships.
+- **Code:** `findAmbiguousOccurrences()` (per-occurrence, with live element
+  refs, a readable label like `(0, 5)`, and a key like `(0, 5)#1`),
+  `meaningsFor()`, `applyIntents()` and `INTENT_MEANINGS` in
+  `pure-logic.js`; `findAmbiguousShapes()` is now a thin per-kind wrapper
+  over it. `script.js` has `buildIntentMathml()` / `renderIntentPicker()` /
+  `refreshMathmlText()`. When no intent is chosen, the original MathLive
+  markup is used untouched (no re-serialization).
+- **Tree edits:** reuses the shape's own `<mrow>` when it has one (the
+  usual MathLive case); otherwise wraps just the shape in a new `<mrow>`
+  (e.g. `2+|x|`, which MathLive emits as one flat row). Multi-element
+  operands (`x+1`) get their own `<mrow arg=...>`. Nested shapes are
+  applied innermost first. Arg names are numbered across the whole
+  expression (a1, a2, a3...) so no name is ever reused. Shapes directly
+  inside a fixed-arity element (e.g. `msubsup`) still get the note but no
+  picker, since wrapping would break the element.
+- **Bar pairing fixed along the way:** `|x|+|y|` is one flat row with four
+  bars in real MathLive output, and the old "exactly two bars" rule meant
+  it was never flagged at all. Bars are now paired in order when the count
+  is even and every pair has content between it; adjacent bars
+  (`||x|-|y||`) are still left alone rather than mis-paired.
+- **Persistence:** choices are saved to localStorage (`mathvox-intents`)
+  and carried in the shareable-link hash (`intent=` JSON). A shared link
+  with no `intent` param means "none chosen". Choices for shapes no longer
+  in the equation are pruned on render, so deleting a shape resets its
+  choice.
+- **Picker changes re-render only the MathML text**, not the whole panel,
+  so keyboard focus stays on the `<select>`; a polite live region confirms
+  each change.
+- **Tests:** 13 new `node --test` cases (35 total, all passing).
+- **Real-browser check (headless Chromium, September 2026) -- clean.**
+  Confirmed the real MathLive shapes for `(0,5)`, `|x|`, `2+|x|`,
+  `\left|x\right|` (emits `<mo>|</mo>`, not `<mi>`), `|x|+|y|`, `f(x,y)`
+  (correctly not flagged), `(x+1,5)`, `(1,2,3)`, repeated `(0,5)+(0,5)`,
+  nested `|(a,b)|`, `\{x \mid x>0\}` (single bar, not flagged) and
+  `(a,b)^2`. Every output was well-formed XML; reload and a fresh browser
+  opening a shared link both restored the choices; clearing them removed
+  every `intent`; Description/Braille/SVG unaffected. Layout checked at
+  desktop and phone widths, light and dark. Side note: the
+  `Illegal return statement` console error from earlier QA passes did
+  **not** appear under this headless Chromium, which is more evidence it
+  came from the other browser tool's instrumentation.
+- **Still worth a human with a screen reader:** confirm NVDA + MathCAT
+  speaks the copied MathML as expected when pasted into a real page.
+  MathCAT's own command-line tool already reads it correctly -- see
+  "Ideas borrowed from MathCAT" below.
+
+### Ideas borrowed from MathCAT — ✅ built (September 2026)
+
+Source: https://github.com/daisy/MathCAT (MIT). Built MathCAT's
+`mathml2text` command-line tool in a sandbox and used it as a second
+opinion on MathVox's real output, alongside the vendored Speech Rule
+Engine (SRE). Three things came out of it:
+
+**1. MathLive MathML cleanup (`cleanUpMathLiveMathml` in `pure-logic.js`).**
+Runs before every output that reads MathML: MathML, Description, Braille,
+Portable SVG (and its `<title>`), and Read Aloud (see below). Each fix
+corrects MathML that MathLive gets wrong, confirmed in both engines:
+
+| Typed | MathLive's problem | Before (SRE braille / speech) | After |
+|---|---|---|---|
+| `\|x\|` | bars are `<mi>∣</mi>` ("divides") with invisible times | `⠳⠈⠡⠭⠈⠡⠳`, "StartAbsoluteValue times x times ..." (MathCAT: "divides x divides") | `⠳⠭⠳`, "StartAbsoluteValue x EndAbsoluteValue" |
+| `\|x\|+\|y\|`, `\|\|x\|-\|y\|\|` | same, several pairs in one flat row | as above | each pair grouped in its own `<mrow>`, nesting correct |
+| `\\\|v\\\|` | `<mi>∥</mi>` ("parallel to") | `⠳⠳⠈⠡⠧⠈⠡⠳⠳` (MathCAT: `⠫⠇...`) | `⠳⠳⠧⠳⠳` |
+| `\lvert x\rvert` | `<mo>∣</mo>` pair | MathCAT: "divides x divides" | "absolute value of x" |
+| `f'(x)` | `<msup>` with 3 children (U+2061 stuck inside) | `⠋⠘⠀⠐⠷⠭⠾`, "f Superscript of Baseline ..." -- prime lost | `⠋⠄⠷⠭⠾`, "f prime ..." |
+| `x'^2` | prime inside the superscript row | `⠭⠘⠄⠼⠆` | `⠭⠄⠘⠆` (same as MathCAT) |
+| `50\%` | `%` as `<mi>` with invisible times | `⠼⠢⠴⠈⠡⠈⠴`, "50 times percent" | `⠼⠢⠴⠈⠴` |
+| `\angle ABC` | same with `∠` | `⠫⠪⠈⠡...`, "angle times ..." | `⠫⠪⠀⠠⠁⠠⠃⠠⠉` |
+| `1,000,000` | split into `<mn>` groups | read as a list, "1 comma 000 comma 000" | one `<mn>` |
+
+- Bar pairing (`pairBars`) is adapted from MathCAT's
+  `determine_vertical_bar_op` idea: a bar closes the open bar of the same
+  kind if it follows an operand, otherwise it opens. A lone bar (`2\mid 4`,
+  set-builder `\{x \mid x>0\}`) is left alone. `<mo>∣</mo>` pairs are only
+  rewritten when they are the whole row, so two `\mid`s can't be mistaken
+  for fences.
+- Digit-group merging is skipped when the numbers are the whole content of
+  a bracketed group (`(1,000)` could be a point), and needs exactly-3-digit
+  groups (US commas only).
+- **Read Aloud now uses the Web Speech API** with the same SRE text the
+  Description shows (`getSpokenText()`), because MathLive's own `speak`
+  command sends its uncleaned MathML to SRE and would still say "times".
+  MathLive's `speak` is kept as the fallback when `speechSynthesis` is
+  missing. (This closes the old "replace Read Aloud with Web Speech" idea.)
+- Audit keys are unchanged by the cleanup (`|x|#1` still matches), so
+  saved choices keep working. Picker labels now show structure (`|a/b|`,
+  `(x^2, 1)`), which changes keys only for shapes containing fractions,
+  scripts or roots.
+
+**2. MathCAT's Nemeth test suite as fixtures.** `tests/fixtures/mathcat-nemeth.json`
+holds 758 MathML -> Nemeth pairs extracted from MathCAT's
+`tests/braille/Nemeth/*.rs` (license in `tests/fixtures/MathCAT-LICENSE.txt`;
+extraction spot-checked 80/80 against MathCAT itself). `npm run braille-report`
+runs the vendored SRE version over them: **511 exact, 9 blank-cell-only
+differences, 238 different** (September 2026). It's a report, not part of
+`npm test`: most differences are hand-written MathML shapes MathLive never
+produces, or places the two Nemeth implementations legitimately differ.
+The useful check turned out to be the reverse: 46 everyday expressions typed
+into the real app, MathVox's braille compared with MathCAT's on the same
+cleaned MathML. That's what found the prime, %, ∠ and number bugs above.
+After the fixes, 38/46 agree. The remaining 8:
+  - SRE Nemeth rule gaps (not fixable by cleaning MathML; would be fixed by
+    item 4 below): multipurpose indicator missing in `|x||y|` (`⠳⠭⠳⠐⠳⠽⠳`)
+    and `10+-5` (`⠼⠂⠴⠬⠐⠤⠢`); comma in a subscript `x_{i,j}` should be
+    `⠪`; extra blank cell after `\cdots` before `+`.
+  - Layout choices where both are defensible: display-style `\sum` limits,
+    matrices and `cases` (SRE writes rows as separate groups, MathCAT
+    linearizes with `⣍`).
+  - MathLive MathML export gaps -- since fixed, see "Workaround for
+    MathLive's MathML export gaps".
+
+**3. Interval handling from MathCAT's intent rules** (`Rules/Intent/general.yaml`):
+  - `[a, b]`, `[a, b)` and `(a, b]` (exactly two endpoints, no nested
+    brackets) are a new audit kind, `bracketed-interval`, and get
+    `closed-interval` / `closed-open-interval` / `open-closed-interval`
+    **by default**. The picker offers "Something else (no intent)" to opt
+    out, stored as `''` so the default stays off (`defaultMeaning`,
+    `resolveIntentChoices`).
+  - `(a, b)` still never gets an intent on its own, but the picker marks
+    "Open interval (suggested)" with a one-line reason when MathCAT's clues
+    apply: an endpoint contains ∞, or `=` / `∈` / a subset symbol is right
+    next to it (`suggestMeaning`).
+  - Checked through MathCAT: `[0,5]` -> "the interval from 0 to 5,
+    including 0 and 5"; `(0,5]` -> "... not including 0 but including 5".
+  - Also learned: MathCAT already reads a binomial written as a
+    zero-thickness fraction in parentheses as "n choose k" without
+    intent, so the planned automatic
+    binomial-coefficient intent is low priority. (MathLive's own `\binom`
+    output is a malformed `<mtable>`, see below.)
+
+**The earlier intent picker, verified through MathCAT itself:** the copied
+MathML (with `<semantics>` and the LaTeX annotation) reads as "the interval
+from 0 to 5, not including 0 or 5", "the absolute value of x", "cardinality
+of x", "the greatest common divisor of 0 comma, 5", etc. -- the same engine
+NVDA/JAWS use. A real NVDA listen is still worthwhile but no longer the
+only evidence.
+
+Tests: 54 total in `npm test` (19 new), including SRE-backed regression
+tests for every braille fix above.
+
+### Workaround for MathLive's MathML export gaps — ✅ built (September 2026)
+
+MathLive 0.105.3 renders these correctly in the math field but its MathML
+export silently drops or garbles them, which broke every MathML-based
+output (MathML, Description, Braille, SVG + title, Read Aloud):
+
+| LaTeX | MathLive exported | Now |
+|---|---|---|
+| `\overline{AB}`, `\underline{..}` | nothing (`\overline{x}+1` -> just `+1`; `0.\overline{3}` lost the 3) | accent bar; MathCAT: "the line segment from A to B", `0.\overline{3}` -> ⠼⠴⠨⠒⠱ "with repeating digits 3" |
+| `\overrightarrow`, `\overleftarrow`, `\overleftrightarrow`, `\under...arrow`, harpoons | the arrow, base missing | stretchy arrow over the base; MathCAT: "the ray from A to B" |
+| `\overbrace{..}^{x}`, `\underbrace{..}_{x}`, `\overbracket`, `\underbracket` | the brace, base missing | brace with the label stacked above/below |
+| `\widehat`, `\widetilde`, `\utilde`, `\overarc`, `\wideparen`, `\overparen`, `\underparen`, `\overgroup`, `\undergroup` | `<mo>undefined</mo>` or base missing | the right accent character |
+| `\mathring{A}` | `<mo>730</mo>` | `˚` accent |
+| `\not=`, `\not\equiv`, `\not\in`, `\not<`, ..., `\napprox`, `\nequiv` | nothing | the negated relation (`≠`, `≢`, `∉`, ...) |
+| `\pmod{n}`, `\bmod`, `\mod` | nothing | `(mod n)` / `mod` |
+| `\limsup`, `\liminf` | nothing (subscript left dangling) | `lim sup` / `lim inf` operator |
+| `\xrightarrow[g]{f}` and the other `\x...` arrows | garbled `<munderover>` | arrow with labels |
+| `\iff` | nothing | `⟺` |
+| `\binom{n}{k}` | `<mtable>` rows with no `<mtd>` (invalid) | zero-thickness fraction (MathCAT: "n choose k") |
+| `\stackrel{a}{b}` | two-child `<munderover>` | `\overset` |
+| `\mathcal{L}` | plain `L` (script style lost) | script L via `\mathscr` ("script upper L") |
+| `\vec{v}` | combining arrow SRE can't braille | spacing arrow (⠐⠧⠣⠫⠕⠻, MathCAT "vector v") |
+
+How it works (`rewriteLatexForExport`, `replaceExportPlaceholders`,
+`findConversionProblems` in `pure-logic.js`; `getRawMathml` /
+`getCleanedTree` / `updateConversionWarning` in `script.js`):
+
+- The math field is never changed. When the LaTeX contains one of these
+  commands, MathVox rewrites a copy -- e.g. `\overline{AB}` ->
+  `\overset{\text{mathvoxph0}}{AB}` -- and converts it with
+  `MathLive.convertLatexToMathMl()`, which gives output identical to
+  `mf.getValue('math-ml')` for ordinary input (checked on 10 expressions).
+  The cleanup step then swaps each placeholder `<mtext>`/`<mi>` for the
+  right `<mo>` (same characters/attributes MathJax uses). Brace matching
+  handles nesting, escaped braces and unbraced arguments; an unbalanced
+  argument is left alone.
+  - Gotcha found on the way: MathLive's exporter also drops anything inside
+    `\mathrel{...}`, `\mathbin{...}` and `\mathop{...}`, so relation
+    placeholders are a bare `\text{}`.
+- `fixScriptArity` now handles every script element: MathLive also leaves a
+  stray function-application operator inside `\overset{f}{\to}` etc.
+- **New on-page warning** (`#conversion-warning`, above the output, for
+  the MathML-based formats only): shown when the final MathML is visibly
+  missing something -- empty output, `undefined`, a leftover placeholder,
+  or a script/fraction/root element missing a child. Examples that still
+  trigger it: `\Overrightarrow`, `\sideset`, `\varinjlim`, `\injlim`,
+  `\not\perp`, and unbalanced input like `\overline{AB`.
+- **Preview bug fixed along the way:** `#svg-preview svg` also matched the
+  nested `<svg>` MathJax uses to draw stretchy characters, so the bar in
+  `\overline{AB}` (and other stretched glyphs) was invisible in the preview.
+  Now `#svg-preview > svg`. The exported SVG itself was fine (checked in a
+  bare page).
+- Checked in headless Chromium across all formats for 31 expressions, with
+  the MathML run through MathCAT and Speech Rule Engine: all convert, all
+  SVGs render (screenshots checked), no console errors. The 46-expression
+  braille cross-check is now 39/46 in agreement with MathCAT (`0.\overline{3}`
+  and `\overline{AB}` were previously "agreeing" only because both engines
+  got the same incomplete MathML).
+- Still not handled, and not caught by the warning (content is dropped
+  cleanly): `\overleftrightharpoon`. `\boldsymbol{\alpha}` loses its bold.
+  Speech Rule Engine has no braille for the arc (`⌢`), `⏜`/`⏠` group
+  characters, and brailles `mod` as `⠍⠐⠕⠐⠙` (MathCAT: `⠍⠕⠙`) -- SRE gaps,
+  would go away with the pinned MathCAT-in-the-browser item.
+- 10 new tests (64 total).
+
 ## Explicitly deferred
 
 - **Natural-language graph description / sonification** — pinned by Derek for later.
@@ -409,8 +672,7 @@ have since been built (see below); the rest are still deferred:
   pattern, same thing MathJax's own MathML output does.
 - ~~**Portable HTML5/SVG output via MathJax**~~ — ✅ built, see "MathJax
   integration for portable SVG output" above.
-- **Respect `forced-colors` / `prefers-contrast: more`** — no support yet for
-  Windows High Contrast mode or the `prefers-contrast` media feature.
+- ~~**Respect `forced-colors` / `prefers-contrast: more`**~~ — ✅ built, see "Current feature set" above.
 - **Verify `:focus-visible` actually renders on the math-field's internal
   icons** (virtual-keyboard-toggle, menu-toggle) — they live in MathLive's
   shadow DOM and may not inherit the page's focus-ring styling. The current
@@ -433,26 +695,29 @@ already listed elsewhere in this file (noted inline); the rest are net-new
 ideas not yet designed or built:
 
 - Downloadable BRF file for Braille output — *already listed just above.*
-- Windows High Contrast (`forced-colors`) / `prefers-contrast: more` support
-  — *already listed just above.*
 - Verify (and fix if needed) accessible names and `:focus-visible` on the
   math-field's internal shadow-DOM icons — *already listed just above (two
   separate bullets).*
 - Replace "Read Equation Aloud" with a direct Web Speech API call using our
   verified SRE text, if MathLive's own `speak` command still has the same
   issue in audio — *already logged under "Round 2: missing spaces" above.*
-- **"Download as .svg file" button** alongside Copy, for the Portable SVG
-  format — net-new.
+- ~~**"Download as .svg file" button**~~ — ✅ built, see "Current feature set" above.
 - **SSML output format** — SRE can produce it; useful for higher-quality
   external TTS or tools that accept SSML directly — net-new.
-- **Copy button for the suggested alt-text line** (currently just displayed
-  as text, no dedicated copy action) — net-new.
+- ~~**Copy button for the suggested alt-text line**~~ — ✅ built, see "Current feature set" above.
 - **Choice of Braille code** — Nemeth vs. UEB Math — instead of
   Nemeth-only — net-new.
 - **Additional spoken-description languages** — SRE/mathspeak supports
   French, Spanish, German, and Italian beyond English — net-new.
 - **Equation history / recent-equations list**, beyond just remembering the
   last one (current persistence is single-slot) — net-new.
+- **On-page hint that Word does not read the SVG's alt text automatically** — confirmed September 2026 (see "Open items" above): inserting the
+  downloaded .svg via Word's Insert > Pictures leaves its Alt Text pane
+  blank, so the "Copy suggested alt text" button's output has to be pasted
+  in manually. A short line of guidance near the Download/Copy-alt-text
+  buttons (e.g. "Word does not read this automatically -- paste it into
+  the image's Alt Text field after inserting") would keep instructors from
+  assuming the step is unnecessary — net-new.
 - ~~**Shareable link**~~ — ✅ built (September 2026). The URL hash stays in
   sync with the current equation/format as you type or change format
   (`updateUrlHash()`, via `history.replaceState` so it doesn't spam browser
@@ -556,29 +821,160 @@ session" (further down) reflects what's left after this pass.
     tuning problem, a "the note never appears for anything" problem. See
     the redesign note under "Open items for next session".
 
+## September 25, 2026 QA pass (headless Chrome + axe-core)
+
+Driven by puppeteer-core against the installed Chrome, over a local static
+server. Found and fixed:
+
+- **Stale async renders overwrote newer ones.** Switching Portable SVG ->
+  LaTeX quickly left the SVG markup and preview under the "LaTeX" heading
+  (and Copy copied it). `updateOutput()` now takes a `renderId` and each
+  async branch drops its result if a newer render started. SRE calls also
+  go through a one-at-a-time queue (`runSre`), since `setupEngine` is async
+  and overlapping speech/Braille setups could swap modalities mid-call.
+- **App didn't start at all when localStorage throws** (blocked site
+  data): the theme/dyslexia code read and wrote it unguarded at module top
+  level. All access now goes through `storageGet`/`storageSet`.
+- **Phones: page was 700px wide at a 360px viewport** (logo had no
+  max-width, header didn't stack, nested 80% columns). Added a
+  `max-width: 640px` block at the end of style.css; no horizontal scroll
+  from 320px up.
+- **Equation field had no accessible name.** `<label for>` doesn't reach a
+  custom element, and MathLive sets its inner `role="textbox"` element's
+  `aria-label` to the spoken equation after some edits and blank
+  otherwise. `labelMathfieldInput()` fills in "Enter a math expression"
+  whenever it's blank (MutationObserver), keeping MathLive's text when set.
+- **Whole output panel was `aria-live`**, so a screen reader would read
+  out full SVG path data / MathML on each change. Replaced with a short
+  `#output-status` live region: "<format> output updated." on format
+  change and Convert (not while typing), plus copy confirmations.
+- **Copy buttons gave no feedback.** Now announced, plus a brief checkmark
+  ("Copied" on the alt-text button). Copy with no equation says so instead
+  of copying the placeholder message.
+- Smaller: `<h1>` moved inside `<header>` (axe "region"), favicon added.
+
+- **Follow-up (same day, Derek's request): collapsible SVG code.** Long
+  equations produced ~19,000 characters of SVG markup, which pushed the
+  Copy/Link buttons thousands of pixels down. `#text-cont` now sits in a
+  `<details id="code-details">`; in Portable SVG format only (class
+  `collapsible`, set by `setCodeCollapsible()`), it's collapsed by default
+  behind "Show SVG code (N characters)". It collapses only after a
+  successful render, so "Generating SVG…"/errors/the empty message are
+  never hidden. The open/closed choice is remembered for the session
+  (`svgCodeOpen`, recorded from summary clicks, not the `toggle` event, which
+  also fires for programmatic changes). Other formats look unchanged
+  (summary hidden, always open). Copy still copies the full markup. Also
+  added `#download-svg-corner`, a Download icon in the corner row next to
+  Link/Copy (SVG only), same action as the existing Download button.
+
+Still flagged by axe but inside MathLive's shadow DOM, not fixable here:
+`nested-interactive` on `<math-field>`. The earlier "Illegal return
+statement" console error did not appear in this pass, which supports the
+"automation-tool artifact" reading in the open items below. Not yet
+verified with a real screen reader (NVDA) -- the live-region and label
+changes should be checked by ear.
+
 ## Open items for next session
 
-- **MathML semantic ambiguity audit needs a redesign, confirmed broken
-  above.** To actually detect these shapes against MathLive's real output:
-  point-or-interval needs to look at a `<mo>(</mo>` / `<mo>)</mo>` pair
-  and inspect the *nested* `<mrow>` between them (not sibling-scan for the
-  comma at the same level), and the vertical-bar check needs to also match
-  `<mi>` elements (not just `<mo>`) for the bar characters. Re-test against
-  `(0,5)`, `f(x,y)` (must *not* fire), `|x|`, and a set-builder expression
-  once reworked, plus confirm `doc.querySelector('parsererror')` behavior
-  (not directly exercised by any of the above three, since all three parsed
-  successfully).
-- **Portable SVG: broaden the real-browser pass beyond the one simple
-  equation checked above** -- fractions, roots, matrices, Greek letters, big
-  operators (`\sum`, `\int`), multi-line expressions, and the actual
-  copy-paste round-trip into a Word doc / plain HTML page. Also still open:
-  whether `startup.js` alone is sufficient or `loader.js` needs vendoring
-  too (not distinguishable from today's pass since it happened to work),
-  and whether the SVG `<title>` is actually picked up as the accessible
-  name by Word/Canvas's own alt-text UI once pasted externally.
-- **A recurring console error during today's QA pass looked environment-specific,
-  not a MathVox bug -- worth a quick sanity check in a normal Chrome/Edge
-  DevTools console to confirm.** Every page load logged an uncaught
+- ~~**MathLive's MathML export drops or garbles several commands**~~ --
+  fixed (September 2026), see "Workaround for MathLive's MathML export
+  gaps" above. Worth reporting upstream to MathLive at some point, with
+  that table as the repro list.
+- **Pinned for later review (Derek, September 2026): run MathCAT itself in
+  the browser as WebAssembly in place of SRE.** Would honor `intent`, add
+  UEB and other braille codes, 15 speech languages, ClearSpeak/SimpleSpeak
+  and SSML, and fix the SRE Nemeth gaps listed above. No npm package exists;
+  needs a small wasm-bindgen wrapper around the `mathcat` crate (MIT;
+  DAISY's MathCATDemo has no license file, so don't copy it). The demo's
+  wasm is 4.3MB with all languages; English + Nemeth + UEB + intent rules
+  are ~0.8MB of the 9.9MB Rules folder. Couldn't be built in the sandbox
+  (the Rust wasm target download was blocked) -- try on Derek's machine.
+  **Weigh against the earlier decision** ("Why Speech Rule Engine and not
+  MathCAT for Braille", above): MathCAT's maintainer recommended against
+  using it in-browser. Re-check that advice when this is reviewed; the
+  September 2026 cross-check also showed SRE's Nemeth is not quite the
+  "same quality tier" that section assumed (see the rule gaps above).
+- `\{x \mid x>0\}`: MathCAT reads MathLive's `<mo>∣</mo>` as "x divides x
+  is greater than 0" (SRE says "vertical bar"). A "such that" intent inside
+  set braces would fix it for MathCAT; not built.
+
+- **MathML intent picker (September 2026) -- follow-ups.** (1) Screen-reader
+  check with NVDA + MathCAT, see "MathML intent picker" above. (2) Step 2
+  of the plan: add intents automatically where the LaTeX command already
+  settles the meaning (e.g. `\binom{n}{k}` -> `binomial-coefficient`), a
+  small lookup applied in the same `applyIntents` pass. (3) Then the
+  assistive-MathML snippet export (hidden MathML next to the SVG for HTML
+  destinations), which should use `buildIntentMathml()`'s output so the
+  intents travel with it. (4) Separate, pre-existing issue spotted while
+  testing: SRE reads `|(a,b)|` as "StartAbsoluteValue times left
+  parenthesis..." because MathLive puts invisible-times operators next to
+  the bars; not caused by or fixed by intent. Closed intervals `[a, b]` and
+  half-open ones aren't detected by the audit yet either.
+
+- ~~**MathML semantic ambiguity audit needed a redesign, confirmed
+  broken above.**~~ -- fixed (September 2026). Both structural bugs were
+  fixed exactly as diagnosed: point-or-interval detection now unwraps one
+  level of grouping between a matched `<mo>(</mo>` / `<mo>)</mo>` pair
+  (`unwrapGroup()`) before checking for a top-level comma, instead of
+  checking the immediate `between` list itself; the vertical-bar check now
+  also matches `<mi>` elements, not just `<mo>`. The tree-walking logic
+  (`findAmbiguousShapes`) was also moved out of `resources/script.js` into
+  `resources/pure-logic.js`, taking an already-parsed root Element instead
+  of a raw string, so it can be unit-tested directly in Node against
+  `@xmldom/xmldom`-built trees shaped exactly like MathLive's confirmed
+  real output -- the same technique the original one-off harness used, now
+  a permanent part of `npm test`. Nine new regression tests cover: `(0,5)`
+  firing, `f(x,y)` NOT firing (tested against both plausible real nesting
+  variants -- a flat single row and a separately-wrapped `<mrow>`, since it
+  wasn't certain which one MathLive actually produces, and the existing
+  function-application-suppression logic already handled both correctly
+  without needing changes), a single-argument paren group with no comma
+  not firing, `|x|` firing, a single bar (divides notation) not firing,
+  both shapes firing together in one flattened un-nested row, a null root,
+  and `describeAmbiguities`'s unknown-kind handling. `script.js` itself
+  now just does the DOMParser step and defers to `findAmbiguousShapes`.
+  Only remaining open question, not resolvable without a real browser:
+  confirming `doc.querySelector('parsererror')` behavior on genuinely
+  malformed input (still not directly exercised, since every test fixture
+  parses successfully by construction).
+- **Portable SVG broadened real-browser pass (September 2026, part 2) --
+  all clean.** Beyond the fraction case above, tested and confirmed
+  correct (proper `<title>`, `role="img"`, embedded `<defs>` with glyph
+  paths, no console errors beyond the environment-specific one noted
+  below): a nested root (`\sqrt[3]{x+1}` -> "RootIndex 3 StartRoot x plus
+  1 EndRoot"), a 2x2 matrix (`\begin{pmatrix}1&2\\3&4\end{pmatrix}`),
+  Greek letters (`\alpha+\beta=\gamma`), a big operator with sub/superscript
+  (`\sum_{i=1}^{n}i^2`), an integral (`\int_0^1 x^2\,dx`), and a multi-line
+  piecewise/`cases` expression (2x2 layout with an enlarged brace, both rows
+  read correctly). **Copy-paste round-trip proxy also confirmed:** saved one
+  rendered SVG's raw markup into a bare HTML page with zero app CSS/JS and
+  it rendered pixel-identical to the in-app preview, confirming the SVG is
+  genuinely self-contained (fonts are embedded outline paths via `<defs>`,
+  not external font references) -- this is as close as a browser-only pass
+  can get to proving the Word-paste case works, short of actually opening
+  Word. **Confirmed in real Word (Derek, September 2026): the embedded
+  `<title>`/`role="img"` is NOT picked up as alt text.** Downloading the
+  .svg and inserting it via Word's Insert > Pictures does not carry the
+  title through -- Word's Alt Text pane shows it blank/unset after
+  insert, not the spoken-text description baked into the SVG source. So
+  the self-describing `<title>` is real and does work for browsers/AT
+  reading the raw markup directly (e.g. pasted inline into an HTML page,
+  per the copy-paste proxy test above), but it is not sufficient on its
+  own for the Word-import path specifically. This means the "Copy
+  suggested alt text" button isn't just a convenience for that workflow
+  -- it's the actually required step: paste the equation image in, then
+  manually paste the copied alt text into Word's own Alt Text pane. Worth
+  adding an on-page hint near those two buttons saying exactly that, so
+  instructors don't assume Word picked it up automatically and skip the
+  step -- see "Feature ideas" below.
+  Also still open (not distinguishable either way from any pass so far,
+  since everything has worked without it): whether `startup.js` alone is
+  sufficient or `loader.js` needs vendoring too.
+- **A recurring console error during real-browser QA passes looks
+  environment-specific, not a MathVox bug -- still worth a quick sanity
+  check in a normal Chrome/Edge DevTools console to confirm, though it
+  showed up consistently across both the September QA pass and this
+  follow-up broadening pass.** Every page load logged an uncaught
   `SyntaxError: Illegal return statement` plus a `console.error` from
   MathLive's own `getFileUrl()` fallback ("Can't use relative paths to
   specify assets location..."). The stack trace showed the whole page
@@ -594,8 +990,16 @@ session" (further down) reflects what's left after this pass.
 - `speech-rule-engine` is pinned to a pre-release (`5.0.0-rc.3`) because that's npm's
   current `latest` tag — watch for a stable `5.0.0` and consider re-vendoring when it
   ships.
-- No automated tests or CI exist yet. Today's pass was manual (one person driving
-  a browser through a handful of hand-picked equations) -- worth turning at least
-  the confirmed regressions above (the walk() bug, the MathJSON string bug) into
-  actual regression tests per the "Automated regression tests for the pure-logic
-  helpers" idea above, so they can't silently reappear.
+- **Automated regression tests now exist** (`tests/pure-logic.test.mjs`, run via
+  `npm test` / `node --test`): 13 tests covering the walk() ESM-syntax bug and
+  the MathJSON-string bug found in the September QA pass, plus the other
+  DOM-free helpers extracted into `resources/pure-logic.js`. Worth adding
+  more coverage over time (e.g. once the MathML ambiguity audit is reworked,
+  it should get regression tests of its own), but the two confirmed bugs
+  from this session can no longer silently reappear.
+- **Today's accumulated work (shareable link, walk()/MathJSON fixes,
+  pure-logic.js extraction + tests, this broadened SVG pass) is still
+  uncommitted** -- git ran into a stale `.git/index.lock` and a missing
+  git author identity mid-session; the user chose to handle the commit
+  themselves rather than have config changed on their behalf, so don't
+  attempt to commit again unless asked.

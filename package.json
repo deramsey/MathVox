@@ -7,6 +7,10 @@
     "speech-rule-engine": "^5.0.0-rc.3"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "braille-report": "node tests/braille-report.mjs"
+  },
+  "devDependencies": {
+    "@xmldom/xmldom": "^0.9.10"
   }
 }

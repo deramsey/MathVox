@@ -6,7 +6,17 @@ import {
     escapeXmlText,
     LATEX_ERROR_MESSAGES,
     describeLatexError,
-    findBraceImbalance
+    findBraceImbalance,
+    describeAmbiguities,
+    findAmbiguousOccurrences,
+    meaningsFor,
+    applyIntents,
+    cleanUpMathLiveMathml,
+    rewriteLatexForExport,
+    findConversionProblems,
+    resolveIntentChoices,
+    defaultMeaning,
+    suggestMeaning
 } from './pure-logic.js';
 
 // MathLive needs a Compute Engine instance available before it can export
@@ -30,6 +40,24 @@ window.MathfieldElement.textToSpeechRulesOptions = {
 };
 
 const mf = document.querySelector('#formula');
+
+// MathLive doesn't pass the host's aria-label (or the sr-only <label>) on
+// to the role="textbox" element inside its shadow root that actually takes
+// focus, so screen readers announced an unnamed edit field. MathLive itself
+// sets that element's aria-label to the spoken equation after some edits
+// (its announce hook, "line" action) and leaves it blank otherwise -- so
+// keep its text when there is some, and fill in a real label when blank.
+function labelMathfieldInput() {
+    const sink = mf.shadowRoot && mf.shadowRoot.querySelector('[role="textbox"]');
+    if (!sink) return;
+    const fallback = mf.getAttribute('aria-label') || 'Enter a math expression';
+    const ensureLabel = () => {
+        if (!(sink.getAttribute('aria-label') || '').trim()) sink.setAttribute('aria-label', fallback);
+    };
+    ensureLabel();
+    new MutationObserver(ensureLabel).observe(sink, { attributes: true, attributeFilter: ['aria-label'] });
+}
+labelMathfieldInput();
 const formatSelect = document.querySelector('#format-select');
 const formatNameEl = document.querySelector('#format-name');
 const textCont = document.querySelector('#text-cont');
@@ -42,8 +70,45 @@ const latexInput = document.querySelector('#latex-input');
 const convertBtn = document.querySelector('#convert');
 const latexErrorEl = document.querySelector('#latex-error');
 const svgPreviewEl = document.querySelector('#svg-preview');
+const downloadSvgBtn = document.querySelector('#download-svg');
+const svgAltWrapEl = document.querySelector('#svg-alt-wrap');
 const suggestedAltEl = document.querySelector('#svg-alt-suggestion');
+const copyAltTextBtn = document.querySelector('#copy-alt-text');
 const mathmlNotesEl = document.querySelector('#mathml-notes');
+const conversionWarningEl = document.querySelector('#conversion-warning');
+const outputStatusEl = document.querySelector('#output-status');
+const codeDetailsEl = document.querySelector('#code-details');
+const codeSummaryEl = document.querySelector('#code-summary');
+const downloadSvgCornerBtn = document.querySelector('#download-svg-corner');
+
+// localStorage can be unavailable (private browsing, blocked site data,
+// quota) and then throws on *any* access -- including at startup, where an
+// uncaught error would stop this whole module before a single listener is
+// attached. Losing persistence isn't fatal, so every access goes through
+// these.
+function storageGet(key) {
+    try {
+        return localStorage.getItem(key);
+    } catch (err) {
+        return null;
+    }
+}
+
+function storageSet(key, value) {
+    try {
+        localStorage.setItem(key, value);
+    } catch (err) {
+        // Skip persistence; see storageGet.
+    }
+}
+
+// Short screen-reader announcement via the #output-status live region
+// (the output panel itself isn't live -- see index.html). Cleared first so
+// repeating the same message (e.g. copying twice) is still announced.
+function announce(message) {
+    outputStatusEl.textContent = '';
+    setTimeout(() => { outputStatusEl.textContent = message; }, 50);
+}
 
 const MATHML_NAMESPACE = 'http://www.w3.org/1998/Math/MathML';
 const LATEX_STORAGE_KEY = 'mathvox-latex';
@@ -53,107 +118,281 @@ const FORMAT_STORAGE_KEY = 'mathvox-format';
 // someone might paste somewhere.
 const EQ_HASH_PARAM = 'eq';
 const FORMAT_HASH_PARAM = 'format';
+// Author-chosen MathML intents (see "MathML intent" in pure-logic.js):
+// an object mapping an ambiguous shape's key (e.g. "(0, 5)#1") to the
+// intent concept picked for it (e.g. "open-interval"). Saved alongside the
+// equation, and carried in shareable links, so a choice isn't lost on
+// reload or when sending the link to someone.
+const INTENT_HASH_PARAM = 'intent';
+const INTENT_STORAGE_KEY = 'mathvox-intents';
+let intentChoices = {};
 
-// MathML "semantic ambiguity" audit (see MATHML_SEMANTIC_LINT_PLAN.md for
-// full background/rationale). MathLive's math-ml export is pure Presentation
-// MathML with no "intent" attribute (MathML 4's mechanism for authors to
-// disambiguate notation) and no Content MathML -- confirmed by grepping the
-// vendored mathlive.js bundle (zero occurrences of "intent"). Since MathVox
-// can't know the author's true intended meaning, this doesn't try to inject
-// intent values -- it only flags known-ambiguous shapes so the user knows
-// assistive technology may be guessing.
-
-// U+2061 FUNCTION APPLICATION: the invisible operator MathML places between
-// a function name and its parenthesized argument list, e.g. "f(x, y)". Its
-// presence is what distinguishes an ordinary, unambiguous function call from
-// a bare parenthesized comma-group like "(x, y)" (point? interval? GCD?) --
-// the single biggest false-positive risk for the check below if not guarded
-// against, since multi-argument function calls are extremely common.
-const FUNCTION_APPLICATION = '⁡';
-
-// Candidate characters MathLive could plausibly emit for "|" / "\vert" /
-// stretchy fence bars -- the exact codepoint hasn't been confirmed against
-// real MathLive output (no browser available in this sandbox to check), so
-// this matches a small set rather than one hardcoded character. Flagged in
-// MATHML_SEMANTIC_LINT_PLAN.md as needing real-browser confirmation.
-const VERTICAL_BAR_CHARS = new Set(['|', '∣', '‖']);
-
-const AMBIGUITY_NOTES = {
-    'point-or-interval': 'This expression contains "(a, b)" — a shape that could mean a point, an open interval, a greatest common divisor, or something else depending on context. MathML has a newer "intent" attribute (MathML 4) for authors to specify which meaning is intended, but the libraries MathVox uses don’t yet support adding it, so screen readers will fall back to their own best guess.',
-    'absolute-value-or-set-builder': 'This expression contains a pair of vertical bars ("|...|") — commonly absolute value, but also used for set-builder notation ("such that") or "divides" depending on context. Same caveat as above: no "intent" annotation is added, so assistive technology will guess based on its own heuristics.'
-};
-
-function elementChildren(node) {
-    return Array.from(node.childNodes).filter((n) => n.nodeType === 1);
+function parseIntentChoices(raw) {
+    if (!raw) return {};
+    try {
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+        const clean = {};
+        for (const [k, v] of Object.entries(parsed)) {
+            if (typeof v === 'string') clean[k] = v;
+        }
+        return clean;
+    } catch (err) {
+        return {};
+    }
 }
 
-function textOf(node) {
-    return node.textContent || '';
-}
-
-// Recursively walks a parsed MathML fragment looking for the two ambiguous
-// shapes described above. Returns a Set of ambiguity "kinds" found --
-// deduplicated, so a shape appearing multiple times in one equation still
-// produces just one note. Parses defensively: any failure (malformed
-// fragment, missing DOMParser support, etc.) yields "found nothing" rather
-// than surfacing an error, since this is a supplementary note, not the
-// primary MathML output.
-function findAmbiguousNotation(mathmlFragment) {
-    const found = new Set();
-    let doc;
+// MathML "semantic ambiguity" audit + author-chosen intent (see
+// MATHML_SEMANTIC_LINT_PLAN.md for background, and PROJECT_NOTES.md for the
+// September 2026 redesign and the intent feature built on top of it). The
+// tree logic lives in pure-logic.js (findAmbiguousOccurrences/applyIntents)
+// so it can be unit-tested in Node against @xmldom/xmldom-built trees; this
+// file just handles the browser-only DOMParser/XMLSerializer steps.
+function parseMathmlFragment(mathmlFragment) {
     try {
         // Wrapped in a synthetic root: mf.getValue('math-ml') isn't
         // guaranteed to have exactly one top-level element, and XML parsing
         // requires a single root.
-        doc = new DOMParser().parseFromString(`<root>${mathmlFragment}</root>`, 'application/xml');
-        if (doc.querySelector('parsererror')) return found;
+        const doc = new DOMParser().parseFromString(`<root>${mathmlFragment}</root>`, 'application/xml');
+        if (doc.querySelector('parsererror')) return null;
+        return doc;
     } catch (err) {
-        return found;
+        return null;
     }
-
-    function walk(node, precedingSibling) {
-        const children = elementChildren(node);
-
-        // Scan for "(" ... "," ... ")" as a subsequence anywhere within this
-        // row's children -- not just when the whole row is exactly that
-        // shape. A flattened row can contain a parenthesized group alongside
-        // other content (e.g. "(a,b) + |x|" as one un-nested row), so
-        // requiring the group to span the entire row would miss it.
-        for (let i = 0; i < children.length; i++) {
-            if (children[i].tagName !== 'mo' || textOf(children[i]) !== '(') continue;
-            for (let j = i + 1; j < children.length; j++) {
-                if (children[j].tagName !== 'mo' || textOf(children[j]) !== ')') continue;
-                const between = children.slice(i + 1, j);
-                const hasComma = between.some((c) => c.tagName === 'mo' && textOf(c) === ',');
-                // What immediately precedes this "(" -- either an earlier
-                // sibling in this same row, or (if "(" is the row's first
-                // child) whatever preceded the row itself.
-                const opener = i > 0 ? children[i - 1] : precedingSibling;
-                const isFunctionCall =
-                    opener && opener.tagName === 'mo' && textOf(opener) === FUNCTION_APPLICATION;
-                if (hasComma && !isFunctionCall) {
-                    found.add('point-or-interval');
-                }
-                break; // paired this "(" with its nearest ")"; move on to any further "(" in this row
-            }
-        }
-
-        const barIndices = children
-            .map((c, i) => (c.tagName === 'mo' && VERTICAL_BAR_CHARS.has(textOf(c)) ? i : -1))
-            .filter((i) => i !== -1);
-        if (barIndices.length === 2 && barIndices[1] > barIndices[0] + 1) {
-            found.add('absolute-value-or-set-builder');
-        }
-
-        children.forEach((child, i) => walk(child, i > 0 ? children[i - 1] : null));
-    }
-
-    walk(doc.documentElement, null);
-    return found;
 }
 
-function describeAmbiguities(kinds) {
-    return Array.from(kinds).map((kind) => AMBIGUITY_NOTES[kind]).filter(Boolean);
+// Forget choices for shapes that are no longer in the equation, so the
+// saved state and shareable link don't accumulate stale entries.
+function pruneIntentChoices(occurrences) {
+    const live = new Set(occurrences.map((o) => o.key));
+    let changed = false;
+    for (const key of Object.keys(intentChoices)) {
+        if (!live.has(key)) {
+            delete intentChoices[key];
+            changed = true;
+        }
+    }
+    return changed;
+}
+
+function serializeChildren(root) {
+    const serializer = new XMLSerializer();
+    return Array.from(root.childNodes).map((n) => serializer.serializeToString(n)).join('');
+}
+
+// MathLive's MathML for the current equation. MathLive's exporter drops
+// or garbles a handful of commands (\overline, \overrightarrow,
+// \widehat, "\not=", ... -- see rewriteLatexForExport in pure-logic.js),
+// so when the LaTeX contains one, convert a rewritten copy instead
+// (MathLive.convertLatexToMathMl gives the same output as
+// mf.getValue('math-ml') for everything else -- checked September 2026).
+// The placeholders are swapped for the right symbols during cleanup.
+function getRawMathml() {
+    const latex = mf.getValue('latex') || '';
+    const { latex: rewritten, placeholders, changed } = rewriteLatexForExport(latex);
+    if (changed && window.MathLive && typeof window.MathLive.convertLatexToMathMl === 'function') {
+        try {
+            return { mathml: window.MathLive.convertLatexToMathMl(rewritten), placeholders };
+        } catch (err) {
+            console.error('Converting the rewritten LaTeX failed; using MathLive’s own MathML', err);
+        }
+    }
+    return { mathml: mf.getValue('math-ml'), placeholders: [] };
+}
+
+// Parses and cleans up the current MathML once (see cleanUpMathLiveMathml
+// in pure-logic.js). `raw` is the unparsed string, used as-is whenever
+// nothing needed changing.
+function getCleanedTree() {
+    const { mathml, placeholders } = getRawMathml();
+    const doc = parseMathmlFragment(mathml);
+    if (!doc) return { raw: mathml, doc: null, changed: 0 };
+    return { raw: mathml, doc, changed: cleanUpMathLiveMathml(doc.documentElement, placeholders) };
+}
+
+// MathLive's MathML with its known mistakes cleaned up (see
+// cleanUpMathLiveMathml in pure-logic.js). E.g. a typed "|x|" otherwise
+// comes out as "divides" characters with invisible multiplication, which
+// Speech Rule Engine reads as "times" and brailles as Nemeth
+// multiplication dots, and "f'(x)" loses its prime in braille entirely.
+// Every output that feeds SRE or MathJax uses this, not the raw value.
+function getCleanMathml() {
+    try {
+        const { raw, doc, changed } = getCleanedTree();
+        if (!doc) return raw;
+        return changed ? serializeChildren(doc.documentElement) : raw;
+    } catch (err) {
+        console.error('MathML cleanup failed; using MathLive’s MathML as-is', err);
+        return mf.getValue('math-ml');
+    }
+}
+
+// Formats built from MathML -- the ones a lost piece of the equation would
+// silently break.
+const MATHML_BASED_FORMATS = new Set(['math-ml', 'spoken-text', 'braille', 'svg']);
+
+// Shows a warning above the output when the final MathML is visibly
+// missing something (see findConversionProblems), so an incomplete
+// description or braille string isn't passed on as if it were complete.
+function updateConversionWarning(format, label) {
+    conversionWarningEl.textContent = '';
+    if (!MATHML_BASED_FORMATS.has(format)) return;
+    const latex = (mf.getValue('latex') || '').trim();
+    if (!latex) return;
+    let problems = [];
+    try {
+        const { doc } = getCleanedTree();
+        problems = findConversionProblems(latex, doc ? doc.documentElement : null);
+    } catch (err) {
+        problems = ['the equation could not be checked'];
+    }
+    if (problems.length) {
+        conversionWarningEl.textContent = `Heads up: part of this equation didn’t convert correctly (${problems.join('; ')}), so the ${label} output below may be incomplete. Check it against the equation above before sharing it.`;
+    }
+}
+
+// Returns the presentation MathML (bars cleaned up, chosen and default
+// intents applied), the ambiguous-shape occurrences found, and any
+// suggested meanings (both for the picker UI). Falls back to the untouched
+// original markup whenever nothing changed or parsing fails, so the common
+// case never goes through a re-serialization at all.
+function buildIntentMathml() {
+    const { raw: inner, doc, changed: cleaned } = getCleanedTree();
+    if (!doc) return { markup: inner, occurrences: [], suggestions: {} };
+    const root = doc.documentElement;
+    const occurrences = findAmbiguousOccurrences(root);
+    if (pruneIntentChoices(occurrences)) saveEquationState();
+    // Suggestions look at the tree around each shape, so take them before
+    // applyIntents regroups anything.
+    const suggestions = {};
+    for (const occ of occurrences) {
+        const s = suggestMeaning(occ);
+        if (s) suggestions[occ.key] = s;
+    }
+    const applied = applyIntents(occurrences, resolveIntentChoices(occurrences, intentChoices));
+    if (!applied && !cleaned) return { markup: inner, occurrences, suggestions };
+    return { markup: serializeChildren(root), occurrences, suggestions };
+}
+
+// mf.getValue('math-ml') returns only the inner markup (e.g. <mrow>...</mrow>),
+// not a full document. Wrap it in the root <math> element with the required
+// namespace so this can be pasted straight into HTML and actually render/be
+// recognized as MathML.
+//
+// Also wrap the presentation markup in <semantics> with an
+// <annotation encoding="application/x-tex"> sibling containing the
+// original LaTeX -- the standard MathML "parallel markup" pattern
+// (the same thing MathJax's own MathML output does). Gives any
+// downstream tool/screen reader that looks for it a LaTeX fallback
+// alongside the presentation markup, for free.
+function wrapMathmlDocument(presentation, latex) {
+    const annotation = `<annotation encoding="application/x-tex">${escapeXmlText(latex)}</annotation>`;
+    return `<math xmlns="${MATHML_NAMESPACE}" display="block">\n  <semantics>\n    ${presentation}\n    ${annotation}\n  </semantics>\n</math>`;
+}
+
+// Re-renders just the MathML text after a picker change -- deliberately
+// not a full updateOutput(), which would rebuild the picker and pull
+// keyboard focus out of the <select> the person just used.
+function refreshMathmlText() {
+    if (formatSelect.value !== 'math-ml') return;
+    const latex = (mf.getValue('latex') || '').trim();
+    if (!latex) return;
+    const { markup } = buildIntentMathml();
+    textCont.textContent = wrapMathmlDocument(markup, latex);
+}
+
+// The accessibility note(s) for flagged shapes, plus a "what does this
+// mean?" <select> for each one that can take an intent.
+function renderIntentPicker(occurrences, suggestions = {}) {
+    mathmlNotesEl.textContent = '';
+    if (!occurrences.length) return;
+
+    const notes = describeAmbiguities(new Set(occurrences.map((o) => o.kind)));
+    const noteEl = document.createElement('p');
+    noteEl.className = 'hint';
+    noteEl.textContent = `Accessibility note${notes.length > 1 ? 's' : ''}: ${notes.join(' ')}`;
+    mathmlNotesEl.append(noteEl);
+
+    const pickable = occurrences.filter((o) => meaningsFor(o).length);
+    if (!pickable.length) return;
+
+    const fieldset = document.createElement('fieldset');
+    fieldset.className = 'intent-picker';
+    const legend = document.createElement('legend');
+    legend.textContent = 'Say what it means';
+    fieldset.append(legend);
+
+    const help = document.createElement('p');
+    help.className = 'hint';
+    help.textContent = 'Your choice is added to the MathML output as an "intent" attribute, which screen readers using MathCAT (NVDA, JAWS) read instead of guessing. It doesn\u2019t change the Description, Braille, or Read Aloud output.';
+    fieldset.append(help);
+
+    const status = document.createElement('p');
+    status.className = 'hint intent-status';
+    status.setAttribute('aria-live', 'polite');
+
+    pickable.forEach((occ, idx) => {
+        const id = `intent-choice-${idx}`;
+        const row = document.createElement('div');
+        row.className = 'intent-row';
+
+        const label = document.createElement('label');
+        label.htmlFor = id;
+        const code = document.createElement('code');
+        code.textContent = occ.label;
+        label.append(code);
+        const n = Number(occ.key.split('#').pop());
+        label.append(n > 1 ? ` (occurrence ${n}) means:` : ' means:');
+
+        // Bracketed intervals get their intent by default (defaultMeaning),
+        // so "none" there is an explicit opt-out, stored as ''.
+        const hasDefault = Boolean(defaultMeaning(occ));
+        const suggestion = suggestions[occ.key];
+
+        const select = document.createElement('select');
+        select.id = id;
+        const none = document.createElement('option');
+        none.value = '';
+        none.textContent = hasDefault ? 'Something else (no intent)' : 'Not specified (screen readers guess)';
+        select.append(none);
+        for (const meaning of meaningsFor(occ)) {
+            const opt = document.createElement('option');
+            opt.value = meaning.value;
+            opt.textContent = suggestion && suggestion.value === meaning.value
+                ? `${meaning.label} (suggested)`
+                : meaning.label;
+            select.append(opt);
+        }
+        select.value = resolveIntentChoices([occ], intentChoices)[occ.key] || '';
+        select.addEventListener('change', () => {
+            const picked = meaningsFor(occ).find((m) => m.value === select.value);
+            if (picked) {
+                intentChoices[occ.key] = picked.value;
+                status.textContent = `Added intent "${picked.value}" for ${occ.label} to the MathML output.`;
+            } else {
+                if (hasDefault) intentChoices[occ.key] = '';
+                else delete intentChoices[occ.key];
+                status.textContent = `Removed the intent for ${occ.label}.`;
+            }
+            saveEquationState();
+            refreshMathmlText();
+        });
+
+        row.append(label, select);
+        if (suggestion) {
+            const why = document.createElement('p');
+            why.className = 'hint intent-suggestion';
+            why.id = `${id}-why`;
+            const picked = meaningsFor(occ).find((m) => m.value === suggestion.value);
+            why.textContent = `Suggested: ${picked ? picked.label.toLowerCase() : suggestion.value}, because ${suggestion.reason}.`;
+            select.setAttribute('aria-describedby', why.id);
+            row.append(why);
+        }
+        fieldset.append(row);
+    });
+
+    fieldset.append(status);
+    mathmlNotesEl.append(fieldset);
 }
 
 const FORMAT_LABELS = {
@@ -183,6 +422,20 @@ function setSreModality(modality, options) {
     return SRE.setupEngine(Object.assign({ modality }, options));
 }
 
+// Runs setup-then-use as one step, one at a time. setupEngine is async, so
+// two overlapping requests (a Braille render and a Description render, or
+// Read Aloud during an SVG render) could otherwise interleave as
+// "setup A, setup B, use A" -- and A would get B's modality.
+let sreQueue = Promise.resolve();
+function runSre(setup, use) {
+    const run = sreQueue.then(async () => {
+        await setup();
+        return use();
+    });
+    sreQueue = run.catch(() => {});
+    return run;
+}
+
 function getSreBrailleReady() {
     return setSreModality('braille', { locale: 'nemeth' });
 }
@@ -202,17 +455,19 @@ function getSreSpeechReady() {
 // practice. Calling SRE directly, the same way Braille output already does,
 // sidesteps whatever's going on in MathLive's internal bridging and gives a
 // result that's been verified to come out correctly spaced.
-async function getSpokenText() {
-    await getSreSpeechReady();
-    const mathml = mf.getValue('math-ml');
-    return SRE.toSpeech(mathml) || '';
+function getSpokenText() {
+    return runSre(getSreSpeechReady, () => SRE.toSpeech(getCleanMathml()) || '');
+}
+
+function getBraille() {
+    return runSre(getSreBrailleReady, () => SRE.toSpeech(getCleanMathml()) || '');
 }
 
 // Kick off loading the Nemeth ruleset as soon as the page loads, so the
 // first Braille request doesn't have to wait on the network fetch. The
 // modality is reasserted again immediately before each actual use (above),
 // since it may have been switched to 'speech' in between.
-getSreBrailleReady();
+runSre(getSreBrailleReady, () => {});
 
 // MathJax (modular input/mml + output/svg only -- see
 // MATHJAX_SVG_IMPLEMENTATION_PLAN.md for why not a combined component) is
@@ -297,6 +552,32 @@ async function getStandaloneSvg(mathml, spokenText) {
     return adaptor.outerHTML(svg);
 }
 
+// Last successfully generated SVG markup / suggested alt text, kept around
+// so the Download and Copy-alt-text buttons (both format-specific to
+// Portable SVG) have something to act on without re-generating anything --
+// cleared any time updateOutput() runs for a different format or fails.
+let lastSvgMarkup = '';
+let lastAltText = '';
+
+// Portable SVG's markup runs to thousands of characters, so in that format
+// the code sits in a collapsed <details> (the preview above it is what
+// people check) and the Copy/Link buttons stay close by. Whether it's open
+// is remembered for the session, so re-rendering while typing doesn't keep
+// snapping it shut. Every other format shows its output open, with no
+// summary, as before.
+let svgCodeOpen = false;
+
+function setCodeCollapsible(on) {
+    codeDetailsEl.classList.toggle('collapsible', on);
+    codeDetailsEl.open = on ? svgCodeOpen : true;
+    updateCodeSummary();
+}
+
+function updateCodeSummary() {
+    const size = lastSvgMarkup ? ` (${lastSvgMarkup.length.toLocaleString()} characters)` : '';
+    codeSummaryEl.textContent = `${codeDetailsEl.open ? 'Hide' : 'Show'} SVG code${size}`;
+}
+
 function debounce(fn, delay) {
     let timer;
     return (...args) => {
@@ -305,9 +586,24 @@ function debounce(fn, delay) {
     };
 }
 
-async function updateOutput() {
+// Incremented by every updateOutput() call. The async formats (Braille,
+// Description, SVG) check it after each await and drop their result if a
+// newer render has started -- otherwise switching SVG -> LaTeX quickly left
+// the SVG markup (and preview) showing under the "LaTeX" heading, and Copy
+// copied it.
+let renderId = 0;
+
+// `announce: true` (format change, Convert) also posts a short "... output
+// updated" to the live region; not done while typing, where it would be
+// announced on every pause.
+async function updateOutput({ announce: shouldAnnounce = false } = {}) {
+    const myRender = ++renderId;
+    const isStale = () => myRender !== renderId;
     const format = formatSelect.value;
     const label = FORMAT_LABELS[format] || format;
+    const done = () => {
+        if (shouldAnnounce && !isStale()) announce(`${label} output updated.`);
+    };
     formatNameEl.textContent = label;
     copyBtn.setAttribute('aria-label', `Copy ${label} output to clipboard`);
     textCont.classList.toggle('braille-output', format === 'braille');
@@ -317,10 +613,20 @@ async function updateOutput() {
     // early-returns) should leave both hidden and empty.
     svgPreviewEl.hidden = true;
     svgPreviewEl.textContent = '';
+    downloadSvgBtn.hidden = true;
+    downloadSvgCornerBtn.hidden = true;
+    lastSvgMarkup = '';
+    svgAltWrapEl.hidden = true;
     suggestedAltEl.textContent = '';
+    lastAltText = '';
     mathmlNotesEl.textContent = '';
+    updateConversionWarning(format, label);
 
     const latex = (mf.getValue('latex') || '').trim();
+    // Only a successfully rendered SVG collapses (see the "svg" branch), so
+    // messages like "Generating SVG..." or an error never end up hidden.
+    // Left alone while re-rendering an SVG, so the layout doesn't jump.
+    if (format !== 'svg' || !latex) setCodeCollapsible(false);
     if (!latex) {
         textCont.textContent = EMPTY_MESSAGE;
         return;
@@ -329,14 +635,15 @@ async function updateOutput() {
     if (format === 'braille') {
         textCont.textContent = 'Generating Braille…';
         try {
-            await getSreBrailleReady();
-            const mathml = mf.getValue('math-ml');
-            const braille = SRE.toSpeech(mathml);
+            const braille = await getBraille();
+            if (isStale()) return;
             textCont.textContent = braille || 'No Braille output was generated for this expression.';
         } catch (err) {
+            if (isStale()) return;
             console.error('Braille generation failed', err);
             textCont.textContent = 'Braille output is unavailable right now.';
         }
+        done();
         return;
     }
 
@@ -364,40 +671,32 @@ async function updateOutput() {
             console.error('MathJSON generation failed', err);
             textCont.textContent = 'MathJSON output is unavailable right now.';
         }
+        done();
         return;
     }
 
     if (format === 'math-ml') {
-        // mf.getValue('math-ml') returns only the inner markup (e.g. <mrow>...</mrow>),
-        // not a full document. Wrap it in the root <math> element with the required
-        // namespace so this can be pasted straight into HTML and actually render/be
-        // recognized as MathML.
-        //
-        // Also wrap the presentation markup in <semantics> with an
-        // <annotation encoding="application/x-tex"> sibling containing the
-        // original LaTeX -- the standard MathML "parallel markup" pattern
-        // (the same thing MathJax's own MathML output does). Gives any
-        // downstream tool/screen reader that looks for it a LaTeX fallback
-        // alongside the presentation markup, for free.
         const inner = mf.getValue('math-ml');
-        const annotation = `<annotation encoding="application/x-tex">${escapeXmlText(latex)}</annotation>`;
-        textCont.textContent = `<math xmlns="${MATHML_NAMESPACE}" display="block">\n  <semantics>\n    ${inner}\n    ${annotation}\n  </semantics>\n</math>`;
-
-        // Semantic ambiguity audit (see MATHML_SEMANTIC_LINT_PLAN.md). Runs
-        // against the raw presentation markup, not the annotation-wrapped
-        // string above, and is kept in its own element so Copy still copies
-        // clean MathML.
+        // Semantic ambiguity audit + chosen intents (see buildIntentMathml).
+        // Any failure here falls back to the plain MathLive markup -- the
+        // audit and intents are extras, never a reason to lose the output.
+        let markup = inner;
+        let occurrences = [];
+        let suggestions = {};
         try {
-            const ambiguities = findAmbiguousNotation(inner);
-            const notes = describeAmbiguities(ambiguities);
-            mathmlNotesEl.textContent = notes.length
-                ? `Accessibility note${notes.length > 1 ? 's' : ''}: ${notes.join(' ')}`
-                : '';
+            ({ markup, occurrences, suggestions } = buildIntentMathml());
         } catch (err) {
-            // Supplementary note only -- a failure here shouldn't affect the
-            // actual MathML output above.
-            console.error('MathML ambiguity audit failed', err);
+            console.error('MathML ambiguity audit / intent pass failed', err);
+            markup = inner;
+            occurrences = [];
         }
+        textCont.textContent = wrapMathmlDocument(markup, latex);
+        try {
+            renderIntentPicker(occurrences, suggestions);
+        } catch (err) {
+            console.error('Rendering the MathML meaning picker failed', err);
+        }
+        done();
         return;
     }
 
@@ -405,18 +704,21 @@ async function updateOutput() {
         textCont.textContent = 'Generating description…';
         try {
             const spoken = await getSpokenText();
+            if (isStale()) return;
             textCont.textContent = spoken || 'No description was generated for this expression.';
         } catch (err) {
+            if (isStale()) return;
             console.error('Spoken-text generation failed', err);
             textCont.textContent = 'Description output is unavailable right now.';
         }
+        done();
         return;
     }
 
     if (format === 'svg') {
         textCont.textContent = 'Generating SVG…';
         try {
-            const inner = mf.getValue('math-ml');
+            const inner = getCleanMathml();
             const mathmlForConversion = `<math xmlns="${MATHML_NAMESPACE}">${inner}</math>`;
             let spokenText = '';
             try {
@@ -428,32 +730,66 @@ async function updateOutput() {
                 console.error('spoken-text generation for SVG title failed', speechErr);
             }
             const svgMarkup = await getStandaloneSvg(mathmlForConversion, spokenText);
+            if (isStale()) return;
             textCont.textContent = svgMarkup;
             svgPreviewEl.innerHTML = svgMarkup;
             svgPreviewEl.hidden = false;
+            lastSvgMarkup = svgMarkup;
+            downloadSvgBtn.hidden = false;
+            downloadSvgCornerBtn.hidden = false;
+            setCodeCollapsible(true);
+            lastAltText = spokenText || '';
             suggestedAltEl.textContent = spokenText
                 ? `Suggested alt text (if you save this as an image file rather than pasting the markup directly): ${spokenText}`
                 : '';
+            svgAltWrapEl.hidden = !spokenText;
         } catch (err) {
+            if (isStale()) return;
             console.error('SVG generation failed', err);
             textCont.textContent = 'SVG output is unavailable right now.';
             svgPreviewEl.hidden = true;
             svgPreviewEl.textContent = '';
+            downloadSvgBtn.hidden = true;
+            downloadSvgCornerBtn.hidden = true;
+            lastSvgMarkup = '';
+            setCodeCollapsible(false);
             suggestedAltEl.textContent = '';
+            svgAltWrapEl.hidden = true;
+            lastAltText = '';
         }
+        done();
         return;
     }
 
     textCont.textContent = mf.getValue(format);
+    done();
 }
 
 async function speakEquation() {
+    // Reads the same verified text the Description format shows (SRE
+    // mathspeak over the cleaned-up MathML -- see getCleanMathml), via the
+    // browser's own Web Speech API. MathLive's built-in "speak" command
+    // sends MathLive's raw MathML to SRE, so it would still say "times"
+    // inside every typed "|x|"; it's kept only as a fallback for browsers
+    // without speechSynthesis.
+    try {
+        if ('speechSynthesis' in window && 'SpeechSynthesisUtterance' in window) {
+            const text = await getSpokenText();
+            if (text) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                window.speechSynthesis.speak(utterance);
+                return;
+            }
+        }
+    } catch (err) {
+        console.error('Web Speech read-aloud failed; falling back to MathLive', err);
+    }
     // See getSreSpeechReady() -- MathLive's own "speak" command draws on the
     // same shared SRE engine as everything else here, so its modality needs
-    // to be correctly set immediately before use, same as every other SRE
-    // consumer in this file.
-    await getSreSpeechReady();
-    mf.executeCommand('speak');
+    // to be correctly set immediately before use.
+    await runSre(getSreSpeechReady, () => mf.executeCommand('speak'));
 }
 
 // Keep the plain-text LaTeX box in sync with whatever is in the visual
@@ -503,7 +839,7 @@ function convertLatex() {
     const rawLatex = latexInput.value;
     mf.setValue(rawLatex);
     reportLatexErrors(rawLatex);
-    updateOutput();
+    updateOutput({ announce: true });
     syncLatexInputFromField();
     saveEquationState();
 }
@@ -520,6 +856,9 @@ function updateUrlHash() {
             params.set(EQ_HASH_PARAM, latex);
         }
         params.set(FORMAT_HASH_PARAM, formatSelect.value);
+        if (Object.keys(intentChoices).length) {
+            params.set(INTENT_HASH_PARAM, JSON.stringify(intentChoices));
+        }
         history.replaceState(null, '', `${location.pathname}${location.search}#${params.toString()}`);
     } catch (err) {
         // Not fatal -- the app still works, just without a shareable URL.
@@ -532,14 +871,9 @@ function updateUrlHash() {
 // pattern used for the theme and dyslexia-font toggles. Also keeps the
 // shareable-link hash (see updateUrlHash() above) current.
 function saveEquationState() {
-    try {
-        localStorage.setItem(LATEX_STORAGE_KEY, mf.getValue('latex') || '');
-        localStorage.setItem(FORMAT_STORAGE_KEY, formatSelect.value);
-    } catch (err) {
-        // localStorage can be unavailable (private browsing, quota, etc.);
-        // losing persistence isn't fatal, so just skip it.
-        console.warn('Could not save MathVox state', err);
-    }
+    storageSet(LATEX_STORAGE_KEY, mf.getValue('latex') || '');
+    storageSet(FORMAT_STORAGE_KEY, formatSelect.value);
+    storageSet(INTENT_STORAGE_KEY, JSON.stringify(intentChoices));
     updateUrlHash();
 }
 
@@ -560,23 +894,25 @@ function restoreEquationState() {
             mf.setValue(hashLatex);
             restoredFromLink = true;
         }
+        if (restoredFromLink) {
+            // A shared link's meanings travel with its equation; a link
+            // without any means "none chosen", not "keep my local ones".
+            intentChoices = parseIntentChoices(hashParams.get(INTENT_HASH_PARAM));
+        }
     } catch (err) {
         console.warn('Could not parse the shared link', err);
     }
 
     if (!restoredFromLink) {
-        try {
-            const savedFormat = localStorage.getItem(FORMAT_STORAGE_KEY);
-            if (savedFormat && FORMAT_LABELS[savedFormat]) {
-                formatSelect.value = savedFormat;
-            }
-            const savedLatex = localStorage.getItem(LATEX_STORAGE_KEY);
-            if (savedLatex) {
-                mf.setValue(savedLatex);
-            }
-        } catch (err) {
-            console.warn('Could not restore MathVox state', err);
+        const savedFormat = storageGet(FORMAT_STORAGE_KEY);
+        if (savedFormat && FORMAT_LABELS[savedFormat]) {
+            formatSelect.value = savedFormat;
         }
+        const savedLatex = storageGet(LATEX_STORAGE_KEY);
+        if (savedLatex) {
+            mf.setValue(savedLatex);
+        }
+        intentChoices = parseIntentChoices(storageGet(INTENT_STORAGE_KEY));
     }
 
     // Whichever source won above (or neither), make sure localStorage and
@@ -585,12 +921,33 @@ function restoreEquationState() {
     saveEquationState();
 }
 
-async function copyOutput() {
+// Copies `text` and confirms it both ways: announced for screen readers,
+// and a brief checkmark on the button itself (its accessible name comes
+// from aria-label, so swapping the visible glyph doesn't change it).
+const COPIED_MARK = '✓';
+async function copyWithFeedback(button, text, what) {
+    const visible = button.querySelector('span') || button;
     try {
-        await navigator.clipboard.writeText(textCont.textContent);
+        await navigator.clipboard.writeText(text);
     } catch (err) {
-        console.error('Failed to copy text', err);
+        console.error(`Failed to copy ${what}`, err);
+        announce(`Couldn’t copy the ${what}. Your browser may have blocked clipboard access.`);
+        return;
     }
+    announce(`Copied the ${what} to the clipboard.`);
+    if (visible.dataset.label === undefined) visible.dataset.label = visible.textContent;
+    visible.textContent = visible === button ? COPIED_MARK : 'Copied';
+    clearTimeout(button.copiedTimer);
+    button.copiedTimer = setTimeout(() => { visible.textContent = visible.dataset.label; }, 1500);
+}
+
+async function copyOutput() {
+    if (!(mf.getValue('latex') || '').trim()) {
+        announce('Nothing to copy yet. Enter an equation first.');
+        return;
+    }
+    const label = FORMAT_LABELS[formatSelect.value] || formatSelect.value;
+    await copyWithFeedback(copyBtn, textCont.textContent, `${label} output`);
 }
 
 // Copies the current page URL, whose hash already encodes the equation and
@@ -598,32 +955,60 @@ async function copyOutput() {
 // reproduces this exact equation/format instead of the blank app.
 async function copyShareLink() {
     updateUrlHash();
-    try {
-        await navigator.clipboard.writeText(location.href);
-    } catch (err) {
-        console.error('Failed to copy share link', err);
+    await copyWithFeedback(shareBtn, location.href, 'shareable link');
+}
+
+// Copies just the suggested-alt-text payload (lastAltText), not the whole
+// "Suggested alt text (if you save this..." lead-in sentence shown on the
+// page -- see the "svg" branch of updateOutput() for where it's set.
+async function copyAltText() {
+    if (!lastAltText) {
+        return;
     }
+    await copyWithFeedback(copyAltTextBtn, lastAltText, 'suggested alt text');
+}
+
+// Saves the last generated Portable SVG (lastSvgMarkup) as a standalone
+// .svg file, for anyone who wants an actual image file rather than pasting
+// the markup shown on the page. Prepends an XML declaration, since a
+// downloaded file (unlike markup pasted inline into an existing HTML
+// document) is meant to stand alone.
+function downloadSvgFile() {
+    if (!lastSvgMarkup) {
+        return;
+    }
+    const xmlDeclaration = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    const blob = new Blob([xmlDeclaration + lastSvgMarkup], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'mathvox-equation.svg';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    // Give the download a moment to actually start before freeing the URL.
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function setTheme(dark) {
     document.documentElement.classList.toggle('theme-dark', dark);
     themeToggle.setAttribute('aria-pressed', String(dark));
     themeToggle.textContent = dark ? 'Light Mode' : 'Dark Mode';
-    localStorage.setItem('mathvox-theme', dark ? 'dark' : 'light');
+    storageSet('mathvox-theme', dark ? 'dark' : 'light');
 }
 
 function setDyslexiaFont(on) {
     document.documentElement.classList.toggle('dyslexia-font', on);
     dyslexiaToggle.setAttribute('aria-pressed', String(on));
-    localStorage.setItem('mathvox-dyslexia-font', on ? 'on' : 'off');
+    storageSet('mathvox-dyslexia-font', on ? 'on' : 'off');
 }
 
 // Restore saved preferences, falling back to the OS-level color scheme
 // for the theme when the user hasn't chosen one yet.
-const savedTheme = localStorage.getItem('mathvox-theme');
+const savedTheme = storageGet('mathvox-theme');
 const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 setTheme(savedTheme ? savedTheme === 'dark' : prefersDark);
-setDyslexiaFont(localStorage.getItem('mathvox-dyslexia-font') === 'on');
+setDyslexiaFont(storageGet('mathvox-dyslexia-font') === 'on');
 
 mf.addEventListener('input', debounce(() => {
     updateOutput();
@@ -631,12 +1016,22 @@ mf.addEventListener('input', debounce(() => {
     saveEquationState();
 }, 300));
 formatSelect.addEventListener('change', () => {
-    updateOutput();
+    updateOutput({ announce: true });
     saveEquationState();
 });
 readBtn.addEventListener('click', speakEquation);
 copyBtn.addEventListener('click', copyOutput);
 shareBtn.addEventListener('click', copyShareLink);
+downloadSvgBtn.addEventListener('click', downloadSvgFile);
+downloadSvgCornerBtn.addEventListener('click', downloadSvgFile);
+// Record the person's own open/close (click fires before the toggle, and
+// also for Enter/Space on the summary) -- not the 'toggle' event, which
+// also fires for setCodeCollapsible's programmatic changes.
+codeSummaryEl.addEventListener('click', () => {
+    if (codeDetailsEl.classList.contains('collapsible')) svgCodeOpen = !codeDetailsEl.open;
+});
+codeDetailsEl.addEventListener('toggle', updateCodeSummary);
+copyAltTextBtn.addEventListener('click', copyAltText);
 themeToggle.addEventListener('click', () => setTheme(!document.documentElement.classList.contains('theme-dark')));
 dyslexiaToggle.addEventListener('click', () => setDyslexiaFont(!document.documentElement.classList.contains('dyslexia-font')));
 

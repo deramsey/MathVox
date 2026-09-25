@@ -1,0 +1,3797 @@
+{
+ "_source": "https://github.com/daisy/MathCAT/tree/8ebda89cceeb59bee377e60b4696e18718c28609/tests/braille/Nemeth",
+ "_license": "MIT -- Copyright (c) 2022 NSoiffer. See MathCAT-LICENSE.txt in this folder.",
+ "_note": "MathML -> expected Nemeth braille pairs extracted from MathCAT's own braille test suite (only plain test_braille(\"Nemeth\", ...) cases). Used by tests/braille-report.mjs to check the vendored Speech Rule Engine, not by npm test.",
+ "cases": [
+  {
+   "id": "AataNemeth::test_000",
+   "mathml": "<math><mi>r</mi><mo>≡<!-- ≡ --></mo><mi>s</mi><mspace width=\"0.444em\"></mspace><mo stretchy=\"false\">(</mo><mi>mod</mi><mspace width=\"0.333em\"></mspace><mi>n</mi><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠗⠀⠸⠇⠀⠎⠷⠍⠕⠙⠀⠝⠾"
+  },
+  {
+   "id": "AataNemeth::test_001",
+   "mathml": "<math><mi>y</mi><mo>=</mo>\n        <msup><mi>x</mi><mi>E</mi></msup><mspace width=\"0.667em\"></mspace><mi>mod</mi><mspace width=\"thinmathspace\"></mspace><mspace width=\"thinmathspace\"></mspace><mi>n</mi></math>",
+   "expected": "⠽⠀⠨⠅⠀⠭⠘⠠⠑⠐⠍⠕⠙⠀⠝"
+  },
+  {
+   "id": "AataNemeth::test_002",
+   "mathml": "<math>\n        <mrow><mo stretchy=\"false\">|</mo></mrow>\n        <mrow><mover><mi>X</mi><mo>~<!-- ~ --></mo></mover></mrow>\n        <mrow><mo stretchy=\"false\">|</mo></mrow><mo>=</mo>\n        <msup><mn>2</mn><mn>4</mn></msup><mo>=</mo><mtext></mtext><mn>16</mn></math>",
+   "expected": "⠳⠐⠠⠭⠣⠈⠱⠻⠳⠀⠨⠅⠀⠼⠆⠘⠲⠀⠨⠅⠀⠼⠂⠖"
+  },
+  {
+   "id": "AataNemeth::test_003",
+   "mathml": "<math><mrow><mi mathvariant=\"script\">S</mi></mrow></math>",
+   "expected": "⠈⠰⠠⠎"
+  },
+  {
+   "id": "AataNemeth::test_004",
+   "mathml": "<math><mi>a</mi>\n        <msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mi>b</mi><mi>x</mi><mo>+</mo><mi>c</mi><mo>=</mo><mn>0</mn></math>",
+   "expected": "⠁⠭⠘⠆⠐⠬⠃⠭⠬⠉⠀⠨⠅⠀⠼⠴"
+  },
+  {
+   "id": "AataNemeth::test_005",
+   "mathml": "<math><mi>A</mi>\n        <mrow><mover>\n        <mrow><mo stretchy=\"false\">→<!-- → --></mo></mrow>\n        <mrow><mi>f</mi></mrow></mover></mrow><mi>B</mi></math>",
+   "expected": "⠠⠁⠀⠐⠫⠒⠒⠕⠣⠋⠻⠀⠠⠃"
+  },
+  {
+   "id": "AataNemeth::test_006",
+   "mathml": "<math><mi>g</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo stretchy=\"false\">)</mo><mo>=</mo>\n        <mroot><mi>x</mi><mn>3</mn></mroot></math>",
+   "expected": "⠛⠷⠭⠾⠀⠨⠅⠀⠣⠒⠜⠭⠻"
+  },
+  {
+   "id": "AataNemeth::test_007",
+   "mathml": "<math><msubsup><mi>T</mi><mi>A</mi>\n        <mrow><mo>−<!-- − --></mo><mn>1</mn></mrow></msubsup><mo>=</mo><msub><mi>T</mi>\n        <mrow>\n        <msup><mi>A</mi>\n        <mrow><mo>−<!-- − --></mo><mn>1</mn></mrow></msup></mrow></msub></math>",
+   "expected": "⠠⠞⠰⠠⠁⠘⠤⠂⠀⠨⠅⠀⠠⠞⠰⠠⠁⠰⠘⠤⠂"
+  },
+  {
+   "id": "AataNemeth::test_008",
+   "mathml": "<math><munder><mo>⋃<!-- ⋃ --></mo><mi>k</mi></munder><msub><mi>X</mi><mi>k</mi></msub><mo>=</mo><mi>X</mi></math>",
+   "expected": "⠐⠨⠬⠩⠅⠻⠠⠭⠰⠅⠀⠨⠅⠀⠠⠭"
+  },
+  {
+   "id": "AataNemeth::test_009",
+   "mathml": "<math><mstyle displaystyle=\"true\" scriptlevel=\"0\"><mi>f</mi><mo stretchy=\"false\">(</mo><mi>p</mi>\n        <mrow><mo>/</mo></mrow><mi>q</mi><mo stretchy=\"false\">)</mo><mo>=</mo>\n        <mfrac>\n        <mrow><mi>p</mi><mo>+</mo><mn>1</mn></mrow>\n        <mrow><mi>p</mi><mo>−<!-- − --></mo><mn>2</mn></mrow></mfrac></mstyle></math>",
+   "expected": "⠋⠷⠏⠸⠌⠟⠾⠀⠨⠅⠀⠹⠏⠬⠂⠌⠏⠤⠆⠼"
+  },
+  {
+   "id": "AataNemeth::test_010",
+   "mathml": "<math><mi>X</mi><mo>=</mo>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">N</mi></mrow></mrow><mo>∪<!-- ∪ --></mo><mo fence=\"false\" stretchy=\"false\">{</mo>\n        <msqrt><mn>2</mn></msqrt><mspace width=\"thinmathspace\"></mspace><mo fence=\"false\" stretchy=\"false\">}</mo></math>",
+   "expected": "⠠⠭⠀⠨⠅⠀⠠⠸⠰⠠⠝⠨⠬⠨⠷⠜⠆⠻⠨⠾"
+  },
+  {
+   "id": "AataNemeth::test_011",
+   "mathml": "<math><mover><mi>z</mi><mo accent=\"false\">¯<!-- ¯ --></mo></mover><mo>=</mo><mi>a</mi><mo>−<!-- − --></mo><mi>b</mi><mi>i</mi></math>",
+   "expected": "⠵⠱⠀⠨⠅⠀⠁⠤⠃⠊"
+  },
+  {
+   "id": "AataNemeth::test_012",
+   "mathml": "<math>\n        <mrow><msub>\n        <mrow><mi mathvariant=\"double-struck\">Z</mi></mrow><mn>8</mn></msub></mrow></math>",
+   "expected": "⠠⠸⠰⠠⠵⠦"
+  },
+  {
+   "id": "AataNemeth::test_013",
+   "mathml": "<math><mi>C</mi><mo>=</mo>\n        <mrow><mo>{</mo>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">y</mi></mrow></mrow><mo>:</mo><mi>G</mi>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">x</mi></mrow></mrow><mo>=</mo>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">y</mi></mrow></mrow><mtext>for</mtext>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">x</mi></mrow></mrow><mo>∈<!-- ∈ --></mo><msubsup>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">Z</mi></mrow></mrow><mn>2</mn><mi>k</mi></msubsup><mo>}</mo></mrow></math>",
+   "expected": "⠠⠉⠀⠨⠅⠀⠨⠷⠸⠰⠽⠸⠒⠀⠠⠛⠸⠰⠭⠀⠨⠅⠀⠸⠰⠽⠋⠕⠗⠸⠰⠭⠀⠈⠑⠀⠠⠸⠰⠠⠵⠆⠘⠅⠐⠨⠾"
+  },
+  {
+   "id": "AataNemeth::test_014",
+   "mathml": "<math><msqrt><mn>2</mn><mo>+</mo><msqrt><mn>3</mn></msqrt></msqrt></math>",
+   "expected": "⠜⠆⠬⠨⠜⠒⠨⠻⠻"
+  },
+  {
+   "id": "AataNemeth::test_015",
+   "mathml": "<math>\n        <msqrt>\n        <mroot><mn>2</mn><mn>3</mn></mroot><mo>−<!-- − --></mo><mi>i</mi></msqrt></math>",
+   "expected": "⠜⠨⠣⠒⠜⠆⠨⠻⠤⠊⠻"
+  },
+  {
+   "id": "AataNemeth::test_016",
+   "mathml": "<math>\n        <msup>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">R</mi></mrow></mrow><mn>3</mn></msup></math>",
+   "expected": "⠠⠸⠰⠠⠗⠘⠒"
+  },
+  {
+   "id": "AataNemeth::test_017",
+   "mathml": "<math><msub>\n        <mrow><mover><mi>X</mi><mo>~<!-- ~ --></mo></mover></mrow>\n        <mrow><mo stretchy=\"false\">(</mo><mn>1</mn><mo stretchy=\"false\">)</mo></mrow></msub><mo>=</mo>\n        <mrow><mover><mi>X</mi><mo>~<!-- ~ --></mo></mover></mrow></math>",
+   "expected": "⠐⠠⠭⠣⠈⠱⠻⠰⠷⠂⠾⠀⠨⠅⠀⠐⠠⠭⠣⠈⠱⠻"
+  },
+  {
+   "id": "AataNemeth::test_018",
+   "mathml": "<math><msub><mi>G</mi><mn>0</mn></msub><mo>=</mo><mo fence=\"false\" stretchy=\"false\">{</mo><mi>A</mi><mo>:</mo><mo stretchy=\"false\">(</mo><mi>A</mi><mo>,</mo><mi>b</mi><mo stretchy=\"false\">)</mo><mo>∈<!-- ∈ --></mo><mi>G</mi><mtext>for some</mtext><mi>b</mi><mo fence=\"false\" stretchy=\"false\">}</mo></math>",
+   "expected": "⠠⠛⠴⠀⠨⠅⠀⠨⠷⠠⠁⠸⠒⠀⠷⠠⠁⠠⠀⠃⠾⠀⠈⠑⠀⠠⠛⠋⠕⠗⠀⠎⠕⠍⠑⠃⠨⠾"
+  },
+  {
+   "id": "AataNemeth::test_019",
+   "mathml": "<math><mn>300</mn><mo>!</mo></math>",
+   "expected": "⠼⠒⠴⠴⠯"
+  },
+  {
+   "id": "AataNemeth::test_020",
+   "mathml": "<math><mi>A</mi><mo>∪<!-- ∪ --></mo><mo stretchy=\"false\">(</mo><mi>B</mi><mo>∪<!-- ∪ --></mo><mi>C</mi><mo stretchy=\"false\">)</mo><mo>=</mo><mo stretchy=\"false\">(</mo><mi>A</mi><mo>∪<!-- ∪ --></mo><mi>B</mi><mo stretchy=\"false\">)</mo><mo>∪<!-- ∪ --></mo><mi>C</mi></math>",
+   "expected": "⠠⠁⠨⠬⠷⠠⠃⠨⠬⠠⠉⠾⠀⠨⠅⠀⠷⠠⠁⠨⠬⠠⠃⠾⠨⠬⠠⠉"
+  },
+  {
+   "id": "AataNemeth::test_021",
+   "mathml": "<math>\n        <mrow><mstyle scriptlevel=\"0\">\n        <mrow><mo maxsize=\"1.2em\" minsize=\"1.2em\">(</mo></mrow></mstyle><mfrac linethickness=\"0\"><mi>n</mi><mi>k</mi></mfrac><mstyle scriptlevel=\"0\">\n        <mrow><mo maxsize=\"1.2em\" minsize=\"1.2em\">)</mo></mrow></mstyle></mrow></math>",
+   "expected": "⠷⠝⠩⠅⠾"
+  },
+  {
+   "id": "AataNemeth::test_022",
+   "mathml": "<math><mn>3</mn><mo>+</mo><mn>56</mn><mo>−<!-- − --></mo><mn>13</mn><mo>+</mo><mn>8</mn>\n        <mrow><mo>/</mo></mrow><mn>2</mn></math>",
+   "expected": "⠼⠒⠬⠢⠖⠤⠂⠒⠬⠦⠸⠌⠆"
+  },
+  {
+   "id": "AataNemeth::test_023",
+   "mathml": "<math><mi>w</mi><mo stretchy=\"false\">(</mo>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">x</mi></mrow></mrow><mo stretchy=\"false\">)</mo><mo>=</mo><mi>d</mi><mo stretchy=\"false\">(</mo>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">x</mi></mrow></mrow><mo>,</mo>\n        <mrow>\n        <mrow><mn mathvariant=\"bold\">0</mn></mrow></mrow><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠺⠷⠸⠰⠭⠾⠀⠨⠅⠀⠙⠷⠸⠰⠭⠠⠀⠸⠼⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_024",
+   "mathml": "<math><mn>6.00000</mn><mo>+</mo><mn>0.00000</mn><mi>i</mi></math>",
+   "expected": "⠼⠖⠨⠴⠴⠴⠴⠴⠬⠴⠨⠴⠴⠴⠴⠴⠊"
+  },
+  {
+   "id": "AataNemeth::test_025",
+   "mathml": "<math><mi>p</mi><mo>=</mo><mn>0.0001</mn></math>",
+   "expected": "⠏⠀⠨⠅⠀⠼⠴⠨⠴⠴⠴⠂"
+  },
+  {
+   "id": "AataNemeth::test_026",
+   "mathml": "<math><mi>p</mi><mo>=</mo><mn>0.01</mn></math>",
+   "expected": "⠏⠀⠨⠅⠀⠼⠴⠨⠴⠂"
+  },
+  {
+   "id": "AataNemeth::test_027",
+   "mathml": "<math><mi>p</mi><mo>=</mo><mn>0.995</mn></math>",
+   "expected": "⠏⠀⠨⠅⠀⠼⠴⠨⠔⠔⠢"
+  },
+  {
+   "id": "AataNemeth::test_028",
+   "mathml": "<math><mi>p</mi><mo>=</mo><mn>0.999</mn></math>",
+   "expected": "⠏⠀⠨⠅⠀⠼⠴⠨⠔⠔⠔"
+  },
+  {
+   "id": "AataNemeth::test_029",
+   "mathml": "<math><mtext>A</mtext><mo>=</mo><mn>00</mn><mo>,</mo><mtext>B</mtext><mo>=</mo><mn>01</mn><mo>,</mo><mo>…<!-- … --></mo><mo>,</mo><mtext>Z</mtext><mo>=</mo><mn>25</mn></math>",
+   "expected": "⠠⠁⠀⠨⠅⠀⠼⠴⠴⠠⠀⠠⠃⠀⠨⠅⠀⠼⠴⠂⠠⠀⠄⠄⠄⠠⠀⠠⠵⠀⠨⠅⠀⠼⠆⠢"
+  },
+  {
+   "id": "AataNemeth::test_030",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>000</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠴⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_031",
+   "mathml": "<math><mn>0000</mn></math>",
+   "expected": "⠼⠴⠴⠴⠴"
+  },
+  {
+   "id": "AataNemeth::test_032",
+   "mathml": "<math><msub>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">c</mi></mrow></mrow><mn>1</mn></msub><mo>=</mo><mo stretchy=\"false\">(</mo><mn>00000</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠸⠰⠉⠂⠀⠨⠅⠀⠷⠴⠴⠴⠴⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_033",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>00001</mn><mo stretchy=\"false\">)</mo><mo>+</mo><mi>C</mi></math>",
+   "expected": "⠷⠴⠴⠴⠴⠂⠾⠬⠠⠉"
+  },
+  {
+   "id": "AataNemeth::test_034",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>0000101100</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠴⠴⠴⠂⠴⠂⠂⠴⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_035",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>00010</mn><mo stretchy=\"false\">)</mo><mo>+</mo><mi>C</mi></math>",
+   "expected": "⠷⠴⠴⠴⠂⠴⠾⠬⠠⠉"
+  },
+  {
+   "id": "AataNemeth::test_036",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">z</mi></mrow></mrow><mo>=</mo><mo stretchy=\"false\">(</mo><mn>00011</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠸⠰⠵⠀⠨⠅⠀⠷⠴⠴⠴⠂⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_037",
+   "mathml": "<math><mn>001</mn></math>",
+   "expected": "⠼⠴⠴⠂"
+  },
+  {
+   "id": "AataNemeth::test_038",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>00100</mn><mo stretchy=\"false\">)</mo><mo>+</mo><mi>C</mi></math>",
+   "expected": "⠷⠴⠴⠂⠴⠴⠾⠬⠠⠉"
+  },
+  {
+   "id": "AataNemeth::test_039",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>0010000101</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠴⠂⠴⠴⠴⠴⠂⠴⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_040",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>001001</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠴⠂⠴⠴⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_041",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>01000</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>00101</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>11011</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>10110</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠂⠴⠴⠴⠾⠷⠴⠴⠂⠴⠂⠾⠷⠂⠂⠴⠂⠂⠾⠷⠂⠴⠂⠂⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_042",
+   "mathml": "<math><mn>0011</mn></math>",
+   "expected": "⠼⠴⠴⠂⠂"
+  },
+  {
+   "id": "AataNemeth::test_043",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>00110</mn><mo stretchy=\"false\">)</mo><mo>+</mo><mi>C</mi></math>",
+   "expected": "⠷⠴⠴⠂⠂⠴⠾⠬⠠⠉"
+  },
+  {
+   "id": "AataNemeth::test_044",
+   "mathml": "<math><msub>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">c</mi></mrow></mrow><mn>2</mn></msub><mo>=</mo><mo stretchy=\"false\">(</mo><mn>00111</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠸⠰⠉⠆⠀⠨⠅⠀⠷⠴⠴⠂⠂⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_045",
+   "mathml": "<math><mn>010</mn></math>",
+   "expected": "⠼⠴⠂⠴"
+  },
+  {
+   "id": "AataNemeth::test_046",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>0100</mn><mspace width=\"thickmathspace\"></mspace><mn>0101</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠂⠴⠴⠀⠴⠂⠴⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_047",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>01000</mn><mo stretchy=\"false\">)</mo><mo>+</mo><mi>C</mi></math>",
+   "expected": "⠷⠴⠂⠴⠴⠴⠾⠬⠠⠉"
+  },
+  {
+   "id": "AataNemeth::test_048",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>00100</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>01001</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>10111</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>11010</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠴⠂⠴⠴⠾⠷⠴⠂⠴⠴⠂⠾⠷⠂⠴⠂⠂⠂⠾⠷⠂⠂⠴⠂⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_049",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">x</mi></mrow></mrow><mo>=</mo><mo stretchy=\"false\">(</mo><mn>010011</mn>\n        <msup><mo stretchy=\"false\">)</mo><mtext>t</mtext></msup></math>",
+   "expected": "⠸⠰⠭⠀⠨⠅⠀⠷⠴⠂⠴⠴⠂⠂⠾⠘⠞"
+  },
+  {
+   "id": "AataNemeth::test_050",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>00111</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>01010</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>10100</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>11001</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠴⠂⠂⠂⠾⠷⠴⠂⠴⠂⠴⠾⠷⠂⠴⠂⠴⠴⠾⠷⠂⠂⠴⠴⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_051",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>011100</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>011011</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>111011</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>100011</mn><mo stretchy=\"false\">)</mo><mspace linebreak=\"newline\"></mspace><mo stretchy=\"false\">(</mo><mn>000000</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>010101</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>110100</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>110011</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠂⠂⠂⠴⠴⠾⠷⠴⠂⠂⠴⠂⠂⠾⠷⠂⠂⠂⠴⠂⠂⠾⠷⠂⠴⠴⠴⠂⠂⠾⠷⠴⠴⠴⠴⠴⠴⠾⠷⠴⠂⠴⠂⠴⠂⠾⠷⠂⠂⠴⠂⠴⠴⠾⠷⠂⠂⠴⠴⠂⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_052",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>11110101</mn><mo stretchy=\"false\">)</mo><mo>,</mo><mo stretchy=\"false\">(</mo><mn>01010100</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠂⠂⠂⠴⠂⠴⠂⠾⠠⠀⠷⠴⠂⠴⠂⠴⠂⠴⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_053",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">z</mi></mrow></mrow><mo>=</mo><mo stretchy=\"false\">(</mo><mn>010111</mn>\n        <msup><mo stretchy=\"false\">)</mo><mtext>t</mtext></msup></math>",
+   "expected": "⠸⠰⠵⠀⠨⠅⠀⠷⠴⠂⠴⠂⠂⠂⠾⠘⠞"
+  },
+  {
+   "id": "AataNemeth::test_054",
+   "mathml": "<math><mn>011</mn></math>",
+   "expected": "⠼⠴⠂⠂"
+  },
+  {
+   "id": "AataNemeth::test_055",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>0110</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠂⠂⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_056",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>00001</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>01100</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>10010</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>11111</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠴⠴⠴⠂⠾⠷⠴⠂⠂⠴⠴⠾⠷⠂⠴⠴⠂⠴⠾⠷⠂⠂⠂⠂⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_057",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">x</mi></mrow></mrow><mo>=</mo><mo stretchy=\"false\">(</mo><mn>011001</mn>\n        <msup><mo stretchy=\"false\">)</mo><mtext>t</mtext></msup></math>",
+   "expected": "⠸⠰⠭⠀⠨⠅⠀⠷⠴⠂⠂⠴⠴⠂⠾⠘⠞"
+  },
+  {
+   "id": "AataNemeth::test_058",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>011010</mn><mo stretchy=\"false\">)</mo><mo>,</mo><mo stretchy=\"false\">(</mo><mn>011100</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠂⠂⠴⠂⠴⠾⠠⠀⠷⠴⠂⠂⠂⠴⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_059",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>0110110</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>0111100</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>1110000</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>1111111</mn><mo stretchy=\"false\">)</mo><mspace linebreak=\"newline\"></mspace><mo stretchy=\"false\">(</mo><mn>1001001</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>1000011</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>0001111</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>0000000</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠂⠂⠴⠂⠂⠴⠾⠷⠴⠂⠂⠂⠂⠴⠴⠾⠷⠂⠂⠂⠴⠴⠴⠴⠾⠷⠂⠂⠂⠂⠂⠂⠂⠾⠷⠂⠴⠴⠂⠴⠴⠂⠾⠷⠂⠴⠴⠴⠴⠂⠂⠾⠷⠴⠴⠴⠂⠂⠂⠂⠾⠷⠴⠴⠴⠴⠴⠴⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_060",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>1001</mn><mo stretchy=\"false\">)</mo><mo>,</mo><mo stretchy=\"false\">(</mo><mn>0111</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠴⠴⠂⠾⠠⠀⠷⠴⠂⠂⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_061",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>10000</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>11101</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>00011</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>01110</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠴⠴⠴⠴⠾⠷⠂⠂⠂⠴⠂⠾⠷⠴⠴⠴⠂⠂⠾⠷⠴⠂⠂⠂⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_062",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>00010</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>01111</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>10001</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>11100</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠴⠴⠂⠴⠾⠷⠴⠂⠂⠂⠂⠾⠷⠂⠴⠴⠴⠂⠾⠷⠂⠂⠂⠴⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_063",
+   "mathml": "<math><mtext>A</mtext><mo>=</mo><mn>00</mn><mo>,</mo><mtext>B</mtext><mo>=</mo><mn>02</mn><mo>,</mo><mo>…<!-- … --></mo><mo>,</mo><mtext>Z</mtext><mo>=</mo><mn>25</mn></math>",
+   "expected": "⠠⠁⠀⠨⠅⠀⠼⠴⠴⠠⠀⠠⠃⠀⠨⠅⠀⠼⠴⠆⠠⠀⠄⠄⠄⠠⠀⠠⠵⠀⠨⠅⠀⠼⠆⠢"
+  },
+  {
+   "id": "AataNemeth::test_064",
+   "mathml": "<math><mi>c</mi><mo>=</mo><mn>4</mn><mspace width=\"thinmathspace\"></mspace><mn>598</mn><mspace width=\"thinmathspace\"></mspace><mn>037</mn><mspace width=\"thinmathspace\"></mspace><mn>234</mn></math>",
+   "expected": "⠉⠀⠨⠅⠀⠼⠲⠀⠢⠔⠦⠀⠴⠒⠶⠀⠆⠒⠲"
+  },
+  {
+   "id": "AataNemeth::test_065",
+   "mathml": "<math><mtext>E</mtext><mo>=</mo><mn>04</mn></math>",
+   "expected": "⠠⠑⠀⠨⠅⠀⠼⠴⠲"
+  },
+  {
+   "id": "AataNemeth::test_066",
+   "mathml": "<math><mn>10</mn><mrow><mo>/</mo></mrow><mn>5</mn><mo>=</mo><mn>2</mn></math>",
+   "expected": "⠼⠂⠴⠸⠌⠢⠀⠨⠅⠀⠼⠆"
+  },
+  {
+   "id": "AataNemeth::test_067",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>1254</mn>\n        <msup><mo stretchy=\"false\">)</mo>\n        <mrow><mn>100</mn></mrow></msup></math>",
+   "expected": "⠷⠂⠆⠢⠲⠾⠘⠂⠴⠴"
+  },
+  {
+   "id": "AataNemeth::test_068",
+   "mathml": "<math><mn>1000</mn></math>",
+   "expected": "⠼⠂⠴⠴⠴"
+  },
+  {
+   "id": "AataNemeth::test_069",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>10000</mn><mo stretchy=\"false\">)</mo><mo>+</mo><mi>C</mi></math>",
+   "expected": "⠷⠂⠴⠴⠴⠴⠾⠬⠠⠉"
+  },
+  {
+   "id": "AataNemeth::test_070",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>1001</mn><mspace width=\"thickmathspace\"></mspace><mn>1000</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠴⠴⠂⠀⠂⠴⠴⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_071",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>101</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠴⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_072",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">y</mi></mrow></mrow><mo>=</mo><mo stretchy=\"false\">(</mo><mn>1010</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠸⠰⠽⠀⠨⠅⠀⠷⠂⠴⠂⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_073",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>10100</mn><mo stretchy=\"false\">)</mo><mo>+</mo><mi>C</mi></math>",
+   "expected": "⠷⠂⠴⠂⠴⠴⠾⠬⠠⠉"
+  },
+  {
+   "id": "AataNemeth::test_074",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">x</mi></mrow></mrow><mo>=</mo><mo stretchy=\"false\">(</mo><mn>10101</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠸⠰⠭⠀⠨⠅⠀⠷⠂⠴⠂⠴⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_075",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>101011</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠴⠂⠴⠂⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_076",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>1011</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠴⠂⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_077",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>000000</mn><mo stretchy=\"false\">)</mo><mo>,</mo><mo stretchy=\"false\">(</mo><mn>010111</mn><mo stretchy=\"false\">)</mo><mo>,</mo><mo stretchy=\"false\">(</mo><mn>101101</mn><mo stretchy=\"false\">)</mo><mo>,</mo><mo stretchy=\"false\">(</mo><mn>111010</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠴⠴⠴⠴⠴⠾⠠⠀⠷⠴⠂⠴⠂⠂⠂⠾⠠⠀⠷⠂⠴⠂⠂⠴⠂⠾⠠⠀⠷⠂⠂⠂⠴⠂⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_078",
+   "mathml": "<math><mo form=\"prefix\" movablelimits=\"true\">gcd</mo><mo stretchy=\"false\">(</mo><mn>120</mn><mo>,</mo><mn>102</mn><mo stretchy=\"false\">)</mo><mo>=</mo><mn>6</mn></math>",
+   "expected": "⠛⠉⠙⠀⠷⠂⠆⠴⠠⠀⠂⠴⠆⠾⠀⠨⠅⠀⠼⠖"
+  },
+  {
+   "id": "AataNemeth::test_079",
+   "mathml": "<math><mn>108</mn></math>",
+   "expected": "⠼⠂⠴⠦"
+  },
+  {
+   "id": "AataNemeth::test_080",
+   "mathml": "<math><mn>110</mn></math>",
+   "expected": "⠼⠂⠂⠴"
+  },
+  {
+   "id": "AataNemeth::test_081",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">y</mi></mrow></mrow><mo>=</mo><mo stretchy=\"false\">(</mo><mn>1100</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠸⠰⠽⠀⠨⠅⠀⠷⠂⠂⠴⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_082",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>00110</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>01011</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>10101</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>11000</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠴⠂⠂⠴⠾⠷⠴⠂⠴⠂⠂⠾⠷⠂⠴⠂⠴⠂⠾⠷⠂⠂⠴⠴⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_083",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>011010</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>011100</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>110111</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>110000</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠂⠂⠴⠂⠴⠾⠷⠴⠂⠂⠂⠴⠴⠾⠷⠂⠂⠴⠂⠂⠂⠾⠷⠂⠂⠴⠴⠴⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_084",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>000000</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>011100</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>110101</mn><mo stretchy=\"false\">)</mo><mspace width=\"thickmathspace\"></mspace><mo stretchy=\"false\">(</mo><mn>110001</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠴⠴⠴⠴⠴⠾⠷⠴⠂⠂⠂⠴⠴⠾⠷⠂⠂⠴⠂⠴⠂⠾⠷⠂⠂⠴⠴⠴⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_085",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">x</mi></mrow></mrow><mo>=</mo><mo stretchy=\"false\">(</mo><mn>1101</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠸⠰⠭⠀⠨⠅⠀⠷⠂⠂⠴⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_086",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">y</mi></mrow></mrow><mo>=</mo><mo stretchy=\"false\">(</mo><mn>11010</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠸⠰⠽⠀⠨⠅⠀⠷⠂⠂⠴⠂⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_087",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">y</mi></mrow></mrow><mo>=</mo><mo stretchy=\"false\">(</mo><mn>110101</mn>\n        <msup><mo stretchy=\"false\">)</mo><mtext>t</mtext></msup></math>",
+   "expected": "⠸⠰⠽⠀⠨⠅⠀⠷⠂⠂⠴⠂⠴⠂⠾⠘⠞"
+  },
+  {
+   "id": "AataNemeth::test_088",
+   "mathml": "<math><msub>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">c</mi></mrow></mrow><mn>4</mn></msub><mo>=</mo><mo stretchy=\"false\">(</mo><mn>11011</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠸⠰⠉⠲⠀⠨⠅⠀⠷⠂⠂⠴⠂⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_089",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>110110</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠂⠴⠂⠂⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_090",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>111</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠂⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_091",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>0110</mn><mspace width=\"thickmathspace\"></mspace><mn>1110</mn><mspace width=\"thickmathspace\"></mspace><mn>0110</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠴⠂⠂⠴⠀⠂⠂⠂⠴⠀⠴⠂⠂⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_092",
+   "mathml": "<math><msub>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">c</mi></mrow></mrow><mn>3</mn></msub><mo>=</mo><mo stretchy=\"false\">(</mo><mn>11100</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠸⠰⠉⠒⠀⠨⠅⠀⠷⠂⠂⠂⠴⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_093",
+   "mathml": "<math><mn>1111</mn></math>",
+   "expected": "⠼⠂⠂⠂⠂"
+  },
+  {
+   "id": "AataNemeth::test_094",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">x</mi></mrow></mrow><mo>=</mo><mo stretchy=\"false\">(</mo><mn>111110</mn>\n        <msup><mo stretchy=\"false\">)</mo><mtext>t</mtext></msup></math>",
+   "expected": "⠸⠰⠭⠀⠨⠅⠀⠷⠂⠂⠂⠂⠂⠴⠾⠘⠞"
+  },
+  {
+   "id": "AataNemeth::test_095",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">y</mi></mrow></mrow><mo>=</mo><mo stretchy=\"false\">(</mo><mn>111111</mn>\n        <msup><mo stretchy=\"false\">)</mo><mtext>t</mtext></msup></math>",
+   "expected": "⠸⠰⠽⠀⠨⠅⠀⠷⠂⠂⠂⠂⠂⠂⠾⠘⠞"
+  },
+  {
+   "id": "AataNemeth::test_096",
+   "mathml": "<math><mn>112135</mn><mn>25032</mn><mn>442</mn></math>",
+   "expected": "⠼⠂⠂⠆⠂⠒⠢⠆⠢⠴⠒⠆⠲⠲⠆"
+  },
+  {
+   "id": "AataNemeth::test_097",
+   "mathml": "<math>\n        <msup><mn>7</mn><mn>6</mn></msup><mo>=</mo><mn>117</mn><mspace width=\"thinmathspace\"></mspace><mn>649</mn></math>",
+   "expected": "⠼⠶⠘⠖⠀⠨⠅⠀⠼⠂⠂⠶⠀⠖⠲⠔"
+  },
+  {
+   "id": "AataNemeth::test_098",
+   "mathml": "<math><mo form=\"prefix\" movablelimits=\"true\">gcd</mo><mo stretchy=\"false\">(</mo><mn>24</mn><mo>,</mo><mn>36</mn><mo stretchy=\"false\">)</mo><mo>=</mo><mn>12</mn></math>",
+   "expected": "⠛⠉⠙⠀⠷⠆⠲⠠⠀⠒⠖⠾⠀⠨⠅⠀⠼⠂⠆"
+  },
+  {
+   "id": "AataNemeth::test_099",
+   "mathml": "<math><mi>n</mi><mo>=</mo><mn>120979</mn><mo>,</mo><mi>E</mi><mo>=</mo><mn>13251</mn><mo>,</mo><mi>x</mi><mo>=</mo><mn>142371</mn></math>",
+   "expected": "⠝⠀⠨⠅⠀⠼⠂⠆⠴⠔⠶⠔⠠⠀⠠⠑⠀⠨⠅⠀⠼⠂⠒⠆⠢⠂⠠⠀⠭⠀⠨⠅⠀⠼⠂⠲⠆⠒⠶⠂"
+  },
+  {
+   "id": "AataNemeth::test_100",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>12345</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>678</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠆⠒⠲⠢⠾⠷⠖⠶⠦⠾"
+  },
+  {
+   "id": "AataNemeth::test_101",
+   "mathml": "<math><mo stretchy=\"false\">[</mo><mo stretchy=\"false\">(</mo><mn>1235</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>467</mn><mo stretchy=\"false\">)</mo>\n        <msup><mo stretchy=\"false\">]</mo>\n        <mrow><mo>−<!-- − --></mo><mn>1</mn></mrow></msup></math>",
+   "expected": "⠈⠷⠷⠂⠆⠒⠢⠾⠷⠲⠖⠶⠾⠈⠾⠘⠤⠂"
+  },
+  {
+   "id": "AataNemeth::test_102",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mi>n</mi><mo>,</mo><mi>E</mi><mo stretchy=\"false\">)</mo><mo>=</mo><mo stretchy=\"false\">(</mo><mn>37986733</mn><mo>,</mo><mn>12371</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠝⠠⠀⠠⠑⠾⠀⠨⠅⠀⠷⠒⠶⠔⠦⠖⠶⠒⠒⠠⠀⠂⠆⠒⠶⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_103",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>12453</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠆⠲⠢⠒⠾"
+  },
+  {
+   "id": "AataNemeth::test_104",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>12</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>1253</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠆⠾⠷⠂⠆⠢⠒⠾"
+  },
+  {
+   "id": "AataNemeth::test_105",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>12537</mn>\n        <msup><mo stretchy=\"false\">)</mo>\n        <mrow><mo>−<!-- − --></mo><mn>1</mn></mrow></msup></math>",
+   "expected": "⠷⠂⠆⠢⠒⠶⠾⠘⠤⠂"
+  },
+  {
+   "id": "AataNemeth::test_106",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>1254</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>13</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>25</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠆⠢⠲⠾⠷⠂⠒⠾⠷⠆⠢⠾"
+  },
+  {
+   "id": "AataNemeth::test_107",
+   "mathml": "<math><mn>1260</mn></math>",
+   "expected": "⠼⠂⠆⠖⠴"
+  },
+  {
+   "id": "AataNemeth::test_108",
+   "mathml": "<math>\n        <msup><mn>128</mn><mn>4</mn></msup><mo>=</mo><mn>268</mn><mo>,</mo><mn>435</mn><mo>,</mo><mn>456</mn></math>",
+   "expected": "⠼⠂⠆⠦⠘⠲⠀⠨⠅⠀⠼⠆⠖⠦⠠⠲⠒⠢⠠⠲⠢⠖"
+  },
+  {
+   "id": "AataNemeth::test_109",
+   "mathml": "<math><mi>n</mi><mo>=</mo><mn>79403</mn><mo>,</mo><mi>D</mi><mo>=</mo><mn>671</mn><mo>,</mo><mi>y</mi><mo>=</mo><mn>129381</mn></math>",
+   "expected": "⠝⠀⠨⠅⠀⠼⠶⠔⠲⠴⠒⠠⠀⠠⠙⠀⠨⠅⠀⠼⠖⠶⠂⠠⠀⠽⠀⠨⠅⠀⠼⠂⠆⠔⠒⠦⠂"
+  },
+  {
+   "id": "AataNemeth::test_110",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>1423</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>34</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>56</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>1324</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠲⠆⠒⠾⠷⠒⠲⠾⠷⠢⠖⠾⠷⠂⠒⠆⠲⠾"
+  },
+  {
+   "id": "AataNemeth::test_111",
+   "mathml": "<math><mo fence=\"false\" stretchy=\"false\">{</mo><mo stretchy=\"false\">(</mo><mn>13</mn><mo stretchy=\"false\">)</mo><mo>,</mo><mo stretchy=\"false\">(</mo><mn>13</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>24</mn><mo stretchy=\"false\">)</mo><mo>,</mo><mo stretchy=\"false\">(</mo><mn>132</mn><mo stretchy=\"false\">)</mo><mo>,</mo><mo stretchy=\"false\">(</mo><mn>134</mn><mo stretchy=\"false\">)</mo><mo>,</mo><mo stretchy=\"false\">(</mo><mn>1324</mn><mo stretchy=\"false\">)</mo><mo>,</mo><mo stretchy=\"false\">(</mo><mn>1342</mn><mo stretchy=\"false\">)</mo><mo fence=\"false\" stretchy=\"false\">}</mo></math>",
+   "expected": "⠨⠷⠷⠂⠒⠾⠠⠀⠷⠂⠒⠾⠷⠆⠲⠾⠠⠀⠷⠂⠒⠆⠾⠠⠀⠷⠂⠒⠲⠾⠠⠀⠷⠂⠒⠆⠲⠾⠠⠀⠷⠂⠒⠲⠆⠾⠨⠾"
+  },
+  {
+   "id": "AataNemeth::test_112",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>1345</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>234</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠒⠲⠢⠾⠷⠆⠒⠲⠾"
+  },
+  {
+   "id": "AataNemeth::test_113",
+   "mathml": "<math><mn>14</mn></math>",
+   "expected": "⠼⠂⠲"
+  },
+  {
+   "id": "AataNemeth::test_114",
+   "mathml": "<math><mi>x</mi><mo>=</mo><mn>142528</mn></math>",
+   "expected": "⠭⠀⠨⠅⠀⠼⠂⠲⠆⠢⠆⠦"
+  },
+  {
+   "id": "AataNemeth::test_115",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>1426</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>142</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠲⠆⠖⠾⠷⠂⠲⠆⠾"
+  },
+  {
+   "id": "AataNemeth::test_116",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>142637</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠲⠆⠖⠒⠶⠾"
+  },
+  {
+   "id": "AataNemeth::test_117",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>14356</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠲⠒⠢⠖⠾"
+  },
+  {
+   "id": "AataNemeth::test_118",
+   "mathml": "<math><mn>191</mn><mi>E</mi><mo>=</mo><mn>1</mn><mo>+</mo><mn>151</mn><mi>m</mi></math>",
+   "expected": "⠼⠂⠔⠂⠠⠑⠀⠨⠅⠀⠼⠂⠬⠂⠢⠂⠍"
+  },
+  {
+   "id": "AataNemeth::test_119",
+   "mathml": "<math><mn>1523</mn></math>",
+   "expected": "⠼⠂⠢⠆⠒"
+  },
+  {
+   "id": "AataNemeth::test_120",
+   "mathml": "<math><mn>1531</mn></math>",
+   "expected": "⠼⠂⠢⠒⠂"
+  },
+  {
+   "id": "AataNemeth::test_121",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>17254</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>1423</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>154632</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠶⠆⠢⠲⠾⠷⠂⠲⠆⠒⠾⠷⠂⠢⠲⠖⠒⠆⠾"
+  },
+  {
+   "id": "AataNemeth::test_122",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>156</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>234</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠢⠖⠾⠷⠆⠒⠲⠾"
+  },
+  {
+   "id": "AataNemeth::test_123",
+   "mathml": "<math><mi>s</mi><mo>=</mo><mo>−<!-- − --></mo><mn>16</mn></math>",
+   "expected": "⠎⠀⠨⠅⠀⠤⠼⠂⠖"
+  },
+  {
+   "id": "AataNemeth::test_124",
+   "mathml": "<math><mrow><mn mathvariant=\"bold\">16</mn></mrow></math>",
+   "expected": "⠸⠼⠂⠖"
+  },
+  {
+   "id": "AataNemeth::test_125",
+   "mathml": "<math><mn>160</mn></math>",
+   "expected": "⠼⠂⠖⠴"
+  },
+  {
+   "id": "AataNemeth::test_126",
+   "mathml": "<math><mi>μ<!-- μ --></mi><mo>=</mo><mo stretchy=\"false\">(</mo><mn>1634</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠨⠍⠀⠨⠅⠀⠷⠂⠖⠒⠲⠾"
+  },
+  {
+   "id": "AataNemeth::test_127",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mi>n</mi><mo>,</mo><mi>E</mi><mo stretchy=\"false\">)</mo><mo>=</mo><mo stretchy=\"false\">(</mo><mn>16394854313</mn><mo>,</mo><mn>34578451</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠝⠠⠀⠠⠑⠾⠀⠨⠅⠀⠷⠂⠖⠒⠔⠲⠦⠢⠲⠒⠂⠒⠠⠀⠒⠲⠢⠶⠦⠲⠢⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_128",
+   "mathml": "<math><mn>5</mn><mo>⋅<!-- ⋅ --></mo><mn>7</mn><mo>⋅<!-- ⋅ --></mo><mn>47</mn><mo>=</mo><mn>1645</mn></math>",
+   "expected": "⠼⠢⠡⠶⠡⠲⠶⠀⠨⠅⠀⠼⠂⠖⠲⠢"
+  },
+  {
+   "id": "AataNemeth::test_129",
+   "mathml": "<math><mn>165</mn></math>",
+   "expected": "⠼⠂⠖⠢"
+  },
+  {
+   "id": "AataNemeth::test_130",
+   "mathml": "<math><mn>168</mn></math>",
+   "expected": "⠼⠂⠖⠦"
+  },
+  {
+   "id": "AataNemeth::test_131",
+   "mathml": "<math><mn>41</mn><mo>≡<!-- ≡ --></mo><mn>17</mn><mspace width=\"0.444em\"></mspace><mo stretchy=\"false\">(</mo><mi>mod</mi><mspace width=\"0.333em\"></mspace><mn>8</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠼⠲⠂⠀⠸⠇⠀⠼⠂⠶⠷⠍⠕⠙⠀⠼⠦⠾"
+  },
+  {
+   "id": "AataNemeth::test_132",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>17352</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠶⠒⠢⠆⠾"
+  },
+  {
+   "id": "AataNemeth::test_133",
+   "mathml": "<math><mn>1739</mn></math>",
+   "expected": "⠼⠂⠶⠒⠔"
+  },
+  {
+   "id": "AataNemeth::test_134",
+   "mathml": "<math><mn>175</mn></math>",
+   "expected": "⠼⠂⠶⠢"
+  },
+  {
+   "id": "AataNemeth::test_135",
+   "mathml": "<math><msup><mn>180</mn><mrow><mo>∘<!-- ∘ --></mo></mrow></msup></math>",
+   "expected": "⠼⠂⠦⠴⠘⠨⠡"
+  },
+  {
+   "id": "AataNemeth::test_136",
+   "mathml": "<math><mn>19</mn></math>",
+   "expected": "⠼⠂⠔"
+  },
+  {
+   "id": "AataNemeth::test_137",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mi>n</mi><mo>,</mo><mi>E</mi><mo stretchy=\"false\">)</mo><mo>=</mo><mo stretchy=\"false\">(</mo><mn>3053</mn><mo>,</mo><mn>1921</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠝⠠⠀⠠⠑⠾⠀⠨⠅⠀⠷⠒⠴⠢⠒⠠⠀⠂⠔⠆⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_138",
+   "mathml": "<math><mn>196,833</mn><mo>×<!-- × --></mo><mn>196,833</mn></math>",
+   "expected": "⠼⠂⠔⠖⠠⠦⠒⠒⠈⠡⠂⠔⠖⠠⠦⠒⠒"
+  },
+  {
+   "id": "AataNemeth::test_139",
+   "mathml": "<math><mn>19945</mn></math>",
+   "expected": "⠼⠂⠔⠔⠲⠢"
+  },
+  {
+   "id": "AataNemeth::test_140",
+   "mathml": "<math><mi>n</mi><mo>=</mo><mn>3551</mn><mo>,</mo><mi>D</mi><mo>=</mo><mn>1997</mn><mo>,</mo><mi>y</mi><mo>=</mo><mn>2791</mn></math>",
+   "expected": "⠝⠀⠨⠅⠀⠼⠒⠢⠢⠂⠠⠀⠠⠙⠀⠨⠅⠀⠼⠂⠔⠔⠶⠠⠀⠽⠀⠨⠅⠀⠼⠆⠶⠔⠂"
+  },
+  {
+   "id": "AataNemeth::test_141",
+   "mathml": "<math><mn>200</mn></math>",
+   "expected": "⠼⠆⠴⠴"
+  },
+  {
+   "id": "AataNemeth::test_142",
+   "mathml": "<math><mn>2000</mn></math>",
+   "expected": "⠼⠆⠴⠴⠴"
+  },
+  {
+   "id": "AataNemeth::test_143",
+   "mathml": "<math>\n        <msup><mn>2071</mn>\n        <mrow><mn>9521</mn></mrow></msup><mspace width=\"0.444em\"></mspace><mo stretchy=\"false\">(</mo><mi>mod</mi><mspace width=\"0.333em\"></mspace><mn>4724</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠼⠆⠴⠶⠂⠘⠔⠢⠆⠂⠐⠷⠍⠕⠙⠀⠼⠲⠶⠆⠲⠾"
+  },
+  {
+   "id": "AataNemeth::test_144",
+   "mathml": "<math><mn>2134</mn></math>",
+   "expected": "⠼⠆⠂⠒⠲"
+  },
+  {
+   "id": "AataNemeth::test_145",
+   "mathml": "<math><mi>x</mi><mo>≡<!-- ≡ --></mo><mn>214</mn><mspace width=\"0.444em\"></mspace><mo stretchy=\"false\">(</mo><mi>mod</mi><mspace width=\"0.333em\"></mspace><mn>2772</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠭⠀⠸⠇⠀⠼⠆⠂⠲⠷⠍⠕⠙⠀⠼⠆⠶⠶⠆⠾"
+  },
+  {
+   "id": "AataNemeth::test_146",
+   "mathml": "<math><mn>2234</mn><mo>+</mo><mn>4121</mn></math>",
+   "expected": "⠼⠆⠆⠒⠲⠬⠲⠂⠆⠂"
+  },
+  {
+   "id": "AataNemeth::test_147",
+   "mathml": "<math><mi>n</mi><mo>=</mo><mn>2257</mn><mo>,</mo><mi>E</mi><mo>=</mo><mn>47</mn><mo>,</mo><mi>x</mi><mo>=</mo><mn>23</mn></math>",
+   "expected": "⠝⠀⠨⠅⠀⠼⠆⠆⠢⠶⠠⠀⠠⠑⠀⠨⠅⠀⠼⠲⠶⠠⠀⠭⠀⠨⠅⠀⠼⠆⠒"
+  },
+  {
+   "id": "AataNemeth::test_148",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mi>n</mi><mo>,</mo><mi>E</mi><mo stretchy=\"false\">)</mo><mo>=</mo><mo stretchy=\"false\">(</mo><mn>451</mn><mo>,</mo><mn>231</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠝⠠⠀⠠⠑⠾⠀⠨⠅⠀⠷⠲⠢⠂⠠⠀⠆⠒⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_149",
+   "mathml": "<math><mi>n</mi><mo>=</mo><mn>45629</mn><mo>,</mo><mi>E</mi><mo>=</mo><mn>781</mn><mo>,</mo><mi>x</mi><mo>=</mo><mn>231561</mn></math>",
+   "expected": "⠝⠀⠨⠅⠀⠼⠲⠢⠖⠆⠔⠠⠀⠠⠑⠀⠨⠅⠀⠼⠶⠦⠂⠠⠀⠭⠀⠨⠅⠀⠼⠆⠒⠂⠢⠖⠂"
+  },
+  {
+   "id": "AataNemeth::test_150",
+   "mathml": "<math><mn>234</mn></math>",
+   "expected": "⠼⠆⠒⠲"
+  },
+  {
+   "id": "AataNemeth::test_151",
+   "mathml": "<math><mn>23771</mn></math>",
+   "expected": "⠼⠆⠒⠶⠶⠂"
+  },
+  {
+   "id": "AataNemeth::test_152",
+   "mathml": "<math><mn>41</mn><mo>−<!-- − --></mo><mn>17</mn><mo>=</mo><mn>24</mn></math>",
+   "expected": "⠼⠲⠂⠤⠂⠶⠀⠨⠅⠀⠼⠆⠲"
+  },
+  {
+   "id": "AataNemeth::test_153",
+   "mathml": "<math><mn>72</mn><mo>∈<!-- ∈ --></mo><msub>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">Z</mi></mrow></mrow>\n        <mrow><mn>240</mn></mrow></msub></math>",
+   "expected": "⠼⠶⠆⠀⠈⠑⠀⠠⠸⠰⠠⠵⠆⠲⠴"
+  },
+  {
+   "id": "AataNemeth::test_154",
+   "mathml": "<math><mn>2415</mn></math>",
+   "expected": "⠼⠆⠲⠂⠢"
+  },
+  {
+   "id": "AataNemeth::test_155",
+   "mathml": "<math><mi>N</mi><mo>=</mo><mn>250</mn></math>",
+   "expected": "⠠⠝⠀⠨⠅⠀⠼⠆⠢⠴"
+  },
+  {
+   "id": "AataNemeth::test_156",
+   "mathml": "<math><mn>255</mn></math>",
+   "expected": "⠼⠆⠢⠢"
+  },
+  {
+   "id": "AataNemeth::test_157",
+   "mathml": "<math>\n        <msup><mn>2557</mn>\n        <mrow><mn>341</mn></mrow></msup><mspace width=\"0.444em\"></mspace><mo stretchy=\"false\">(</mo><mi>mod</mi><mspace width=\"0.333em\"></mspace><mn>5681</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠼⠆⠢⠢⠶⠘⠒⠲⠂⠐⠷⠍⠕⠙⠀⠼⠢⠖⠦⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_158",
+   "mathml": "<math>\n        <msup><mn>2</mn>\n        <mrow><mn>8</mn></mrow></msup><mo>=</mo><mn>256</mn></math>",
+   "expected": "⠼⠆⠘⠦⠀⠨⠅⠀⠼⠆⠢⠖"
+  },
+  {
+   "id": "AataNemeth::test_159",
+   "mathml": "<math><mn>5</mn><mi>x</mi><mo>+</mo><mn>1</mn><mo>≡<!-- ≡ --></mo><mn>13</mn><mspace width=\"0.444em\"></mspace><mo stretchy=\"false\">(</mo><mi>mod</mi><mspace width=\"0.333em\"></mspace><mn>26</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠼⠢⠭⠬⠂⠀⠸⠇⠀⠼⠂⠒⠷⠍⠕⠙⠀⠼⠆⠖⠾"
+  },
+  {
+   "id": "AataNemeth::test_160",
+   "mathml": "<math><mn>2600</mn><mo>=</mo>\n        <msup><mn>2</mn><mn>3</mn></msup><mo>×<!-- × --></mo>\n        <msup><mn>5</mn><mn>2</mn></msup><mo>×<!-- × --></mo><mn>13</mn></math>",
+   "expected": "⠼⠆⠖⠴⠴⠀⠨⠅⠀⠼⠆⠘⠒⠐⠈⠡⠢⠘⠆⠐⠈⠡⠂⠒"
+  },
+  {
+   "id": "AataNemeth::test_161",
+   "mathml": "<math><msub>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">Z</mi></mrow></mrow>\n        <mrow><mn>27</mn></mrow></msub></math>",
+   "expected": "⠠⠸⠰⠠⠵⠆⠶"
+  },
+  {
+   "id": "AataNemeth::test_162",
+   "mathml": "<math>\n        <msup><mn>271</mn>\n        <mrow><mn>321</mn></mrow></msup><mspace width=\"0.444em\"></mspace><mo stretchy=\"false\">(</mo><mi>mod</mi><mspace width=\"0.333em\"></mspace><mn>481</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠼⠆⠶⠂⠘⠒⠆⠂⠐⠷⠍⠕⠙⠀⠼⠲⠦⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_163",
+   "mathml": "<math><mi>n</mi><mo>=</mo><mn>120979</mn><mo>,</mo><mi>D</mi><mo>=</mo><mn>27331</mn><mo>,</mo><mi>y</mi><mo>=</mo><mn>112135</mn></math>",
+   "expected": "⠝⠀⠨⠅⠀⠼⠂⠆⠴⠔⠶⠔⠠⠀⠠⠙⠀⠨⠅⠀⠼⠆⠶⠒⠒⠂⠠⠀⠽⠀⠨⠅⠀⠼⠂⠂⠆⠂⠒⠢"
+  },
+  {
+   "id": "AataNemeth::test_164",
+   "mathml": "<math><mn>2791</mn></math>",
+   "expected": "⠼⠆⠶⠔⠂"
+  },
+  {
+   "id": "AataNemeth::test_165",
+   "mathml": "<math><mn>28</mn></math>",
+   "expected": "⠼⠆⠦"
+  },
+  {
+   "id": "AataNemeth::test_166",
+   "mathml": "<math><mi>q</mi><mo>=</mo><mn>29</mn></math>",
+   "expected": "⠟⠀⠨⠅⠀⠼⠆⠔"
+  },
+  {
+   "id": "AataNemeth::test_167",
+   "mathml": "<math>\n        <msup><mn>292</mn>\n        <mrow><mn>3171</mn></mrow></msup><mspace width=\"0.444em\"></mspace><mo stretchy=\"false\">(</mo><mi>mod</mi><mspace width=\"0.333em\"></mspace><mn>582</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠼⠆⠔⠆⠘⠒⠂⠶⠂⠐⠷⠍⠕⠙⠀⠼⠢⠦⠆⠾"
+  },
+  {
+   "id": "AataNemeth::test_168",
+   "mathml": "<math><mn>2134</mn><mo>⋅<!-- ⋅ --></mo><mn>1531</mn><mo>=</mo><mn>3,267,154</mn></math>",
+   "expected": "⠼⠆⠂⠒⠲⠡⠂⠢⠒⠂⠀⠨⠅⠀⠼⠒⠠⠆⠖⠶⠠⠂⠢⠲"
+  },
+  {
+   "id": "AataNemeth::test_169",
+   "mathml": "<math><mi>U</mi><mo stretchy=\"false\">(</mo><mn>30</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠠⠥⠷⠒⠴⠾"
+  },
+  {
+   "id": "AataNemeth::test_170",
+   "mathml": "<math><mi>n</mi><mo>=</mo><mn>3551</mn><mo>,</mo><mi>E</mi><mo>=</mo><mn>629</mn><mo>,</mo><mi>x</mi><mo>=</mo><mn>31</mn></math>",
+   "expected": "⠝⠀⠨⠅⠀⠼⠒⠢⠢⠂⠠⠀⠠⠑⠀⠨⠅⠀⠼⠖⠆⠔⠠⠀⠭⠀⠨⠅⠀⠼⠒⠂"
+  },
+  {
+   "id": "AataNemeth::test_171",
+   "mathml": "<math><mn>312</mn><mo>∈<!-- ∈ --></mo><msub>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">Z</mi></mrow></mrow>\n        <mrow><mn>471</mn></mrow></msub></math>",
+   "expected": "⠼⠒⠂⠆⠀⠈⠑⠀⠠⠸⠰⠠⠵⠲⠶⠂"
+  },
+  {
+   "id": "AataNemeth::test_172",
+   "mathml": "<math><mn>342</mn></math>",
+   "expected": "⠼⠒⠲⠆"
+  },
+  {
+   "id": "AataNemeth::test_173",
+   "mathml": "<math><mi>G</mi><mo>=</mo><mo fence=\"false\" stretchy=\"false\">{</mo><mo stretchy=\"false\">(</mo><mn>1</mn><mo stretchy=\"false\">)</mo><mo>,</mo><mo stretchy=\"false\">(</mo><mn>12</mn><mo stretchy=\"false\">)</mo><mo>,</mo><mo stretchy=\"false\">(</mo><mn>345</mn><mo stretchy=\"false\">)</mo><mo>,</mo><mo stretchy=\"false\">(</mo><mn>354</mn><mo stretchy=\"false\">)</mo><mo>,</mo><mo stretchy=\"false\">(</mo><mn>12</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>345</mn><mo stretchy=\"false\">)</mo><mo>,</mo><mo stretchy=\"false\">(</mo><mn>12</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>354</mn><mo stretchy=\"false\">)</mo><mo fence=\"false\" stretchy=\"false\">}</mo></math>",
+   "expected": "⠠⠛⠀⠨⠅⠀⠨⠷⠷⠂⠾⠠⠀⠷⠂⠆⠾⠠⠀⠷⠒⠲⠢⠾⠠⠀⠷⠒⠢⠲⠾⠠⠀⠷⠂⠆⠾⠷⠒⠲⠢⠾⠠⠀⠷⠂⠆⠾⠷⠒⠢⠲⠾⠨⠾"
+  },
+  {
+   "id": "AataNemeth::test_174",
+   "mathml": "<math><mn>44</mn><mspace width=\"thinmathspace\"></mspace><mn>352</mn><mspace width=\"thinmathspace\"></mspace><mn>000</mn></math>",
+   "expected": "⠼⠲⠲⠀⠒⠢⠆⠀⠴⠴⠴"
+  },
+  {
+   "id": "AataNemeth::test_175",
+   "mathml": "<math><msup><mn>360</mn><mrow><mo>∘<!-- ∘ --></mo></mrow></msup></math>",
+   "expected": "⠼⠒⠖⠴⠘⠨⠡"
+  },
+  {
+   "id": "AataNemeth::test_176",
+   "mathml": "<math><mn>37</mn></math>",
+   "expected": "⠼⠒⠶"
+  },
+  {
+   "id": "AataNemeth::test_177",
+   "mathml": "<math><mn>3754</mn></math>",
+   "expected": "⠼⠒⠶⠢⠲"
+  },
+  {
+   "id": "AataNemeth::test_178",
+   "mathml": "<math><mn>38</mn></math>",
+   "expected": "⠼⠒⠦"
+  },
+  {
+   "id": "AataNemeth::test_179",
+   "mathml": "<math><mn>39</mn></math>",
+   "expected": "⠼⠒⠔"
+  },
+  {
+   "id": "AataNemeth::test_180",
+   "mathml": "<math><mn>391</mn><mo>=</mo><mn>17</mn><mo>⋅<!-- ⋅ --></mo><mn>23</mn></math>",
+   "expected": "⠼⠒⠔⠂⠀⠨⠅⠀⠼⠂⠶⠡⠆⠒"
+  },
+  {
+   "id": "AataNemeth::test_181",
+   "mathml": "<math><mi>x</mi><mo>=</mo><mn>4</mn></math>",
+   "expected": "⠭⠀⠨⠅⠀⠼⠲"
+  },
+  {
+   "id": "AataNemeth::test_182",
+   "mathml": "<math><mn>40</mn></math>",
+   "expected": "⠼⠲⠴"
+  },
+  {
+   "id": "AataNemeth::test_183",
+   "mathml": "<math><mn>42</mn></math>",
+   "expected": "⠼⠲⠆"
+  },
+  {
+   "id": "AataNemeth::test_184",
+   "mathml": "<math><mn>43</mn><mo>−<!-- − --></mo><mn>18</mn><mi>i</mi></math>",
+   "expected": "⠼⠲⠒⠤⠂⠦⠊"
+  },
+  {
+   "id": "AataNemeth::test_185",
+   "mathml": "<math><mi>n</mi><mo>=</mo><mn>8779</mn><mo>⋅<!-- ⋅ --></mo><mn>4327</mn></math>",
+   "expected": "⠝⠀⠨⠅⠀⠼⠦⠶⠶⠔⠡⠲⠒⠆⠶"
+  },
+  {
+   "id": "AataNemeth::test_186",
+   "mathml": "<math><mo>−<!-- − --></mo><mn>4357</mn></math>",
+   "expected": "⠤⠼⠲⠒⠢⠶"
+  },
+  {
+   "id": "AataNemeth::test_187",
+   "mathml": "<math><mn>44</mn></math>",
+   "expected": "⠼⠲⠲"
+  },
+  {
+   "id": "AataNemeth::test_188",
+   "mathml": "<math><mn>46</mn></math>",
+   "expected": "⠼⠲⠖"
+  },
+  {
+   "id": "AataNemeth::test_189",
+   "mathml": "<math><mn>46,388</mn></math>",
+   "expected": "⠼⠲⠖⠠⠒⠦⠦"
+  },
+  {
+   "id": "AataNemeth::test_190",
+   "mathml": "<math><msub><mi>D</mi><mrow><mn>470448</mn></mrow></msub></math>",
+   "expected": "⠠⠙⠲⠶⠴⠲⠲⠦"
+  },
+  {
+   "id": "AataNemeth::test_191",
+   "mathml": "<math><mn>471</mn></math>",
+   "expected": "⠼⠲⠶⠂"
+  },
+  {
+   "id": "AataNemeth::test_192",
+   "mathml": "<math><msub>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">Z</mi></mrow></mrow>\n        <mrow><mn>48</mn></mrow></msub></math>",
+   "expected": "⠠⠸⠰⠠⠵⠲⠦"
+  },
+  {
+   "id": "AataNemeth::test_193",
+   "mathml": "<math><mi>E</mi><mo>=</mo><mn>487</mn></math>",
+   "expected": "⠠⠑⠀⠨⠅⠀⠼⠲⠦⠶"
+  },
+  {
+   "id": "AataNemeth::test_194",
+   "mathml": "<math><mi>U</mi><mo stretchy=\"false\">(</mo><mn>49</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠠⠥⠷⠲⠔⠾"
+  },
+  {
+   "id": "AataNemeth::test_195",
+   "mathml": "<math><mn>2</mn><mo>+</mo><mn>3</mn><mo>=</mo><mn>5</mn></math>",
+   "expected": "⠼⠆⠬⠒⠀⠨⠅⠀⠼⠢"
+  },
+  {
+   "id": "AataNemeth::test_196",
+   "mathml": "<math><mn>500</mn></math>",
+   "expected": "⠼⠢⠴⠴"
+  },
+  {
+   "id": "AataNemeth::test_197",
+   "mathml": "<math><mn>7</mn><mo>!</mo><mo>=</mo><mn>5040</mn></math>",
+   "expected": "⠼⠶⠯⠀⠨⠅⠀⠼⠢⠴⠲⠴"
+  },
+  {
+   "id": "AataNemeth::test_198",
+   "mathml": "<math><mn>51</mn></math>",
+   "expected": "⠼⠢⠂"
+  },
+  {
+   "id": "AataNemeth::test_199",
+   "mathml": "<math>\n        <msup><mn>2</mn>\n        <mrow><mn>511</mn></mrow></msup><mo>−<!-- − --></mo><mn>1</mn></math>",
+   "expected": "⠼⠆⠘⠢⠂⠂⠐⠤⠂"
+  },
+  {
+   "id": "AataNemeth::test_200",
+   "mathml": "<math><mn>52</mn></math>",
+   "expected": "⠼⠢⠆"
+  },
+  {
+   "id": "AataNemeth::test_201",
+   "mathml": "<math><mn>53</mn></math>",
+   "expected": "⠼⠢⠒"
+  },
+  {
+   "id": "AataNemeth::test_202",
+   "mathml": "<math><mn>54</mn></math>",
+   "expected": "⠼⠢⠲"
+  },
+  {
+   "id": "AataNemeth::test_203",
+   "mathml": "<math><mn>540</mn><mo>=</mo>\n        <msup><mn>2</mn><mn>2</mn></msup><mo>⋅<!-- ⋅ --></mo>\n        <msup><mn>3</mn><mn>3</mn></msup><mo>⋅<!-- ⋅ --></mo><mn>5</mn></math>",
+   "expected": "⠼⠢⠲⠴⠀⠨⠅⠀⠼⠆⠘⠆⠐⠡⠒⠘⠒⠐⠡⠢"
+  },
+  {
+   "id": "AataNemeth::test_204",
+   "mathml": "<math><mn>561</mn></math>",
+   "expected": "⠼⠢⠖⠂"
+  },
+  {
+   "id": "AataNemeth::test_205",
+   "mathml": "<math><mn>562</mn></math>",
+   "expected": "⠼⠢⠖⠆"
+  },
+  {
+   "id": "AataNemeth::test_206",
+   "mathml": "<math><mn>57</mn><mo>=</mo>\n        <msup><mn>2</mn><mn>0</mn></msup><mo>+</mo>\n        <msup><mn>2</mn><mn>3</mn></msup><mo>+</mo>\n        <msup><mn>2</mn><mn>4</mn></msup><mo>+</mo>\n        <msup><mn>2</mn><mn>5</mn></msup></math>",
+   "expected": "⠼⠢⠶⠀⠨⠅⠀⠼⠆⠘⠴⠐⠬⠆⠘⠒⠐⠬⠆⠘⠲⠐⠬⠆⠘⠢"
+  },
+  {
+   "id": "AataNemeth::test_207",
+   "mathml": "<math><mn>58</mn></math>",
+   "expected": "⠼⠢⠦"
+  },
+  {
+   "id": "AataNemeth::test_208",
+   "mathml": "<math><mi>n</mi><mo>=</mo><mn>5893</mn><mo>,</mo><mi>D</mi><mo>=</mo><mn>81</mn><mo>,</mo><mi>y</mi><mo>=</mo><mn>34</mn></math>",
+   "expected": "⠝⠀⠨⠅⠀⠼⠢⠦⠔⠒⠠⠀⠠⠙⠀⠨⠅⠀⠼⠦⠂⠠⠀⠽⠀⠨⠅⠀⠼⠒⠲"
+  },
+  {
+   "id": "AataNemeth::test_209",
+   "mathml": "<math><mn>59</mn></math>",
+   "expected": "⠼⠢⠔"
+  },
+  {
+   "id": "AataNemeth::test_210",
+   "mathml": "<math><mn>2</mn><mi>x</mi><mo>=</mo><mn>6</mn></math>",
+   "expected": "⠼⠆⠭⠀⠨⠅⠀⠼⠖"
+  },
+  {
+   "id": "AataNemeth::test_211",
+   "mathml": "<math><mn>6.00000</mn></math>",
+   "expected": "⠼⠖⠨⠴⠴⠴⠴⠴"
+  },
+  {
+   "id": "AataNemeth::test_212",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>8</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>3</mn><mo>,</mo><mn>6.12</mn><mo>,</mo><mn>9</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>5</mn><mo>,</mo><mn>10</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mn>7</mn><mo>,</mo><mn>14</mn><mo>,</mo><mn>13</mn><mo>,</mo><mn>11</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠂⠠⠀⠆⠠⠀⠲⠠⠀⠦⠾⠷⠒⠠⠀⠖⠨⠂⠆⠠⠀⠔⠾⠷⠢⠠⠀⠂⠴⠾⠷⠶⠠⠀⠂⠲⠠⠀⠂⠒⠠⠀⠂⠂⠾"
+  },
+  {
+   "id": "AataNemeth::test_213",
+   "mathml": "<math><mi>z</mi><mo>=</mo><mn>2</mn><mi>cis</mi><mo>⁡<!-- ⁡ --></mo>\n        <msup><mn>60</mn>\n        <mrow><mo>∘<!-- ∘ --></mo></mrow></msup></math>",
+   "expected": "⠵⠀⠨⠅⠀⠼⠆⠉⠊⠎⠀⠼⠖⠴⠘⠨⠡"
+  },
+  {
+   "id": "AataNemeth::test_214",
+   "mathml": "<math>\n        <msup><mi>x</mi><mn>4</mn></msup><mo>−<!-- − --></mo><mo stretchy=\"false\">(</mo><mn>2</mn>\n        <mrow><mo>/</mo></mrow><mn>3</mn><mo stretchy=\"false\">)</mo>\n        <msup><mi>x</mi><mn>2</mn></msup><mo>−<!-- − --></mo><mn>62</mn>\n        <mrow><mo>/</mo></mrow><mn>9</mn></math>",
+   "expected": "⠭⠘⠲⠐⠤⠷⠆⠸⠌⠒⠾⠭⠘⠆⠐⠤⠖⠆⠸⠌⠔"
+  },
+  {
+   "id": "AataNemeth::test_215",
+   "mathml": "<math><mo stretchy=\"false\">[</mo><mi>GF</mi><mo>⁡<!-- ⁡ --></mo><mo stretchy=\"false\">(</mo><mn>625</mn><mo stretchy=\"false\">)</mo><mo>:</mo><mi>GF</mi><mo>⁡<!-- ⁡ --></mo><mo stretchy=\"false\">(</mo><mn>25</mn><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">]</mo></math>",
+   "expected": "⠈⠷⠠⠠⠛⠋⠷⠖⠆⠢⠾⠸⠒⠠⠠⠛⠋⠷⠆⠢⠾⠈⠾"
+  },
+  {
+   "id": "AataNemeth::test_216",
+   "mathml": "<math><mn>631</mn></math>",
+   "expected": "⠼⠖⠒⠂"
+  },
+  {
+   "id": "AataNemeth::test_217",
+   "mathml": "<math><mn>64</mn></math>",
+   "expected": "⠼⠖⠲"
+  },
+  {
+   "id": "AataNemeth::test_218",
+   "mathml": "<math>\n        <msup><mn>2</mn>\n        <mrow>\n        <msup><mn>2</mn><mn>4</mn></msup></mrow></msup><mo>=</mo><mn>65,536</mn></math>",
+   "expected": "⠼⠆⠘⠆⠘⠘⠲⠀⠨⠅⠀⠼⠖⠢⠠⠢⠒⠖"
+  },
+  {
+   "id": "AataNemeth::test_219",
+   "mathml": "<math><mn>66</mn></math>",
+   "expected": "⠼⠖⠖"
+  },
+  {
+   "id": "AataNemeth::test_220",
+   "mathml": "<math><mn>720</mn></math>",
+   "expected": "⠼⠶⠆⠴"
+  },
+  {
+   "id": "AataNemeth::test_221",
+   "mathml": "<math><mn>729</mn></math>",
+   "expected": "⠼⠶⠆⠔"
+  },
+  {
+   "id": "AataNemeth::test_222",
+   "mathml": "<math>\n        <msup><mn>971</mn>\n        <mrow><mn>321</mn></mrow></msup><mspace width=\"0.444em\"></mspace><mo stretchy=\"false\">(</mo><mi>mod</mi><mspace width=\"0.333em\"></mspace><mn>765</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠼⠔⠶⠂⠘⠒⠆⠂⠐⠷⠍⠕⠙⠀⠼⠶⠖⠢⠾"
+  },
+  {
+   "id": "AataNemeth::test_223",
+   "mathml": "<math><mn>771</mn></math>",
+   "expected": "⠼⠶⠶⠂"
+  },
+  {
+   "id": "AataNemeth::test_224",
+   "mathml": "<math><msub>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">Z</mi></mrow></mrow>\n        <mrow><mn>10</mn></mrow></msub><mo>×<!-- × --></mo><msub>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">Z</mi></mrow></mrow>\n        <mrow><mn>24</mn></mrow></msub><mo>×<!-- × --></mo><msub>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">Z</mi></mrow></mrow>\n        <mrow><mn>80</mn></mrow></msub></math>",
+   "expected": "⠠⠸⠰⠠⠵⠂⠴⠈⠡⠠⠸⠰⠠⠵⠆⠲⠈⠡⠠⠸⠰⠠⠵⠦⠴"
+  },
+  {
+   "id": "AataNemeth::test_225",
+   "mathml": "<math>\n        <msup><mn>7</mn><mn>5</mn></msup><mo>=</mo><mn>16</mn><mspace width=\"thinmathspace\"></mspace><mn>807</mn></math>",
+   "expected": "⠼⠶⠘⠢⠀⠨⠅⠀⠼⠂⠖⠀⠦⠴⠶"
+  },
+  {
+   "id": "AataNemeth::test_226",
+   "mathml": "<math><mn>811</mn></math>",
+   "expected": "⠼⠦⠂⠂"
+  },
+  {
+   "id": "AataNemeth::test_227",
+   "mathml": "<math><mn>95</mn><mo>⋅<!-- ⋅ --></mo><mn>97</mn><mo>⋅<!-- ⋅ --></mo><mn>98</mn><mo>⋅<!-- ⋅ --></mo><mn>99</mn><mo>=</mo><mn>89,403,930</mn></math>",
+   "expected": "⠼⠔⠢⠡⠔⠶⠡⠔⠦⠡⠔⠔⠀⠨⠅⠀⠼⠦⠔⠠⠲⠴⠒⠠⠔⠒⠴"
+  },
+  {
+   "id": "AataNemeth::test_228",
+   "mathml": "<math><msup><mn>90</mn><mrow><mo>∘<!-- ∘ --></mo></mrow></msup></math>",
+   "expected": "⠼⠔⠴⠘⠨⠡"
+  },
+  {
+   "id": "AataNemeth::test_229",
+   "mathml": "<math><mn>945</mn></math>",
+   "expected": "⠼⠔⠲⠢"
+  },
+  {
+   "id": "AataNemeth::test_230",
+   "mathml": "<math><mn>95</mn></math>",
+   "expected": "⠼⠔⠢"
+  },
+  {
+   "id": "AataNemeth::test_231",
+   "mathml": "<math><mn>96</mn></math>",
+   "expected": "⠼⠔⠖"
+  },
+  {
+   "id": "AataNemeth::test_232",
+   "mathml": "<math><mn>97</mn></math>",
+   "expected": "⠼⠔⠶"
+  },
+  {
+   "id": "AataNemeth::test_233",
+   "mathml": "<math><mn>98</mn></math>",
+   "expected": "⠼⠔⠦"
+  },
+  {
+   "id": "AataNemeth::test_234",
+   "mathml": "<math><mn>99</mn></math>",
+   "expected": "⠼⠔⠔"
+  },
+  {
+   "id": "AataNemeth::test_235",
+   "mathml": "<math><mn>9923</mn></math>",
+   "expected": "⠼⠔⠔⠆⠒"
+  },
+  {
+   "id": "AataNemeth::test_236",
+   "mathml": "<math><mi>a</mi><mo>∈<!-- ∈ --></mo><mi>A</mi></math>",
+   "expected": "⠁⠀⠈⠑⠀⠠⠁"
+  },
+  {
+   "id": "AataNemeth::test_237",
+   "mathml": "<math><mi>Aut</mi><mo>⁡<!-- ⁡ --></mo><mo stretchy=\"false\">(</mo><mi>G</mi><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠠⠁⠥⠞⠷⠠⠛⠾"
+  },
+  {
+   "id": "AataNemeth::test_238",
+   "mathml": "<math><mi>A</mi><mo>⊂<!-- ⊂ --></mo><mi>B</mi></math>",
+   "expected": "⠠⠁⠀⠸⠐⠅⠀⠠⠃"
+  },
+  {
+   "id": "AataNemeth::test_239",
+   "mathml": "<math><mi>h</mi><mo>:</mo><mi>C</mi><mo stretchy=\"false\">→<!-- → --></mo><mi>D</mi></math>",
+   "expected": "⠰⠓⠸⠒⠀⠠⠉⠀⠫⠕⠀⠠⠙"
+  },
+  {
+   "id": "AataNemeth::test_240",
+   "mathml": "<math><mi>G</mi><mo>×<!-- × --></mo><mi>G</mi><mo stretchy=\"false\">→<!-- → --></mo><mi>G</mi></math>",
+   "expected": "⠠⠛⠈⠡⠠⠛⠀⠫⠕⠀⠠⠛"
+  },
+  {
+   "id": "AataNemeth::test_241",
+   "mathml": "<math><mi>GF</mi><mo>⁡<!-- ⁡ --></mo><mo stretchy=\"false\">(</mo>\n        <msup><mi>p</mi><mi>n</mi></msup><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠠⠠⠛⠋⠷⠏⠘⠝⠐⠾"
+  },
+  {
+   "id": "AataNemeth::test_242",
+   "mathml": "<math><mi>H</mi><mo>=</mo><mo fence=\"false\" stretchy=\"false\">{</mo><mi>e</mi><mo fence=\"false\" stretchy=\"false\">}</mo></math>",
+   "expected": "⠠⠓⠀⠨⠅⠀⠨⠷⠑⠨⠾"
+  },
+  {
+   "id": "AataNemeth::test_243",
+   "mathml": "<math><mrow><mrow><mi mathvariant=\"double-struck\">H</mi></mrow></mrow></math>",
+   "expected": "⠠⠸⠰⠠⠓"
+  },
+  {
+   "id": "AataNemeth::test_244",
+   "mathml": "<math><mi>Hom</mi><mo>⁡<!-- ⁡ --></mo><mo stretchy=\"false\">(</mo><mi>V</mi><mo>,</mo><mi>W</mi><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠠⠓⠕⠍⠀⠷⠠⠧⠠⠀⠠⠺⠾"
+  },
+  {
+   "id": "AataNemeth::test_245",
+   "mathml": "<math><mi>Inn</mi><mo>⁡<!-- ⁡ --></mo><mo stretchy=\"false\">(</mo><mi>G</mi><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠠⠊⠝⠝⠷⠠⠛⠾"
+  },
+  {
+   "id": "AataNemeth::test_246",
+   "mathml": "<math><mi>G</mi><msub><mi>L</mi><mn>2</mn></msub><mo stretchy=\"false\">(</mo>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">R</mi></mrow></mrow><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠠⠛⠠⠇⠆⠷⠠⠸⠰⠠⠗⠾"
+  },
+  {
+   "id": "AataNemeth::test_247",
+   "mathml": "<math><mi>ϕ<!-- ϕ --></mi><mo>:</mo><msub>\n        <mrow>\n        <mrow><mi mathvariant=\"script\">L</mi></mrow></mrow><mi>H</mi></msub><mo stretchy=\"false\">→<!-- → --></mo><msub>\n        <mrow>\n        <mrow><mi mathvariant=\"script\">R</mi></mrow></mrow><mi>H</mi></msub></math>",
+   "expected": "⠨⠋⠸⠒⠀⠈⠰⠠⠇⠰⠠⠓⠀⠫⠕⠀⠈⠰⠠⠗⠰⠠⠓"
+  },
+  {
+   "id": "AataNemeth::test_248",
+   "mathml": "<math><msub>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">M</mi></mrow></mrow><mn>2</mn></msub><mo stretchy=\"false\">(</mo>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">R</mi></mrow></mrow><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠠⠸⠰⠠⠍⠆⠷⠠⠸⠰⠠⠗⠾"
+  },
+  {
+   "id": "AataNemeth::test_249",
+   "mathml": "<math><mi>R</mi><mrow><mo>/</mo></mrow><mi>M</mi></math>",
+   "expected": "⠠⠗⠸⠌⠠⠍"
+  },
+  {
+   "id": "AataNemeth::test_250",
+   "mathml": "<math><mn>1</mn><mo>&lt;</mo><mi>n</mi><mo>&lt;</mo><mi>N</mi></math>",
+   "expected": "⠼⠂⠀⠐⠅⠀⠝⠀⠐⠅⠀⠠⠝"
+  },
+  {
+   "id": "AataNemeth::test_251",
+   "mathml": "<math><mi>Null</mi><mo>⁡<!-- ⁡ --></mo><mo stretchy=\"false\">(</mo><mi>H</mi><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠠⠝⠥⠇⠇⠷⠠⠓⠾"
+  },
+  {
+   "id": "AataNemeth::test_252",
+   "mathml": "<math><mi>O</mi><mo stretchy=\"false\">(</mo><mi>n</mi><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠠⠕⠷⠝⠾"
+  },
+  {
+   "id": "AataNemeth::test_253",
+   "mathml": "<math><mi>P</mi><mi>A</mi>\n        <msup><mi>P</mi>\n        <mrow><mo>−<!-- − --></mo><mn>1</mn></mrow></msup><mo>=</mo><mi>B</mi></math>",
+   "expected": "⠠⠏⠠⠁⠠⠏⠘⠤⠂⠀⠨⠅⠀⠠⠃"
+  },
+  {
+   "id": "AataNemeth::test_254",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">P</mi></mrow></mrow><mo stretchy=\"false\">(</mo>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">R</mi></mrow></mrow><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠠⠸⠰⠠⠏⠷⠠⠸⠰⠠⠗⠾"
+  },
+  {
+   "id": "AataNemeth::test_255",
+   "mathml": "<math><mi>Q</mi><mi>B</mi>\n        <msup><mi>Q</mi>\n        <mrow><mo>−<!-- − --></mo><mn>1</mn></mrow></msup><mo>=</mo><mi>C</mi></math>",
+   "expected": "⠠⠟⠠⠃⠠⠟⠘⠤⠂⠀⠨⠅⠀⠠⠉"
+  },
+  {
+   "id": "AataNemeth::test_256",
+   "mathml": "<math><mi>R</mi><mo>⊂<!-- ⊂ --></mo><mi>X</mi><mo>×<!-- × --></mo><mi>X</mi></math>",
+   "expected": "⠠⠗⠀⠸⠐⠅⠀⠠⠭⠈⠡⠠⠭"
+  },
+  {
+   "id": "AataNemeth::test_257",
+   "mathml": "<math><mi>S</mi><mo>=</mo><mo fence=\"false\" stretchy=\"false\">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo fence=\"false\" stretchy=\"false\">}</mo></math>",
+   "expected": "⠠⠎⠀⠨⠅⠀⠨⠷⠂⠠⠀⠆⠠⠀⠒⠨⠾"
+  },
+  {
+   "id": "AataNemeth::test_258",
+   "mathml": "<math><mtext>S</mtext><mo>=</mo><mn>18</mn></math>",
+   "expected": "⠠⠎⠀⠨⠅⠀⠼⠂⠦"
+  },
+  {
+   "id": "AataNemeth::test_259",
+   "mathml": "<math><msub><mi>T</mi><mi>A</mi></msub><mo>:</mo>\n        <msup>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">R</mi></mrow></mrow><mn>2</mn></msup><mo stretchy=\"false\">→<!-- → --></mo>\n        <msup>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">R</mi></mrow></mrow><mn>2</mn></msup></math>",
+   "expected": "⠠⠞⠰⠠⠁⠸⠒⠀⠠⠸⠰⠠⠗⠘⠆⠀⠫⠕⠀⠠⠸⠰⠠⠗⠘⠆"
+  },
+  {
+   "id": "AataNemeth::test_260",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">T</mi></mrow></mrow><mo>=</mo><mo fence=\"false\" stretchy=\"false\">{</mo><mi>z</mi><mo>∈<!-- ∈ --></mo>\n        <msup>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">C</mi></mrow></mrow><mo>∗<!-- ∗ --></mo></msup><mo>:</mo>\n        <mrow><mo stretchy=\"false\">|</mo></mrow><mi>z</mi>\n        <mrow><mo stretchy=\"false\">|</mo></mrow><mo>=</mo><mn>1</mn><mo fence=\"false\" stretchy=\"false\">}</mo></math>",
+   "expected": "⠠⠸⠰⠠⠞⠀⠨⠅⠀⠨⠷⠵⠀⠈⠑⠀⠠⠸⠰⠠⠉⠘⠈⠼⠸⠒⠀⠳⠵⠳⠀⠨⠅⠀⠼⠂⠨⠾"
+  },
+  {
+   "id": "AataNemeth::test_261",
+   "mathml": "<math><mi>A</mi><mo>⊂<!-- ⊂ --></mo><mi>U</mi></math>",
+   "expected": "⠠⠁⠀⠸⠐⠅⠀⠠⠥"
+  },
+  {
+   "id": "AataNemeth::test_262",
+   "mathml": "<math><mi>v</mi><mo>∈<!-- ∈ --></mo><mi>V</mi></math>",
+   "expected": "⠧⠀⠈⠑⠀⠠⠧"
+  },
+  {
+   "id": "AataNemeth::test_263",
+   "mathml": "<math><mi>Y</mi><mo>=</mo><mo fence=\"false\" stretchy=\"false\">{</mo><mi>B</mi><mo>,</mo><mi>W</mi><mo fence=\"false\" stretchy=\"false\">}</mo></math>",
+   "expected": "⠠⠽⠀⠨⠅⠀⠨⠷⠠⠃⠠⠀⠠⠺⠨⠾"
+  },
+  {
+   "id": "AataNemeth::test_264",
+   "mathml": "<math><mi>f</mi><mo>:</mo><mi>X</mi><mo stretchy=\"false\">→<!-- → --></mo><mi>Y</mi></math>",
+   "expected": "⠰⠋⠸⠒⠀⠠⠭⠀⠫⠕⠀⠠⠽"
+  },
+  {
+   "id": "AataNemeth::test_265",
+   "mathml": "<math><msub>\n        <mrow><mi mathvariant=\"double-struck\">M</mi></mrow>\n        <mrow><mi>m</mi><mo>×<!-- × --></mo><mi>n</mi></mrow></msub><mo stretchy=\"false\">(</mo><msub>\n        <mrow><mi mathvariant=\"bold\">Z</mi></mrow><mn>2</mn></msub><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠠⠸⠰⠠⠍⠰⠍⠈⠡⠝⠐⠷⠸⠰⠠⠵⠆⠾"
+  },
+  {
+   "id": "AataNemeth::test_266",
+   "mathml": "<math><mo stretchy=\"false\">[</mo><mi>x</mi><mo stretchy=\"false\">]</mo><mo>=</mo><mo fence=\"false\" stretchy=\"false\">{</mo><mi>y</mi><mo>∈<!-- ∈ --></mo><mi>X</mi><mo>:</mo><mi>y</mi><mo>∼<!-- ∼ --></mo><mi>x</mi><mo fence=\"false\" stretchy=\"false\">}</mo></math>",
+   "expected": "⠈⠷⠭⠈⠾⠀⠨⠅⠀⠨⠷⠽⠀⠈⠑⠀⠠⠭⠸⠒⠀⠽⠀⠈⠱⠀⠭⠨⠾"
+  },
+  {
+   "id": "AataNemeth::test_267",
+   "mathml": "<math><mi>F</mi><mo fence=\"false\" stretchy=\"false\">[</mo><mi>x</mi><mo fence=\"false\" stretchy=\"false\">]</mo></math>",
+   "expected": "⠠⠋⠈⠷⠭⠈⠾"
+  },
+  {
+   "id": "AataNemeth::test_268",
+   "mathml": "<math><mi>char</mi><mo>⁡<!-- ⁡ --></mo><mi>R</mi></math>",
+   "expected": "⠉⠓⠁⠗⠀⠠⠗"
+  },
+  {
+   "id": "AataNemeth::test_269",
+   "mathml": "<math><mi>r</mi><mi>cis</mi><mo>⁡<!-- ⁡ --></mo><mi>θ<!-- θ --></mi></math>",
+   "expected": "⠗⠉⠊⠎⠀⠨⠹"
+  },
+  {
+   "id": "AataNemeth::test_270",
+   "mathml": "<math><mi>α<!-- α --></mi><mi>β<!-- β --></mi><mo>=</mo>\n        <mrow><mi mathvariant=\"normal\">i</mi><mi mathvariant=\"normal\">d</mi></mrow></math>",
+   "expected": "⠨⠁⠨⠃⠀⠨⠅⠀⠊⠙"
+  },
+  {
+   "id": "AataNemeth::test_271",
+   "mathml": "<math><mi>deg</mi><mo>⁡<!-- ⁡ --></mo><mi>f</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo stretchy=\"false\">)</mo><mo>=</mo><mi>n</mi></math>",
+   "expected": "⠙⠑⠛⠀⠋⠷⠭⠾⠀⠨⠅⠀⠝"
+  },
+  {
+   "id": "AataNemeth::test_272",
+   "mathml": "<math><mo form=\"prefix\" movablelimits=\"true\">det</mo><mi>A</mi><mo>=</mo><mi>a</mi><mi>d</mi><mo>−<!-- − --></mo><mi>b</mi><mi>c</mi><mo>≠<!-- ≠ --></mo><mn>0</mn></math>",
+   "expected": "⠙⠑⠞⠀⠠⠁⠀⠨⠅⠀⠁⠙⠤⠃⠉⠀⠌⠨⠅⠀⠼⠴"
+  },
+  {
+   "id": "AataNemeth::test_273",
+   "mathml": "<math><mi>dim</mi><mo>⁡<!-- ⁡ --></mo><mi>V</mi><mo>=</mo><mi>n</mi></math>",
+   "expected": "⠙⠊⠍⠀⠠⠧⠀⠨⠅⠀⠝"
+  },
+  {
+   "id": "AataNemeth::test_274",
+   "mathml": "<math>\n        <msup><mi>f</mi>\n        <mrow><mo>−<!-- − --></mo><mn>1</mn></mrow></msup><mo stretchy=\"false\">(</mo><mi>x</mi><mo stretchy=\"false\">)</mo><mo>=</mo>\n        <msup><mi>e</mi><mi>x</mi></msup></math>",
+   "expected": "⠋⠘⠤⠂⠐⠷⠭⠾⠀⠨⠅⠀⠑⠘⠭"
+  },
+  {
+   "id": "AataNemeth::test_275",
+   "mathml": "<math><mi>f</mi><mo>⊂<!-- ⊂ --></mo><mi>A</mi><mo>×<!-- × --></mo><mi>B</mi></math>",
+   "expected": "⠋⠀⠸⠐⠅⠀⠠⠁⠈⠡⠠⠃"
+  },
+  {
+   "id": "AataNemeth::test_276",
+   "mathml": "<math><mi>g</mi><mo stretchy=\"false\">(</mo><mn>1</mn><mo stretchy=\"false\">)</mo><mo>=</mo><mi>a</mi></math>",
+   "expected": "⠛⠷⠂⠾⠀⠨⠅⠀⠁"
+  },
+  {
+   "id": "AataNemeth::test_277",
+   "mathml": "<math><mi>d</mi><mo>=</mo><mo form=\"prefix\" movablelimits=\"true\">gcd</mo><mo stretchy=\"false\">(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠙⠀⠨⠅⠀⠛⠉⠙⠀⠷⠁⠠⠀⠃⠾"
+  },
+  {
+   "id": "AataNemeth::test_278",
+   "mathml": "<math><msub><mi>X</mi><mi>i</mi></msub><mo>∩<!-- ∩ --></mo><msub><mi>X</mi><mi>j</mi></msub><mo>=</mo><mi mathvariant=\"normal\">∅<!-- ∅ --></mi></math>",
+   "expected": "⠠⠭⠰⠊⠐⠨⠩⠠⠭⠰⠚⠀⠨⠅⠀⠸⠴"
+  },
+  {
+   "id": "AataNemeth::test_279",
+   "mathml": "<math><mi>ker</mi><mo>⁡<!-- ⁡ --></mo><mi>ϕ<!-- ϕ --></mi></math>",
+   "expected": "⠅⠑⠗⠀⠨⠋"
+  },
+  {
+   "id": "AataNemeth::test_280",
+   "mathml": "<math><mi>s</mi><mo>−<!-- − --></mo><mi>t</mi><mo>=</mo><mi>l</mi><mi>n</mi></math>",
+   "expected": "⠎⠤⠞⠀⠨⠅⠀⠇⠝"
+  },
+  {
+   "id": "AataNemeth::test_281",
+   "mathml": "<math><mi>lcm</mi><mo>⁡<!-- ⁡ --></mo><mo stretchy=\"false\">(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠇⠉⠍⠀⠷⠁⠠⠀⠃⠾"
+  },
+  {
+   "id": "AataNemeth::test_282",
+   "mathml": "<math><munder><mo form=\"prefix\" movablelimits=\"true\">lim</mo>\n        <mrow><mi>n</mi><mo stretchy=\"false\">→<!-- → --></mo><mi mathvariant=\"normal\">∞<!-- ∞ --></mi></mrow></munder><msub><mi>f</mi><mi>n</mi></msub>\n        <mrow><mo>/</mo></mrow><msub><mi>f</mi>\n        <mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mo stretchy=\"false\">(</mo>\n        <msqrt><mn>5</mn></msqrt><mo>−<!-- − --></mo><mn>1</mn><mo stretchy=\"false\">)</mo>\n        <mrow><mo>/</mo></mrow><mn>2</mn></math>",
+   "expected": "⠐⠇⠊⠍⠩⠝⠀⠫⠕⠀⠠⠿⠻⠀⠋⠰⠝⠐⠸⠌⠋⠰⠝⠬⠂⠀⠨⠅⠀⠷⠜⠢⠻⠤⠂⠾⠸⠌⠆"
+  },
+  {
+   "id": "AataNemeth::test_283",
+   "mathml": "<math><mi>f</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo stretchy=\"false\">)</mo><mo>=</mo><mi>ln</mi><mo>⁡<!-- ⁡ --></mo><mi>x</mi></math>",
+   "expected": "⠋⠷⠭⠾⠀⠨⠅⠀⠇⠝⠀⠭"
+  },
+  {
+   "id": "AataNemeth::test_284",
+   "mathml": "<math>\n        <msup>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">R</mi></mrow></mrow><mi>m</mi></msup></math>",
+   "expected": "⠠⠸⠰⠠⠗⠘⠍"
+  },
+  {
+   "id": "AataNemeth::test_285",
+   "mathml": "<math><mi>deg</mi><mo>⁡<!-- ⁡ --></mo><mo stretchy=\"false\">(</mo><mi>p</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo stretchy=\"false\">)</mo><mo>+</mo><mi>q</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">)</mo><mo>≤<!-- ≤ --></mo><mo form=\"prefix\" movablelimits=\"true\">max</mo><mo stretchy=\"false\">(</mo><mi>deg</mi><mo>⁡<!-- ⁡ --></mo><mi>p</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo stretchy=\"false\">)</mo><mo>,</mo><mi>deg</mi><mo>⁡<!-- ⁡ --></mo><mi>q</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠙⠑⠛⠀⠷⠏⠷⠭⠾⠬⠟⠷⠭⠾⠾⠀⠐⠅⠱⠀⠍⠁⠭⠀⠷⠙⠑⠛⠀⠏⠷⠭⠾⠠⠀⠙⠑⠛⠀⠟⠷⠭⠾⠾"
+  },
+  {
+   "id": "AataNemeth::test_286",
+   "mathml": "<math><msub><mi>d</mi>\n        <mrow><mo form=\"prefix\" movablelimits=\"true\">min</mo></mrow></msub></math>",
+   "expected": "⠙⠰⠍⠊⠝"
+  },
+  {
+   "id": "AataNemeth::test_287",
+   "mathml": "<math><mi>r</mi><mo>=</mo><mi>s</mi></math>",
+   "expected": "⠗⠀⠨⠅⠀⠎"
+  },
+  {
+   "id": "AataNemeth::test_288",
+   "mathml": "<math><mrow><mrow><mi mathvariant=\"bold\">r</mi></mrow></mrow></math>",
+   "expected": "⠸⠰⠗"
+  },
+  {
+   "id": "AataNemeth::test_289",
+   "mathml": "<math><mi>f</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo stretchy=\"false\">)</mo><mo>=</mo><mi>sin</mi><mo>⁡<!-- ⁡ --></mo><mi>x</mi></math>",
+   "expected": "⠋⠷⠭⠾⠀⠨⠅⠀⠎⠊⠝⠀⠭"
+  },
+  {
+   "id": "AataNemeth::test_290",
+   "mathml": "<math><mi>r</mi>\n        <mrow><mo>/</mo></mrow><mi>s</mi><mo>∼<!-- ∼ --></mo><mi>t</mi>\n        <mrow><mo>/</mo></mrow><mi>u</mi></math>",
+   "expected": "⠗⠸⠌⠎⠀⠈⠱⠀⠞⠸⠌⠥"
+  },
+  {
+   "id": "AataNemeth::test_291",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">b</mi></mrow></mrow><mo>=</mo><mo stretchy=\"false\">(</mo><mn>2</mn><mo>,</mo><mn>2</mn>\n        <msup><mo stretchy=\"false\">)</mo><mtext>t</mtext></msup></math>",
+   "expected": "⠸⠰⠃⠀⠨⠅⠀⠷⠆⠠⠀⠆⠾⠘⠞"
+  },
+  {
+   "id": "AataNemeth::test_292",
+   "mathml": "<math><mi>v</mi><mo>∈<!-- ∈ --></mo>\n        <msup>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">R</mi></mrow></mrow><mn>2</mn></msup></math>",
+   "expected": "⠧⠀⠈⠑⠀⠠⠸⠰⠠⠗⠘⠆"
+  },
+  {
+   "id": "AataNemeth::test_293",
+   "mathml": "<math><mrow><mrow><mi mathvariant=\"bold\">w</mi></mrow></mrow></math>",
+   "expected": "⠸⠰⠺"
+  },
+  {
+   "id": "AataNemeth::test_294",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">x</mi></mrow></mrow><mo>=</mo><mo stretchy=\"false\">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><mo>…<!-- … --></mo><mo>,</mo><msub><mi>x</mi><mi>n</mi></msub><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠸⠰⠭⠀⠨⠅⠀⠷⠭⠂⠠⠀⠄⠄⠄⠠⠀⠭⠰⠝⠐⠾"
+  },
+  {
+   "id": "AataNemeth::test_295",
+   "mathml": "<math><mi>A</mi><mo>=</mo><mo fence=\"false\" stretchy=\"false\">{</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo fence=\"false\" stretchy=\"false\">}</mo></math>",
+   "expected": "⠠⠁⠀⠨⠅⠀⠨⠷⠭⠠⠀⠽⠨⠾"
+  },
+  {
+   "id": "AataNemeth::test_296",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">y</mi></mrow></mrow><mo>=</mo><mo stretchy=\"false\">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><mo>…<!-- … --></mo><mo>,</mo><msub><mi>y</mi><mi>n</mi></msub><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠸⠰⠽⠀⠨⠅⠀⠷⠽⠂⠠⠀⠄⠄⠄⠠⠀⠽⠰⠝⠐⠾"
+  },
+  {
+   "id": "AataNemeth::test_297",
+   "mathml": "<math>\n        <mrow><mo stretchy=\"false\">|</mo></mrow><mi>x</mi><mo>−<!-- − --></mo><mi>y</mi>\n        <mrow><mo stretchy=\"false\">|</mo></mrow><mo>≤<!-- ≤ --></mo><mn>4</mn></math>",
+   "expected": "⠳⠭⠤⠽⠳⠀⠐⠅⠱⠀⠼⠲"
+  },
+  {
+   "id": "AataNemeth::test_298",
+   "mathml": "<math>\n        <mrow><mover><mi>σ<!-- σ --></mi><mo>~<!-- ~ --></mo></mover></mrow></math>",
+   "expected": "⠐⠨⠎⠣⠈⠱⠻"
+  },
+  {
+   "id": "AataNemeth::test_299",
+   "mathml": "<math><mi>A</mi><mo>×<!-- × --></mo><mi>B</mi></math>",
+   "expected": "⠠⠁⠈⠡⠠⠃"
+  },
+  {
+   "id": "AataNemeth::test_300",
+   "mathml": "<math><mi mathvariant=\"normal\">Δ<!-- Δ --></mi><mo>=</mo>\n        <msup><mi>b</mi><mn>2</mn></msup><mo>−<!-- − --></mo><mn>4</mn><mi>a</mi><mi>c</mi></math>",
+   "expected": "⠨⠠⠙⠀⠨⠅⠀⠃⠘⠆⠐⠤⠲⠁⠉"
+  },
+  {
+   "id": "AataNemeth::test_301",
+   "mathml": "<math><mi>α<!-- α --></mi></math>",
+   "expected": "⠨⠁"
+  },
+  {
+   "id": "AataNemeth::test_302",
+   "mathml": "<math><mi>β<!-- β --></mi></math>",
+   "expected": "⠨⠃"
+  },
+  {
+   "id": "AataNemeth::test_303",
+   "mathml": "<math><mo fence=\"false\" stretchy=\"false\">⟨<!-- ⟨ --></mo><msub>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">a</mi></mrow></mrow><mi>r</mi></msub><mo>,</mo><msub>\n        <mrow>\n        <mrow><mi mathvariant=\"bold\">a</mi></mrow></mrow><mi>s</mi></msub><mo fence=\"false\" stretchy=\"false\">⟩<!-- ⟩ --></mo><mo>=</mo><msub><mi>δ<!-- δ --></mi>\n        <mrow><mi>r</mi><mi>s</mi></mrow></msub></math>",
+   "expected": "⠨⠨⠷⠸⠰⠁⠰⠗⠠⠀⠸⠰⠁⠰⠎⠐⠨⠨⠾⠀⠨⠅⠀⠨⠙⠰⠗⠎"
+  },
+  {
+   "id": "AataNemeth::test_304",
+   "mathml": "<math><mi>η<!-- η --></mi><mo>:</mo><mi>G</mi>\n        <mrow><mo>/</mo></mrow><mi>K</mi><mo stretchy=\"false\">→<!-- → --></mo><mi>ψ<!-- ψ --></mi><mo stretchy=\"false\">(</mo><mi>G</mi><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠨⠱⠸⠒⠀⠠⠛⠸⠌⠠⠅⠀⠫⠕⠀⠨⠽⠷⠠⠛⠾"
+  },
+  {
+   "id": "AataNemeth::test_305",
+   "mathml": "<math><mi>λ<!-- λ --></mi></math>",
+   "expected": "⠨⠇"
+  },
+  {
+   "id": "AataNemeth::test_306",
+   "mathml": "<math><msub><mi>μ<!-- μ --></mi><mn>1</mn></msub><msub><mi>ρ<!-- ρ --></mi><mn>1</mn></msub></math>",
+   "expected": "⠨⠍⠂⠨⠗⠂"
+  },
+  {
+   "id": "AataNemeth::test_307",
+   "mathml": "<math><mi>ν<!-- ν --></mi><mo>:</mo>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">Z</mi></mrow></mrow><mo stretchy=\"false\">[</mo>\n        <msqrt><mn>3</mn></msqrt><mspace width=\"thinmathspace\"></mspace><mi>i</mi><mo stretchy=\"false\">]</mo><mo stretchy=\"false\">→<!-- → --></mo>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">N</mi></mrow></mrow><mo>∪<!-- ∪ --></mo><mo fence=\"false\" stretchy=\"false\">{</mo><mn>0</mn><mo fence=\"false\" stretchy=\"false\">}</mo></math>",
+   "expected": "⠨⠝⠸⠒⠀⠠⠸⠰⠠⠵⠈⠷⠜⠒⠻⠊⠈⠾⠀⠫⠕⠀⠠⠸⠰⠠⠝⠨⠬⠨⠷⠴⠨⠾"
+  },
+  {
+   "id": "AataNemeth::test_308",
+   "mathml": "<math><mi>π<!-- π --></mi><mo>:</mo><mi>S</mi><mo stretchy=\"false\">→<!-- → --></mo><mi>S</mi></math>",
+   "expected": "⠨⠏⠸⠒⠀⠠⠎⠀⠫⠕⠀⠠⠎"
+  },
+  {
+   "id": "AataNemeth::test_309",
+   "mathml": "<math><mi>ψ<!-- ψ --></mi></math>",
+   "expected": "⠨⠽"
+  },
+  {
+   "id": "AataNemeth::test_310",
+   "mathml": "<math><mi>w</mi><mo>=</mo><mi>s</mi><mi>cis</mi><mo>⁡<!-- ⁡ --></mo><mi>ϕ<!-- ϕ --></mi></math>",
+   "expected": "⠺⠀⠨⠅⠀⠎⠉⠊⠎⠀⠨⠋"
+  },
+  {
+   "id": "AataNemeth::test_311",
+   "mathml": "<math><msup><mi>A</mi><mo>′</mo></msup></math>",
+   "expected": "⠠⠁⠄"
+  },
+  {
+   "id": "AataNemeth::test_312",
+   "mathml": "<math><msup><mi>g</mi><mo>″</mo></msup></math>",
+   "expected": "⠛⠄⠄"
+  },
+  {
+   "id": "AataNemeth::test_313",
+   "mathml": "<math><mi>ℓ<!-- ℓ --></mi></math>",
+   "expected": "⠈⠰⠇"
+  },
+  {
+   "id": "AataNemeth::test_314",
+   "mathml": "<math><mi>f</mi><mo>:</mo><mi>A</mi><mo stretchy=\"false\">→<!-- → --></mo><mi>B</mi></math>",
+   "expected": "⠰⠋⠸⠒⠀⠠⠁⠀⠫⠕⠀⠠⠃"
+  },
+  {
+   "id": "AataNemeth::test_315",
+   "mathml": "<math><mi>f</mi><mo>:</mo><mi>a</mi><mo stretchy=\"false\">↦<!-- ↦ --></mo><mi>b</mi></math>",
+   "expected": "⠰⠋⠸⠒⠀⠁⠀⠫⠳⠒⠒⠕⠀⠃"
+  },
+  {
+   "id": "AataNemeth::test_316",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mo stretchy=\"false\">⇐<!-- ⇐ --></mo><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠫⠪⠶⠶⠾"
+  },
+  {
+   "id": "AataNemeth::test_317",
+   "mathml": "<math><mi mathvariant=\"normal\">∅<!-- ∅ --></mi></math>",
+   "expected": "⠸⠴"
+  },
+  {
+   "id": "AataNemeth::test_318",
+   "mathml": "<math><mo>−<!-- − --></mo><mn>3</mn><mo>∉<!-- ∉ --></mo><mi>E</mi></math>",
+   "expected": "⠤⠼⠒⠀⠌⠈⠑⠀⠠⠑"
+  },
+  {
+   "id": "AataNemeth::test_319",
+   "mathml": "<math>\n        <msup>\n        <mrow>\n        <mrow><mi mathvariant=\"double-struck\">C</mi></mrow></mrow><mo>∗<!-- ∗ --></mo></msup></math>",
+   "expected": "⠠⠸⠰⠠⠉⠘⠈⠼"
+  },
+  {
+   "id": "AataNemeth::test_320",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mi>g</mi><mo>∘<!-- ∘ --></mo><mi>f</mi><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">(</mo><mi>x</mi><mo stretchy=\"false\">)</mo><mo>=</mo><mi>g</mi><mo stretchy=\"false\">(</mo><mi>f</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo stretchy=\"false\">)</mo><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠛⠨⠡⠋⠾⠷⠭⠾⠀⠨⠅⠀⠛⠷⠋⠷⠭⠾⠾"
+  },
+  {
+   "id": "AataNemeth::test_321",
+   "mathml": "<math><mi>a</mi><mo>∣<!-- ∣ --></mo><mi>b</mi></math>",
+   "expected": "⠁⠳⠃"
+  },
+  {
+   "id": "AataNemeth::test_322",
+   "mathml": "<math><mi>p</mi><mo>∤<!-- ∤ --></mo><mi>a</mi></math>",
+   "expected": "⠏⠌⠳⠁"
+  },
+  {
+   "id": "AataNemeth::test_323",
+   "mathml": "<math><mi>a</mi><mo>∧<!-- ∧ --></mo><mi>b</mi></math>",
+   "expected": "⠁⠈⠩⠃"
+  },
+  {
+   "id": "AataNemeth::test_324",
+   "mathml": "<math><mi>a</mi><mo>∨<!-- ∨ --></mo><mi>b</mi></math>",
+   "expected": "⠁⠈⠬⠃"
+  },
+  {
+   "id": "AataNemeth::test_325",
+   "mathml": "<math><mi>A</mi><mo>∪<!-- ∪ --></mo><mi>B</mi></math>",
+   "expected": "⠠⠁⠨⠬⠠⠃"
+  },
+  {
+   "id": "AataNemeth::test_326",
+   "mathml": "<math><mi>x</mi><mo>∼<!-- ∼ --></mo><mi>y</mi></math>",
+   "expected": "⠭⠀⠈⠱⠀⠽"
+  },
+  {
+   "id": "AataNemeth::test_327",
+   "mathml": "<math><mo>≅<!-- ≅ --></mo></math>",
+   "expected": "⠈⠱⠨⠅"
+  },
+  {
+   "id": "AataNemeth::test_328",
+   "mathml": "<math><mi>a</mi><mo>≠<!-- ≠ --></mo><mn>0</mn></math>",
+   "expected": "⠁⠀⠌⠨⠅⠀⠼⠴"
+  },
+  {
+   "id": "AataNemeth::test_329",
+   "mathml": "<math><mo>≡<!-- ≡ --></mo></math>",
+   "expected": "⠸⠇"
+  },
+  {
+   "id": "AataNemeth::test_330",
+   "mathml": "<math><mi>q</mi><mo>≢</mo><mn>1</mn><mspace width=\"0.444em\"></mspace><mo stretchy=\"false\">(</mo><mi>mod</mi><mspace width=\"0.333em\"></mspace><mi>p</mi><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠟⠀⠌⠸⠇⠀⠼⠂⠷⠍⠕⠙⠀⠏⠾"
+  },
+  {
+   "id": "AataNemeth::test_331",
+   "mathml": "<math><mi>x</mi><mo>≥<!-- ≥ --></mo><mi>y</mi></math>",
+   "expected": "⠭⠀⠨⠂⠱⠀⠽"
+  },
+  {
+   "id": "AataNemeth::test_332",
+   "mathml": "<math><mi>B</mi><mo>⊃<!-- ⊃ --></mo><mi>A</mi></math>",
+   "expected": "⠠⠃⠀⠸⠨⠂⠀⠠⠁"
+  },
+  {
+   "id": "AataNemeth::test_333",
+   "mathml": "<math><mi>A</mi><mo>⊄</mo><mi>B</mi></math>",
+   "expected": "⠠⠁⠀⠌⠸⠐⠅⠀⠠⠃"
+  },
+  {
+   "id": "AataNemeth::test_334",
+   "mathml": "<math><mi>W</mi><mo>=</mo><mi>U</mi><mo>⊕<!-- ⊕ --></mo><mi>V</mi></math>",
+   "expected": "⠠⠺⠀⠨⠅⠀⠠⠥⠫⠉⠸⠫⠬⠻⠠⠧"
+  },
+  {
+   "id": "AataNemeth::test_335",
+   "mathml": "<math><mn>2</mn><mo>⋅<!-- ⋅ --></mo><mn>4</mn></math>",
+   "expected": "⠼⠆⠡⠲"
+  },
+  {
+   "id": "AataNemeth::test_336",
+   "mathml": "<math><msub><mi>Z</mi><mn>3</mn></msub><mo>⋊<!-- ⋊ --></mo><msub><mi>Z</mi><mn>4</mn></msub></math>",
+   "expected": "⠠⠵⠒⠈⠡⠳⠠⠵⠲"
+  },
+  {
+   "id": "AataNemeth::test_337",
+   "mathml": "<math><mo>△<!-- △ --></mo><mi>A</mi><mi>B</mi><mi>C</mi></math>",
+   "expected": "⠫⠞⠀⠠⠁⠠⠃⠠⠉"
+  },
+  {
+   "id": "AataNemeth::test_338",
+   "mathml": "<math><mi>a</mi><mo>⪯<!-- ⪯ --></mo><mi>b</mi></math>",
+   "expected": "⠁⠀⠨⠐⠅⠱⠀⠃"
+  },
+  {
+   "id": "AataNemeth::test_339",
+   "mathml": "<math><mo>⪰<!-- ⪰ --></mo></math>",
+   "expected": "⠨⠨⠂⠱"
+  },
+  {
+   "id": "SRE_Nemeth72::test_000",
+   "mathml": "<math><mo>-</mo><mn>1</mn></math>",
+   "expected": "⠤⠼⠂"
+  },
+  {
+   "id": "SRE_Nemeth72::test_001",
+   "mathml": "<math><mo>-</mo><mn>.3</mn></math>",
+   "expected": "⠤⠼⠨⠒"
+  },
+  {
+   "id": "SRE_Nemeth72::test_002",
+   "mathml": "<math><mi>n</mi><mo>!</mo></math>",
+   "expected": "⠝⠯"
+  },
+  {
+   "id": "SRE_Nemeth72::test_003",
+   "mathml": "<math><mn>1,378</mn></math>",
+   "expected": "⠼⠂⠠⠒⠶⠦"
+  },
+  {
+   "id": "SRE_Nemeth72::test_004",
+   "mathml": "<math><mn>3.76</mn></math>",
+   "expected": "⠼⠒⠨⠶⠖"
+  },
+  {
+   "id": "SRE_Nemeth72::test_005",
+   "mathml": "<math><mn>1,478</mn></math>",
+   "expected": "⠼⠂⠠⠲⠶⠦"
+  },
+  {
+   "id": "SRE_Nemeth72::test_006",
+   "mathml": "<math><mn>100</mn><mo>,</mo><mtext>&#xA0;</mtext><mn>200</mn><mo>,</mo><mtext>&#xA0;</mtext><mn>300</mn></math>",
+   "expected": "⠼⠂⠴⠴⠠⠀⠼⠆⠴⠴⠠⠀⠼⠒⠴⠴"
+  },
+  {
+   "id": "SRE_Nemeth72::test_007",
+   "mathml": "<math><mn>.35</mn></math>",
+   "expected": "⠼⠨⠒⠢"
+  },
+  {
+   "id": "SRE_Nemeth72::test_008",
+   "mathml": "<math><mn>3.14</mn></math>",
+   "expected": "⠼⠒⠨⠂⠲"
+  },
+  {
+   "id": "SRE_Nemeth72::test_009",
+   "mathml": "<math><mn>.2</mn><msub><mi>a</mi><mn>1</mn></msub><msub><mi>a</mi><mn>2</mn></msub><msub><mi>a</mi><mn>3</mn></msub></math>",
+   "expected": "⠼⠨⠆⠁⠂⠁⠆⠁⠒"
+  },
+  {
+   "id": "SRE_Nemeth72::test_010",
+   "mathml": "<math><mn>.</mn><msub><mi>a</mi><mn>1</mn></msub><msub><mi>a</mi><mn>2</mn></msub><msub><mi>a</mi><mn>3</mn></msub></math>",
+   "expected": "⠨⠐⠁⠂⠁⠆⠁⠒"
+  },
+  {
+   "id": "SRE_Nemeth72::test_011",
+   "mathml": "<math><mn>.1</mn><mo>+</mo><mn>.2</mn><mo>=</mo><mo>.</mo><mo>----</mo></math>",
+   "expected": "⠼⠨⠂⠬⠨⠆⠀⠨⠅⠀⠨⠐⠤⠤⠤⠤"
+  },
+  {
+   "id": "SRE_Nemeth72::test_012",
+   "mathml": "<math><mn>27</mn></math>",
+   "expected": "⠼⠆⠶"
+  },
+  {
+   "id": "SRE_Nemeth72::test_013",
+   "mathml": "<math><mn>1</mn><mo>+</mo><mi>x</mi><mo>+</mo><mi>y</mi><mo>=</mo><mn>0</mn></math>",
+   "expected": "⠼⠂⠬⠭⠬⠽⠀⠨⠅⠀⠼⠴"
+  },
+  {
+   "id": "SRE_Nemeth72::test_014",
+   "mathml": "<math><mi>y</mi><mo>=</mo><mn>2</mn><mi>sin</mi><mo>⁡</mo><mi>x</mi></math>",
+   "expected": "⠽⠀⠨⠅⠀⠼⠆⠎⠊⠝⠀⠭"
+  },
+  {
+   "id": "SRE_Nemeth72::test_015",
+   "mathml": "<math><mi>sin</mi><mo>⁡</mo><mn>1</mn></math>",
+   "expected": "⠎⠊⠝⠀⠼⠂"
+  },
+  {
+   "id": "SRE_Nemeth72::test_016",
+   "mathml": "<math><msup><mi>sin</mi><mn>2</mn></msup><mo>⁡</mo><mn>2</mn><mi>x</mi></math>",
+   "expected": "⠎⠊⠝⠘⠆⠀⠼⠆⠭"
+  },
+  {
+   "id": "SRE_Nemeth72::test_017",
+   "mathml": "<math><mn>0.333</mn><mo>…</mo><mn>3</mn><mo>…</mo></math>",
+   "expected": "⠼⠴⠨⠒⠒⠒⠀⠄⠄⠄⠀⠼⠒⠀⠄⠄⠄"
+  },
+  {
+   "id": "SRE_Nemeth72::test_018",
+   "mathml": "<math><msub><mi>log</mi>\n        <mrow><mn>10</mn></mrow></msub><mo>⁡</mo><mn>2</mn></math>",
+   "expected": "⠇⠕⠛⠂⠴⠀⠼⠆"
+  },
+  {
+   "id": "SRE_Nemeth72::test_019",
+   "mathml": "<math><mo>(</mo><mi>x</mi><mo>=</mo><mn>0</mn><mo>)</mo></math>",
+   "expected": "⠷⠭⠀⠨⠅⠀⠼⠴⠾"
+  },
+  {
+   "id": "SRE_Nemeth72::test_020",
+   "mathml": "<math><mfrac><mn>11</mn><mn>5</mn></mfrac></math>",
+   "expected": "⠹⠂⠂⠌⠢⠼"
+  },
+  {
+   "id": "SRE_Nemeth72::test_021",
+   "mathml": "<math><mo>-</mo><mn>1</mn></math>",
+   "expected": "⠤⠼⠂"
+  },
+  {
+   "id": "SRE_Nemeth72::test_022",
+   "mathml": "<math><mo>-</mo><mn>.3</mn></math>",
+   "expected": "⠤⠼⠨⠒"
+  },
+  {
+   "id": "SRE_Nemeth72::test_023",
+   "mathml": "<math><mtext>“3&#xA0;dogs”</mtext></math>",
+   "expected": "⠦⠼⠒⠀⠙⠕⠛⠎⠴"
+  },
+  {
+   "id": "SRE_Nemeth72::test_024",
+   "mathml": "<math><mtext>Probability</mtext><mo>—</mo><mn>0</mn></math>",
+   "expected": "⠠⠏⠗⠕⠃⠁⠃⠊⠇⠊⠞⠽⠤⠤⠼⠴"
+  },
+  {
+   "id": "SRE_Nemeth72::test_025",
+   "mathml": "<math><mtext>“</mtext><mn>.5</mn></math>",
+   "expected": "⠦⠼⠨⠢"
+  },
+  {
+   "id": "SRE_Nemeth72::test_026",
+   "mathml": "<math><mtext>“</mtext><mo>-</mo><mn>4</mn></math>",
+   "expected": "⠦⠤⠼⠲"
+  },
+  {
+   "id": "SRE_Nemeth72::test_027",
+   "mathml": "<math><mfrac><mn>1</mn><mn>3</mn></mfrac></math>",
+   "expected": "⠹⠂⠌⠒⠼"
+  },
+  {
+   "id": "SRE_Nemeth72::test_028",
+   "mathml": "<math><msup><mi>x</mi><mfrac><mn>1</mn><mn>2</mn></mfrac></msup></math>",
+   "expected": "⠭⠘⠹⠂⠌⠆⠼"
+  },
+  {
+   "id": "SRE_Nemeth72::test_029",
+   "mathml": "<math>\n        <mfrac>\n        <mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mi>c</mi></mfrac></math>",
+   "expected": "⠹⠁⠬⠃⠌⠉⠼"
+  },
+  {
+   "id": "SRE_Nemeth72::test_030",
+   "mathml": "<math>\n        <mfrac>\n        <msup><mi>x</mi>\n        <mfrac><mn>1</mn><mn>2</mn></mfrac></msup><mn>2</mn></mfrac></math>",
+   "expected": "⠹⠭⠘⠹⠂⠌⠆⠼⠐⠌⠆⠼"
+  },
+  {
+   "id": "SRE_Nemeth72::test_031",
+   "mathml": "<math><mtext>rate</mtext><mo>=</mo>\n        <mfrac><mtext>distance</mtext><mtext>time</mtext></mfrac></math>",
+   "expected": "⠗⠁⠞⠑⠀⠨⠅⠀⠹⠙⠊⠎⠞⠁⠝⠉⠑⠌⠞⠊⠍⠑⠼"
+  },
+  {
+   "id": "SRE_Nemeth72::test_032",
+   "mathml": "<math><mfrac bevelled=\"true\">\n        <mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow>\n        <mrow><mi>c</mi><mo>+</mo><mi>d</mi></mrow></mfrac></math>",
+   "expected": "⠹⠁⠬⠃⠸⠌⠉⠬⠙⠼"
+  },
+  {
+   "id": "SRE_Nemeth72::test_033",
+   "mathml": "<math><mfrac><mfrac><mn>3</mn><mn>8</mn></mfrac><mn>5</mn></mfrac></math>",
+   "expected": "⠠⠹⠹⠒⠌⠦⠼⠠⠌⠢⠠⠼"
+  },
+  {
+   "id": "SRE_Nemeth72::test_034",
+   "mathml": "<math>\n        <mfrac>\n        <mrow><mn>1</mn>\n        <mrow><mo>/</mo></mrow><mn>2</mn></mrow>\n        <mrow><mn>2</mn>\n        <mfrac><mn>2</mn><mn>3</mn></mfrac></mrow></mfrac></math>",
+   "expected": "⠠⠹⠂⠸⠌⠆⠠⠌⠆⠸⠹⠆⠌⠒⠸⠼⠠⠼"
+  },
+  {
+   "id": "SRE_Nemeth72::test_035",
+   "mathml": "<math>\n        <mfrac><mn>5</mn>\n        <mrow><mn>4</mn>\n        <mfrac><mn>3</mn><mn>8</mn></mfrac></mrow></mfrac></math>",
+   "expected": "⠠⠹⠢⠠⠌⠲⠸⠹⠒⠌⠦⠸⠼⠠⠼"
+  },
+  {
+   "id": "SRE_Nemeth72::test_036",
+   "mathml": "<math><mfrac bevelled=\"true\">\n        <mfrac><mn>1</mn><mn>2</mn></mfrac>\n        <mfrac><mn>3</mn><mn>4</mn></mfrac></mfrac></math>",
+   "expected": "⠠⠹⠹⠂⠌⠆⠼⠠⠸⠌⠹⠒⠌⠲⠼⠠⠼"
+  },
+  {
+   "id": "SRE_Nemeth72::test_037",
+   "mathml": "<math>\n        <mfrac><mi>a</mi>\n        <msup><mi>b</mi>\n        <mrow>\n        <mfrac>\n        <mfrac><mn>3</mn><mn>4</mn></mfrac>\n        <mfrac><mn>5</mn><mn>6</mn></mfrac></mfrac></mrow></msup></mfrac></math>",
+   "expected": "⠹⠁⠌⠃⠘⠠⠹⠹⠒⠌⠲⠼⠠⠌⠹⠢⠌⠖⠼⠠⠼⠐⠼"
+  },
+  {
+   "id": "SRE_Nemeth72::test_038",
+   "mathml": "<math>\n        <mfrac>\n        <mfrac>\n        <mrow><mn>1</mn>\n        <mfrac><mn>1</mn><mn>4</mn></mfrac></mrow>\n        <mrow><mn>1</mn>\n        <mfrac><mn>3</mn><mn>5</mn></mfrac></mrow></mfrac><mn>5</mn></mfrac></math>",
+   "expected": "⠠⠠⠹⠠⠹⠂⠸⠹⠂⠌⠲⠸⠼⠠⠌⠂⠸⠹⠒⠌⠢⠸⠼⠠⠼⠠⠠⠌⠢⠠⠠⠼"
+  },
+  {
+   "id": "SRE_Nemeth72::test_039",
+   "mathml": "<math>\n        <mfrac>\n        <mfrac>\n        <mrow><mo stretchy=\"false\">(</mo><mn>1</mn><mo>−</mo><mi>x</mi><mo stretchy=\"false\">)</mo>\n        <mfrac><mi>d</mi><mi>dx</mi></mfrac><mo stretchy=\"false\">(</mo><mn>2</mn><mi>x</mi><mo stretchy=\"false\">)</mo><mo>−</mo><mn>2</mn><mi>x</mi>\n        <mfrac><mi>d</mi><mi>dx</mi></mfrac><mo stretchy=\"false\">(</mo><mn>1</mn><mo>−</mo><mi>x</mi><mo stretchy=\"false\">)</mo></mrow>\n        <mrow><mo stretchy=\"false\">(</mo><mn>1</mn><mo>−</mo><mi>x</mi>\n        <msup><mo stretchy=\"false\">)</mo><mn>2</mn></msup></mrow></mfrac>\n        <mrow><mn>1</mn><mo>+</mo>\n        <msup>\n        <mrow><mo>(</mo>\n        <mfrac>\n        <mrow><mn>2</mn><mi>x</mi></mrow>\n        <mrow><mn>1</mn><mo>−</mo><mi>x</mi></mrow></mfrac><mo>)</mo></mrow><mn>2</mn></msup></mrow></mfrac></math>",
+   "expected": "⠠⠠⠹⠠⠹⠷⠂⠤⠭⠾⠹⠙⠌⠙⠭⠼⠷⠆⠭⠾⠤⠆⠭⠹⠙⠌⠙⠭⠼⠷⠂⠤⠭⠾⠠⠌⠷⠂⠤⠭⠾⠘⠆⠐⠠⠼⠠⠠⠌⠂⠬⠷⠹⠆⠭⠌⠂⠤⠭⠼⠾⠘⠆⠐⠠⠠⠼"
+  },
+  {
+   "id": "SRE_Nemeth72::test_040",
+   "mathml": "<math>\n        <msqrt><mn>2</mn></msqrt><mo>=</mo>\n        <mrow><mn>1</mn><mo>+</mo>\n        <mfrac><mn>1</mn>\n        <mrow><mn>2</mn><mo>+</mo>\n        <mfrac><mn>1</mn>\n        <mrow><mn>2</mn><mo>+</mo>\n        <mfrac><mn>1</mn>\n        <mrow><mn>2</mn><mo>+</mo>\n        <mfrac><mn>1</mn>\n        <mrow><mn>2</mn><mo>+</mo><mo>…</mo></mrow></mfrac></mrow></mfrac></mrow></mfrac></mrow></mfrac></mrow></math>",
+   "expected": "⠜⠆⠻⠀⠨⠅⠀⠼⠂⠬⠠⠠⠠⠹⠂⠠⠠⠠⠌⠆⠬⠠⠠⠹⠂⠠⠠⠌⠆⠬⠠⠹⠂⠠⠌⠆⠬⠹⠂⠌⠆⠬⠀⠄⠄⠄⠼⠠⠼⠠⠠⠼⠠⠠⠠⠼"
+  },
+  {
+   "id": "SRE_Nemeth72::test_041",
+   "mathml": "<math><msqrt><mn>2</mn></msqrt></math>",
+   "expected": "⠜⠆⠻"
+  },
+  {
+   "id": "SRE_Nemeth72::test_042",
+   "mathml": "<math><msqrt><mi>x</mi><mo>+</mo><mi>y</mi></msqrt></math>",
+   "expected": "⠜⠭⠬⠽⠻"
+  },
+  {
+   "id": "SRE_Nemeth72::test_043",
+   "mathml": "<math>\n        <msqrt>\n        <msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></msqrt></math>",
+   "expected": "⠜⠭⠘⠆⠐⠬⠂⠻"
+  },
+  {
+   "id": "SRE_Nemeth72::test_044",
+   "mathml": "<math>\n        <msqrt>\n        <msup><mi>x</mi><mn>2</mn></msup><mo>+</mo>\n        <msup><mi>y</mi><mn>2</mn></msup></msqrt></math>",
+   "expected": "⠜⠭⠘⠆⠐⠬⠽⠘⠆⠐⠻"
+  },
+  {
+   "id": "SRE_Nemeth72::test_045",
+   "mathml": "<math><msqrt><mfrac><mi>x</mi><mi>y</mi></mfrac></msqrt></math>",
+   "expected": "⠜⠹⠭⠌⠽⠼⠻"
+  },
+  {
+   "id": "SRE_Nemeth72::test_046",
+   "mathml": "<math><mn>3</mn><msqrt><mi>a</mi></msqrt></math>",
+   "expected": "⠼⠒⠜⠁⠻"
+  },
+  {
+   "id": "SRE_Nemeth72::test_047",
+   "mathml": "<math><msup><msqrt><mi>x</mi></msqrt><mn>3</mn></msup></math>",
+   "expected": "⠜⠭⠻⠘⠒"
+  },
+  {
+   "id": "SRE_NemethBase::test_00",
+   "mathml": "<math><mo>∗<!-- ∗ --></mo></math>",
+   "expected": "⠈⠼"
+  },
+  {
+   "id": "SRE_NemethBase::test_01",
+   "mathml": "<math><mo>†<!-- † --></mo></math>",
+   "expected": "⠸⠻"
+  },
+  {
+   "id": "SRE_NemethBase::test_02",
+   "mathml": "<math><mo>‡<!-- ‡ --></mo></math>",
+   "expected": "⠸⠸⠻"
+  },
+  {
+   "id": "SRE_NemethBase::test_03",
+   "mathml": "<math><mi mathvariant=\"normal\">§<!-- § --></mi></math>",
+   "expected": "⠈⠠⠎"
+  },
+  {
+   "id": "SRE_NemethBase::test_05",
+   "mathml": "<math><mo>☆</mo></math>",
+   "expected": "⠫⠎"
+  },
+  {
+   "id": "SRE_NemethBase::test_07",
+   "mathml": "<math><mi>f</mi><mo>∗<!-- ∗ --></mo><mi>g</mi></math>",
+   "expected": "⠋⠈⠼⠛"
+  },
+  {
+   "id": "SRE_NemethBase::test_19",
+   "mathml": "<math><mn>0</mn></math>",
+   "expected": "⠼⠴"
+  },
+  {
+   "id": "SRE_NemethBase::test_20",
+   "mathml": "<math><mn>1</mn></math>",
+   "expected": "⠼⠂"
+  },
+  {
+   "id": "SRE_NemethBase::test_21",
+   "mathml": "<math><mn>2</mn></math>",
+   "expected": "⠼⠆"
+  },
+  {
+   "id": "SRE_NemethBase::test_22",
+   "mathml": "<math><mn>3</mn></math>",
+   "expected": "⠼⠒"
+  },
+  {
+   "id": "SRE_NemethBase::test_23",
+   "mathml": "<math><mn>4</mn></math>",
+   "expected": "⠼⠲"
+  },
+  {
+   "id": "SRE_NemethBase::test_24",
+   "mathml": "<math><mn>5</mn></math>",
+   "expected": "⠼⠢"
+  },
+  {
+   "id": "SRE_NemethBase::test_25",
+   "mathml": "<math><mn>6</mn></math>",
+   "expected": "⠼⠖"
+  },
+  {
+   "id": "SRE_NemethBase::test_26",
+   "mathml": "<math><mn>7</mn></math>",
+   "expected": "⠼⠶"
+  },
+  {
+   "id": "SRE_NemethBase::test_27",
+   "mathml": "<math><mn>8</mn></math>",
+   "expected": "⠼⠦"
+  },
+  {
+   "id": "SRE_NemethBase::test_28",
+   "mathml": "<math><mn>9</mn></math>",
+   "expected": "⠼⠔"
+  },
+  {
+   "id": "SRE_NemethBase::test_29",
+   "mathml": "<math><mo>,</mo></math>",
+   "expected": "⠠"
+  },
+  {
+   "id": "SRE_NemethBase::test_32",
+   "mathml": "<math><mo>,</mo></math>",
+   "expected": "⠠"
+  },
+  {
+   "id": "SRE_NemethBase::test_33",
+   "mathml": "<math><mn>1</mn><mo>,</mo><mn>378</mn></math>",
+   "expected": "⠼⠂⠠⠒⠶⠦"
+  },
+  {
+   "id": "SRE_NemethBase::test_34",
+   "mathml": "<math><mn>1.378</mn></math>",
+   "expected": "⠼⠂⠨⠒⠶⠦"
+  },
+  {
+   "id": "SRE_NemethBase::test_35",
+   "mathml": "<math><mn>3.76</mn></math>",
+   "expected": "⠼⠒⠨⠶⠖"
+  },
+  {
+   "id": "SRE_NemethBase::test_36",
+   "mathml": "<math><mn>3</mn><mo>,</mo><mn>76</mn></math>",
+   "expected": "⠼⠒⠠⠀⠼⠶⠖"
+  },
+  {
+   "id": "SRE_NemethBase::test_37",
+   "mathml": "<math><mn>1</mn><mo>,</mo><mn>478</mn></math>",
+   "expected": "⠼⠂⠠⠲⠶⠦"
+  },
+  {
+   "id": "SRE_NemethBase::test_38",
+   "mathml": "<math><mn>100</mn><mo>,</mo><mn>200</mn><mo>,</mo><mn>300</mn></math>",
+   "expected": "⠼⠂⠴⠴⠠⠀⠼⠆⠴⠴⠠⠀⠼⠒⠴⠴"
+  },
+  {
+   "id": "SRE_NemethBase::test_38_wiris",
+   "mathml": "<math><mn>100</mn><mo>,</mo><mo>&#xA0;</mo><mn>200</mn><mo>,</mo><mo>&#xA0;</mo><mn>300</mn></math>",
+   "expected": "⠼⠂⠴⠴⠠⠀⠼⠆⠴⠴⠠⠀⠼⠒⠴⠴"
+  },
+  {
+   "id": "SRE_NemethBase::test_39",
+   "mathml": "<math><mn>.35</mn></math>",
+   "expected": "⠼⠨⠒⠢"
+  },
+  {
+   "id": "SRE_NemethBase::test_40",
+   "mathml": "<math><mn>3.14</mn></math>",
+   "expected": "⠼⠒⠨⠂⠲"
+  },
+  {
+   "id": "SRE_NemethBase::test_41",
+   "mathml": "<math><mn>.2</mn><msub><mi>a</mi><mn>1</mn></msub><msub><mi>a</mi><mn>2</mn></msub><msub><mi>a</mi><mn>3</mn></msub></math>",
+   "expected": "⠼⠨⠆⠁⠂⠁⠆⠁⠒"
+  },
+  {
+   "id": "SRE_NemethBase::test_42",
+   "mathml": "<math><mo>.</mo><msub><mi>a</mi><mn>1</mn></msub><msub><mi>a</mi><mn>2</mn></msub><msub><mi>a</mi><mn>3</mn></msub></math>",
+   "expected": "⠨⠐⠁⠂⠁⠆⠁⠒"
+  },
+  {
+   "id": "SRE_NemethBase::test_43",
+   "mathml": "<math><mn>.1</mn><mo>+</mo><mn>.2</mn><mo>=</mo><mo>.</mo><mstyle displaystyle=\"false\" scriptlevel=\"0\"><mtext>---</mtext></mstyle></math>",
+   "expected": "⠼⠨⠂⠬⠨⠆⠀⠨⠅⠀⠨⠐⠀⠤⠤⠤⠤"
+  },
+  {
+   "id": "SRE_NemethBase::test_44",
+   "mathml": "<math><mn>27</mn></math>",
+   "expected": "⠼⠆⠶"
+  },
+  {
+   "id": "SRE_NemethBase::test_46",
+   "mathml": "<math><mn>1</mn><mo>+</mo><mi>x</mi><mo>+</mo><mi>y</mi><mo>=</mo><mn>0</mn></math>",
+   "expected": "⠼⠂⠬⠭⠬⠽⠀⠨⠅⠀⠼⠴"
+  },
+  {
+   "id": "SRE_NemethBase::test_47",
+   "mathml": "<math><mi>y</mi><mo>=</mo><mn>2</mn><mi>sin</mi><mo>⁡<!-- ⁡ --></mo><mi>x</mi></math>",
+   "expected": "⠽⠀⠨⠅⠀⠼⠆⠎⠊⠝⠀⠭"
+  },
+  {
+   "id": "SRE_NemethBase::test_49",
+   "mathml": "<math><mi>sin</mi><mo>⁡<!-- ⁡ --></mo><mn>1</mn></math>",
+   "expected": "⠎⠊⠝⠀⠼⠂"
+  },
+  {
+   "id": "SRE_NemethBase::test_50",
+   "mathml": "<math><msup><mi>sin</mi><mn>2</mn></msup><mo>⁡<!-- ⁡ --></mo><mn>2</mn><mi>x</mi></math>",
+   "expected": "⠎⠊⠝⠘⠆⠀⠼⠆⠭"
+  },
+  {
+   "id": "SRE_NemethBase::test_51",
+   "mathml": "<math><mn>0.333</mn><mo>…<!-- … --></mo><mn>3</mn><mo>…<!-- … --></mo></math>",
+   "expected": "⠼⠴⠨⠒⠒⠒⠀⠄⠄⠄⠀⠼⠒⠀⠄⠄⠄"
+  },
+  {
+   "id": "SRE_NemethBase::test_52",
+   "mathml": "<math><mi mathvariant=\"normal\">∠<!-- ∠ --></mi><mn>1</mn></math>",
+   "expected": "⠫⠪⠀⠼⠂"
+  },
+  {
+   "id": "SRE_NemethBase::test_53",
+   "mathml": "<math><mo stretchy=\"false\">(</mo><mi>x</mi><mo>=</mo><mn>0</mn><mo stretchy=\"false\">)</mo></math>",
+   "expected": "⠷⠭⠀⠨⠅⠀⠼⠴⠾"
+  },
+  {
+   "id": "SRE_NemethBase::test_54",
+   "mathml": "<math><mfrac><mn>11</mn><mn>5</mn></mfrac></math>",
+   "expected": "⠹⠂⠂⠌⠢⠼"
+  },
+  {
+   "id": "SRE_NemethBase::test_55",
+   "mathml": "<math>\n        <mfrac>\n        <mfrac>\n        <mrow><mn>1</mn><mo>+</mo><mn>3</mn></mrow>\n        <mrow><mn>4</mn><mo>+</mo><mn>5</mn></mrow></mfrac>\n        <mfrac>\n        <mrow><mn>3</mn><mo>+</mo><mn>4</mn></mrow>\n        <mrow><mn>5</mn><mo>+</mo><mn>6</mn></mrow></mfrac></mfrac></math>",
+   "expected": "⠠⠹⠹⠂⠬⠒⠌⠲⠬⠢⠼⠠⠌⠹⠒⠬⠲⠌⠢⠬⠖⠼⠠⠼"
+  },
+  {
+   "id": "SRE_NemethBase::test_56",
+   "mathml": "<math>\n        <mfrac>\n        <mfrac>\n        <mrow><mo stretchy=\"false\">(</mo><mn>1</mn><mo>−<!-- − --></mo><mi>x</mi><mo stretchy=\"false\">)</mo>\n        <mfrac><mi>d</mi>\n        <mrow><mi>d</mi><mi>x</mi></mrow></mfrac><mo stretchy=\"false\">(</mo><mn>2</mn><mi>x</mi><mo stretchy=\"false\">)</mo><mo>−<!-- − --></mo><mn>2</mn><mi>x</mi>\n        <mfrac><mi>d</mi>\n        <mrow><mi>d</mi><mi>x</mi></mrow></mfrac><mo stretchy=\"false\">(</mo><mn>1</mn><mo>−<!-- − --></mo><mi>x</mi><mo stretchy=\"false\">)</mo></mrow>\n        <mrow><mo stretchy=\"false\">(</mo><mn>1</mn><mo>−<!-- − --></mo><mi>x</mi>\n        <msup><mo stretchy=\"false\">)</mo><mn>2</mn></msup></mrow></mfrac>\n        <mrow><mn>1</mn><mo>+</mo><mo stretchy=\"false\">(</mo>\n        <mfrac>\n        <mrow><mn>2</mn><mi>x</mi></mrow>\n        <mrow><mn>1</mn><mo>−<!-- − --></mo><mi>x</mi></mrow></mfrac>\n        <msup><mo stretchy=\"false\">)</mo><mn>2</mn></msup></mrow></mfrac></math>",
+   "expected": "⠠⠠⠹⠠⠹⠷⠂⠤⠭⠾⠹⠙⠌⠙⠭⠼⠷⠆⠭⠾⠤⠆⠭⠹⠙⠌⠙⠭⠼⠷⠂⠤⠭⠾⠠⠌⠷⠂⠤⠭⠾⠘⠆⠐⠠⠼⠠⠠⠌⠂⠬⠷⠹⠆⠭⠌⠂⠤⠭⠼⠾⠘⠆⠐⠠⠠⠼"
+  },
+  {
+   "id": "SRE_NemethBase::test_57",
+   "mathml": "<math><mo>−<!-- − --></mo><mn>1</mn></math>",
+   "expected": "⠤⠼⠂"
+  },
+  {
+   "id": "SRE_NemethBase::test_58",
+   "mathml": "<math><mo>−<!-- − --></mo><mn>.3</mn></math>",
+   "expected": "⠤⠼⠨⠒"
+  },
+  {
+   "id": "SRE_NemethBase::test_59",
+   "mathml": "<math><mo>“</mo><mn>3</mn><mstyle displaystyle=\"false\" scriptlevel=\"0\"><mtext> dogs</mtext></mstyle><mo>”</mo></math>",
+   "expected": "⠦⠼⠒⠀⠙⠕⠛⠎⠴"
+  },
+  {
+   "id": "SRE_NemethBase::test_61",
+   "mathml": "<math><mo>“</mo><mn>.5</mn></math>",
+   "expected": "⠦⠼⠨⠢"
+  },
+  {
+   "id": "SRE_NemethBase::test_62",
+   "mathml": "<math><mo>“</mo><mo>−<!-- − --></mo><mn>4</mn></math>",
+   "expected": "⠦⠤⠼⠲"
+  },
+  {
+   "id": "SRE_NemethBase::test_65",
+   "mathml": "<math><mn>3</mn><mi mathvariant=\"normal\">§<!-- § --></mi><mn>4</mn></math>",
+   "expected": "⠼⠒⠈⠠⠎⠼⠲"
+  },
+  {
+   "id": "SRE_NemethBase::test_66",
+   "mathml": "<math><mn>3</mn><mi mathvariant=\"normal\">#<!-- # --></mi><mn>4</mn></math>",
+   "expected": "⠼⠒⠨⠼⠼⠲"
+  },
+  {
+   "id": "SRE_NemethBase::test_67",
+   "mathml": "<math><mn>3</mn><mo>∗<!-- ∗ --></mo><mn>4</mn></math>",
+   "expected": "⠼⠒⠈⠼⠼⠲"
+  },
+  {
+   "id": "SRE_NemethBase::test_70",
+   "mathml": "<math><mn mathvariant=\"italic\">3</mn></math>",
+   "expected": "⠨⠼⠒"
+  },
+  {
+   "id": "SRE_NemethBase::test_71",
+   "mathml": "<math><mn mathvariant=\"bold\">0</mn></math>",
+   "expected": "⠸⠼⠴"
+  },
+  {
+   "id": "SRE_NemethBase::test_72",
+   "mathml": "<math><mn mathvariant=\"italic\">.3</mn></math>",
+   "expected": "⠨⠼⠨⠒"
+  },
+  {
+   "id": "SRE_NemethBase::test_73",
+   "mathml": "<math><mn mathvariant=\"script\">2</mn></math>",
+   "expected": "⠈⠼⠆"
+  },
+  {
+   "id": "SRE_NemethBase::test_74",
+   "mathml": "<math><mn mathvariant=\"bold\">43</mn><mn mathvariant=\"bold\">56</mn></math>",
+   "expected": "⠸⠼⠲⠒⠸⠼⠢⠖"
+  },
+  {
+   "id": "SRE_NemethBase::test_77",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mn>1</mn><mo>−<!-- − --></mo></mrow><mtext>to</mtext>\n        <mrow><mo>−<!-- − --></mo><mn>1</mn></mrow><mtext> correspondence</mtext></mrow></math>",
+   "expected": "⠼⠂⠤⠞⠕⠤⠼⠂⠀⠉⠕⠗⠗⠑⠎⠏⠕⠝⠙⠑⠝⠉⠑"
+  },
+  {
+   "id": "chemistry::bond_2_1",
+   "mathml": "<math><mi mathvariant=\"normal\">H</mi><mo>-</mo><mi>Be</mi><mo>-</mo><mi mathvariant=\"normal\">H</mi></math>",
+   "expected": "⠠⠓⠸⠒⠻⠠⠃⠑⠸⠒⠻⠠⠓"
+  },
+  {
+   "id": "chemistry::bond_2_2",
+   "mathml": "<math><msub><mi mathvariant=\"normal\">H</mi><mn>2</mn></msub><mi mathvariant=\"normal\">C</mi><mo>=</mo>\n                        <msub><mi>CH</mi><mn>2</mn></msub></math>",
+   "expected": "⠠⠓⠆⠠⠉⠸⠶⠻⠠⠉⠠⠓⠆"
+  },
+  {
+   "id": "chemistry::bond_2_2_mhchem",
+   "mathml": "<math>\n    <mrow data-mjx-texclass=\"ORD\">\n      <mi mathvariant=\"normal\">H</mi>\n      <msub>\n        <mpadded width=\"0\">\n          <mphantom>\n            <mi>A</mi>\n          </mphantom>\n        </mpadded>\n        <mpadded height=\"0\">\n          <mn>2</mn>\n        </mpadded>\n      </msub>\n      <mi mathvariant=\"normal\">C</mi>\n      <mo>=</mo>\n      <mi data-mjx-auto-op=\"false\">CH</mi>\n      <msub>\n        <mpadded width=\"0\">\n          <mphantom>\n            <mi>A</mi>\n          </mphantom>\n        </mpadded>\n        <mpadded height=\"0\">\n          <mn>2</mn>\n        </mpadded>\n      </msub>\n    </mrow>\n  </math>",
+   "expected": "⠠⠓⠆⠠⠉⠸⠶⠻⠠⠉⠠⠓⠆"
+  },
+  {
+   "id": "chemistry::bond_2_3",
+   "mathml": "<math><mi mathvariant=\"normal\">H</mi><mo>-</mo><mi mathvariant=\"normal\">C</mi><mo>&#x2261;</mo>\n                        <mi mathvariant=\"normal\">C</mi><mo>-</mo><mi mathvariant=\"normal\">H</mi></math>",
+   "expected": "⠠⠓⠸⠒⠻⠠⠉⠸⠿⠻⠠⠉⠸⠒⠻⠠⠓"
+  },
+  {
+   "id": "chemistry::bond_2_5",
+   "mathml": "<math><mi>Fe</mi><mo>+</mo><msub><mi>Cl</mi><mn>2</mn></msub><mo>&#xA0;</mo><mo>=</mo>\n                            <msub><mi>FeCl</mi><mn>3</mn></msub></math>",
+   "expected": "⠠⠋⠑⠬⠠⠉⠇⠆⠀⠨⠅⠀⠠⠋⠑⠠⠉⠇⠒"
+  },
+  {
+   "id": "chemistry::arrow_bond_sec_2_2_2_c",
+   "mathml": "<math><mn>2</mn><mi>Na</mi><mo>+</mo><msub><mi>Cl</mi><mn>2</mn></msub><mo>&#x2192;</mo>\n                            <mn>2</mn><mi>NaCl</mi></math>",
+   "expected": "⠼⠆⠠⠝⠁⠬⠠⠉⠇⠆⠀⠫⠕⠀⠼⠆⠠⠝⠁⠠⠉⠇"
+  },
+  {
+   "id": "chemistry::arrow_bond_sec_2_2_2_d",
+   "mathml": "<math>\n         <msub><mi>RNH</mi><mn>2</mn></msub><mo>+</mo><mi>RX</mi><mo>&#x2192;</mo>\n         <msub><mi mathvariant=\"normal\">R</mi><mn>2</mn></msub>\n            <msup><msub><mi>NH</mi><mn>2</mn></msub><mo>+</mo></msup><msup><mi mathvariant=\"normal\">X</mi><mo>-</mo></msup></math>",
+   "expected": "⠠⠗⠠⠝⠠⠓⠆⠬⠠⠗⠠⠭⠀⠫⠕⠀⠠⠗⠆⠠⠝⠠⠓⠆⠐⠘⠬⠐⠠⠭⠘⠤"
+  },
+  {
+   "id": "chemistry::arrow_bond_sec_2_2_2_d_mhchem",
+   "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\" display=\"block\">\n        <mrow data-mjx-texclass=\"ORD\">\n        <mi data-mjx-auto-op=\"false\">RNH</mi>\n        <msub>\n            <mpadded width=\"0\">\n            <mphantom>\n                <mi>A</mi>\n            </mphantom>\n            </mpadded>\n            <mpadded height=\"0\">\n            <mn>2</mn>\n            </mpadded>\n        </msub>\n        <mrow data-mjx-texclass=\"ORD\">\n    \n        </mrow>\n        <mo>+</mo>\n        <mrow data-mjx-texclass=\"ORD\">\n    \n        </mrow>\n        <mi data-mjx-auto-op=\"false\">RX</mi>\n        <mrow data-mjx-texclass=\"ORD\">\n    \n        </mrow>\n        <mo stretchy=\"false\">→</mo>\n        <mrow data-mjx-texclass=\"ORD\">\n    \n        </mrow>\n        <mi mathvariant=\"normal\">R</mi>\n        <msub>\n            <mpadded width=\"0\">\n            <mphantom>\n                <mi>A</mi>\n            </mphantom>\n            </mpadded>\n            <mpadded height=\"0\">\n            <mn>2</mn>\n            </mpadded>\n        </msub>\n        <mi data-mjx-auto-op=\"false\">NH</mi>\n        <msub>\n            <mpadded width=\"0\">\n            <mphantom>\n                <mi>A</mi>\n            </mphantom>\n            </mpadded>\n            <mpadded height=\"0\">\n            <mn>2</mn>\n            </mpadded>\n        </msub>\n        <msup>\n            <mpadded width=\"0\">\n            <mphantom>\n                <mi>A</mi>\n            </mphantom>\n            </mpadded>\n            <mo>+</mo>\n        </msup>\n        <mi mathvariant=\"normal\">X</mi>\n        <msup>\n            <mpadded width=\"0\">\n            <mphantom>\n                <mi>A</mi>\n            </mphantom>\n            </mpadded>\n            <mo>&#x2212;</mo>\n        </msup>\n        </mrow>\n    </math>",
+   "expected": "⠠⠗⠠⠝⠠⠓⠆⠬⠠⠗⠠⠭⠀⠫⠕⠀⠠⠗⠆⠠⠝⠠⠓⠆⠐⠘⠬⠐⠠⠭⠘⠤"
+  },
+  {
+   "id": "chemistry::lewis_2_20",
+   "mathml": "<math><msub><mi>HO</mi><mn>2</mn></msub><mo>+</mo><mi>NO</mi><mo>&#x2192;</mo>\n                            <msub><mi>NO</mi><mn>2</mn></msub><mo>+</mo><mo>&#x2022;</mo><mi>OH</mi></math>",
+   "expected": "⠠⠓⠠⠕⠆⠬⠠⠝⠠⠕⠀⠫⠕⠀⠠⠝⠠⠕⠆⠬⠡⠠⠕⠠⠓"
+  },
+  {
+   "id": "chemistry::lewis_2_21",
+   "mathml": "<math><msup><mi mathvariant=\"normal\">R</mi><mo>&#x2022;</mo></msup><mo>+</mo><mmultiscripts><mi>CH</mi><mn>3</mn><none/><mprescripts/><none/><mo>&#x2022;</mo>\n                             </mmultiscripts><mo>&#x2192;</mo><msub><mi>RCH</mi><mn>3</mn></msub></math>",
+   "expected": "⠠⠗⠡⠬⠡⠠⠉⠠⠓⠒⠀⠫⠕⠀⠠⠗⠠⠉⠠⠓⠒"
+  },
+  {
+   "id": "chemistry::lewis_2_22",
+   "mathml": "<math><msup><mrow><mo>[</mo><msub><mi>CH</mi><mn>3</mn></msub><mo>]</mo></mrow><mo>&#x2022;</mo></msup></math>",
+   "expected": "⠈⠷⠠⠉⠠⠓⠒⠈⠾⠡"
+  },
+  {
+   "id": "chemistry::dots_2_37_a",
+   "mathml": "<math><mo>:</mo><mi mathvariant=\"normal\">N</mi><mo>:</mo><mo>:</mo><mo>:</mo><mi mathvariant=\"normal\">N</mi><mo>:</mo></math>",
+   "expected": "⠹⠠⠝⠨⠹⠠⠝⠹"
+  },
+  {
+   "id": "chemistry::dots_2_37_b",
+   "mathml": "<math><mi mathvariant=\"normal\">H</mi><mo>:</mo><mi mathvariant=\"normal\">C</mi>\n                    <mo>&#x22EE;</mo><mo>&#x22EE;</mo>\n                    <mi mathvariant=\"normal\">C</mi><mo>:</mo><mi mathvariant=\"normal\">H</mi></math>",
+   "expected": "⠠⠓⠹⠠⠉⠨⠹⠠⠉⠹⠠⠓"
+  },
+  {
+   "id": "chemistry::yields_3_1",
+   "mathml": "<math><msub><mi>CH</mi><mn>4</mn></msub><mo>(</mo><mi mathvariant=\"normal\">g</mi><mo>)</mo><mo>+</mo>\n                <mn>2</mn><msub><mi mathvariant=\"normal\">O</mi><mn>2</mn></msub><mo>(</mo><mi mathvariant=\"normal\">g</mi><mo>)</mo>\n                <mo>&#x2192;</mo>\n                <msub><mi>CO</mi><mn>2</mn></msub><mo>(</mo><mi mathvariant=\"normal\">g</mi><mo>)</mo><mo>+</mo>\n                <mn>2</mn><msub><mi mathvariant=\"normal\">H</mi><mn>2</mn></msub><mi mathvariant=\"normal\">O</mi><mo>(</mo><mi mathvariant=\"normal\">g</mi><mo>)</mo></math>",
+   "expected": "⠠⠉⠠⠓⠲⠷⠛⠾⠬⠆⠠⠕⠆⠷⠛⠾⠀⠫⠕⠀⠠⠉⠠⠕⠆⠷⠛⠾⠬⠆⠠⠓⠆⠠⠕⠷⠛⠾"
+  },
+  {
+   "id": "chemistry::reverse_3_2",
+   "mathml": "<math><msub><mi mathvariant=\"normal\">N</mi><mn>2</mn></msub><mo>+</mo>\n                    <mn>3</mn><msub><mi mathvariant=\"normal\">H</mi><mn>2</mn></msub><mo>&#x2190;</mo>\n                    <mn>2</mn><msub><mi>NH</mi><mn>3</mn></msub></math>",
+   "expected": "⠠⠝⠆⠬⠒⠠⠓⠆⠀⠫⠪⠒⠒⠀⠼⠆⠠⠝⠠⠓⠒"
+  },
+  {
+   "id": "chemistry::reaction_arrow_3_9",
+   "mathml": "<math><msub><mi mathvariant=\"normal\">H</mi><mn>2</mn></msub><mo>(</mo><mi mathvariant=\"normal\">g</mi><mo>)</mo><mo>+</mo>\n                <msub><mi mathvariant=\"normal\">I</mi><mn>2</mn></msub><mo>(</mo><mi mathvariant=\"normal\">g</mi><mo>)</mo><mo>&#x21CC;</mo>\n                <mn>2</mn><mi>HI</mi><mo>(</mo><mi mathvariant=\"normal\">g</mi><mo>)</mo></math>",
+   "expected": "⠠⠓⠆⠷⠛⠾⠬⠠⠊⠆⠷⠛⠾⠀⠫⠒⠕⠫⠪⠒⠀⠼⠆⠠⠓⠠⠊⠷⠛⠾"
+  },
+  {
+   "id": "chemistry::reaction_arrow_3_13",
+   "mathml": "<math><msub><mi mathvariant=\"normal\">H</mi><mn>3</mn></msub><mi mathvariant=\"normal\">C</mi><mo>-</mo>\n            <mi mathvariant=\"normal\">C</mi><mo>≡</mo>\n            <msup><mi mathvariant=\"normal\">C</mi><mo>-</mo></msup><msup><mi>Na</mi><mo>+</mo>\n            </msup><mo>+</mo><msub><mi>NH</mi><mn>3</mn></msub><mo>⥃</mo>\n            <msub><mi mathvariant=\"normal\">H</mi><mn>3</mn></msub><mi mathvariant=\"normal\">C</mi><mo>-</mo>\n            <mi mathvariant=\"normal\">C</mi><mo>≡</mo><mi mathvariant=\"normal\">C</mi><mo>-</mo>\n            <mi mathvariant=\"normal\">H</mi><mo>+</mo>\n            <msup><mi>Na</mi><mo>+</mo></msup><msup><msub><mi>NH</mi><mn>2</mn></msub><mo>-</mo></msup></math>",
+   "expected": "⠠⠓⠒⠠⠉⠸⠒⠻⠠⠉⠸⠿⠻⠠⠉⠘⠤⠐⠠⠝⠁⠘⠬⠐⠬⠠⠝⠠⠓⠒⠀⠫⠪⠒⠒⠫⠒⠕⠀⠠⠓⠒⠠⠉⠸⠒⠻⠠⠉⠸⠿⠻⠠⠉⠸⠒⠻⠠⠓⠬⠠⠝⠁⠘⠬⠐⠠⠝⠠⠓⠆⠐⠘⠤"
+  },
+  {
+   "id": "chemistry::reaction_arrow_3_14_a",
+   "mathml": "<math intent=':chemical-equation'><mi mathvariant=\"normal\">R</mi><mo>⥂</mo><mi mathvariant=\"normal\">P</mi></math>",
+   "expected": "⠠⠗⠀⠫⠒⠒⠕⠫⠪⠒⠀⠠⠏"
+  },
+  {
+   "id": "chemistry::reaction_arrow_3_14_b",
+   "mathml": "<math intent=':chemical-equation'><mi mathvariant=\"normal\">R</mi><mo>⥄</mo><mi mathvariant=\"normal\">P</mi></math>",
+   "expected": "⠠⠗⠀⠫⠒⠕⠫⠪⠒⠒⠀⠠⠏"
+  },
+  {
+   "id": "chemistry::arrow_3_36",
+   "mathml": "<math><mn>2</mn><mi>Al</mi><mo>+</mo><mn>2</mn><mi>NaOH</mi><mo>+</mo>\n                <mn>2</mn><msub><mi mathvariant=\"normal\">H</mi><mn>2</mn></msub><mi mathvariant=\"normal\">O</mi><mo>&#x2192;</mo>\n                <msub><mi>Na</mi><mn>2</mn></msub><msub><mi>Al</mi><mn>2</mn></msub><msub><mi mathvariant=\"normal\">O</mi><mn>4</mn></msub><mo>+</mo>\n                <mn>3</mn><msub><mi mathvariant=\"normal\">H</mi><mn>2</mn></msub><mo>↑</mo></math>",
+   "expected": "⠼⠆⠠⠁⠇⠬⠆⠠⠝⠁⠠⠕⠠⠓⠬⠆⠠⠓⠆⠠⠕⠀⠫⠕⠀⠠⠝⠁⠆⠠⠁⠇⠆⠠⠕⠲⠬⠒⠠⠓⠆⠫⠣"
+  },
+  {
+   "id": "chemistry::arrow_3_37",
+   "mathml": "<math><mi>Ca</mi><msub><mrow><mo>(</mo><msub><mi>HCO</mi><mn>3</mn></msub><mo>)</mo></mrow><mn>2</mn></msub><mo>+</mo>\n            <mi>Ca</mi><msub><mrow><mo>(</mo><mi>OH</mi><mo>)</mo></mrow><mn>2</mn></msub><mo>&#x2192;</mo>\n            <mn>2</mn><msub><mi>CaCO</mi><mn>3</mn></msub><mo>&#x2193;</mo><mo>+</mo>\n            <mn>2</mn><msub><mi mathvariant=\"normal\">H</mi><mn>2</mn></msub><mi mathvariant=\"normal\">O</mi></math>",
+   "expected": "⠠⠉⠁⠷⠠⠓⠠⠉⠠⠕⠒⠾⠰⠆⠐⠬⠠⠉⠁⠷⠠⠕⠠⠓⠾⠰⠆⠀⠫⠕⠀⠼⠆⠠⠉⠁⠠⠉⠠⠕⠒⠫⠩⠀⠬⠆⠠⠓⠆⠠⠕"
+  },
+  {
+   "id": "chemistry::dot_4_5",
+   "mathml": "<math><msub><mi mathvariant=\"normal\">K</mi><mn>1</mn></msub>\n            <mo>[</mo><msub><mi>PCl</mi><mn>5</mn></msub><mo>]</mo><mo>=</mo>\n            <msub><mi mathvariant=\"normal\">K</mi><mn>2</mn></msub><mo>[</mo><msub><mi>PCl</mi><mn>3</mn></msub><mo>]</mo><mo>&#xB7;</mo>\n            <mo>[</mo><msub><mi>Cl</mi><mn>2</mn></msub><mo>]</mo></math>",
+   "expected": "⠠⠅⠂⠈⠷⠠⠏⠠⠉⠇⠢⠈⠾⠀⠨⠅⠀⠠⠅⠆⠈⠷⠠⠏⠠⠉⠇⠒⠈⠾⠡⠈⠷⠠⠉⠇⠆⠈⠾"
+  },
+  {
+   "id": "chemistry::charge_5_1_c",
+   "mathml": "<math><mn>2</mn><mi>Al</mi><mo>&#x2192;</mo>\n                <mn>2</mn><msup><mi>Al</mi><mrow><mn>3</mn><mo>+</mo></mrow></msup><mo>+</mo>\n                <mn>6</mn><msup><mi mathvariant=\"normal\">e</mi><mo>-</mo></msup></math>",
+   "expected": "⠼⠆⠠⠁⠇⠀⠫⠕⠀⠼⠆⠠⠁⠇⠘⠒⠬⠐⠬⠖⠑⠘⠤"
+  },
+  {
+   "id": "chemistry::charge_5_3_a",
+   "mathml": "<math><msup><msub><mi>HPO</mi><mn>4</mn></msub><mrow><mo>-</mo><mo>-</mo></mrow></msup></math>",
+   "expected": "⠠⠓⠠⠏⠠⠕⠲⠐⠘⠆⠤"
+  },
+  {
+   "id": "chemistry::charge_5_3_b",
+   "mathml": "<math><msup>\n        <mmultiscripts><mi>He</mi><mprescripts/><mn>2</mn><mn>4</mn></mmultiscripts>\n        <mrow><mo>+</mo><mo>+</mo></mrow></msup></math>",
+   "expected": "⠰⠆⠘⠲⠐⠠⠓⠑⠘⠆⠬"
+  },
+  {
+   "id": "chemistry::simultaneious_scripts_5_8_b",
+   "mathml": "<math><msubsup><mi>SO</mi><mn>4</mn><mrow><mn>2</mn><mo>-</mo></mrow></msubsup></math>",
+   "expected": "⠠⠎⠠⠕⠲⠘⠆⠤"
+  },
+  {
+   "id": "chemistry::staggered_scripts_5_9_a",
+   "mathml": "<math><mn>5</mn><msub><mi mathvariant=\"normal\">C</mi><mn>2</mn></msub>\n            <msup><msub><mi mathvariant=\"normal\">O</mi><mn>4</mn></msub><mrow><mn>2</mn><mo>-</mo></mrow></msup>\n            <mo>(</mo><mi>a</mi><mi>q</mi><mo>)</mo></math>",
+   "expected": "⠼⠢⠠⠉⠆⠠⠕⠲⠐⠘⠆⠤⠐⠷⠁⠟⠾"
+  },
+  {
+   "id": "chemistry::staggered_scripts_5_9_b",
+   "mathml": "<math><msup><msub><mrow><mo>(</mo><msub><mi>SiO</mi><mn>3</mn></msub><mo>)</mo></mrow>\n                    <mi>n</mi></msub>\n                    <mrow><mn>2</mn><mi>n</mi><mo>-</mo></mrow></msup></math>",
+   "expected": "⠷⠠⠎⠊⠠⠕⠒⠾⠰⠝⠐⠘⠆⠝⠤"
+  },
+  {
+   "id": "chemistry::state_5_10",
+   "mathml": "<math><msubsup><mrow><mo>&#x2206;</mo><mi mathvariant=\"normal\">H</mi></mrow><mrow><mo>(</mo><mi>reaction</mi><mo>)</mo></mrow><mo>&#xB0;</mo></msubsup></math>",
+   "expected": "⠨⠠⠙⠠⠓⠘⠨⠡⠰⠷⠗⠑⠁⠉⠞⠊⠕⠝⠾"
+  },
+  {
+   "id": "chemistry::state_as_subscript_5_13",
+   "mathml": "<math><msubsup><mi>Sn</mi>\n                            <mrow><mo>(</mo><mi>aq</mi><mo>)</mo></mrow>\n                            <mrow><mn>2</mn><mo>+</mo></mrow></msubsup></math>",
+   "expected": "⠠⠎⠝⠘⠆⠬⠐⠷⠁⠟⠾"
+  },
+  {
+   "id": "chemistry::prescripts_5_14",
+   "mathml": "<math><mmultiscripts><mi>Es</mi><mprescripts/><mn>99</mn><mn>254</mn></mmultiscripts><mo>+</mo>\n                <mmultiscripts><mi>He</mi><mprescripts/><mn>2</mn><mn>4</mn></mmultiscripts><mo>&#x2192;</mo>\n                <mmultiscripts><mi>Md</mi><mprescripts/><mn>101</mn><mn>256</mn></mmultiscripts><mo>+</mo>\n                <mn>2</mn><mmultiscripts><mi>n</mi><mprescripts/><mn>0</mn><mn>1</mn></mmultiscripts></math>",
+   "expected": "⠰⠔⠔⠘⠆⠢⠲⠐⠠⠑⠎⠬⠰⠆⠘⠲⠐⠠⠓⠑⠀⠫⠕⠀⠰⠂⠴⠂⠘⠆⠢⠖⠐⠠⠍⠙⠬⠆⠰⠴⠘⠂⠐⠝"
+  },
+  {
+   "id": "other::not_number_space_blocks",
+   "mathml": "<math><mn>123</mn><mtext>&nbsp;&#x2063;</mtext><mn>456</mn></math>",
+   "expected": "⠼⠂⠆⠒⠀⠼⠲⠢⠖"
+  },
+  {
+   "id": "other::space_between_digits",
+   "mathml": "<math><mn>1</mn><mtext>&#x00a0;</mtext><mn>3</mn><mtext>&#x00a0;</mtext><mn>5</mn></math>",
+   "expected": "⠼⠂⠀⠼⠒⠀⠼⠢"
+  },
+  {
+   "id": "other::space_hack_between_digits",
+   "mathml": "<math><mn>1</mn><mtext>&#x00a0;&#x2063;</mtext><mn>3</mn><mtext>&#x00a0;&#x2063;</mtext><mn>5</mn></math>",
+   "expected": "⠼⠂⠀⠼⠒⠀⠼⠢"
+  },
+  {
+   "id": "other::tilde_prefix_bug_244",
+   "mathml": "<math> <mo>~</mo> <mi>p</mi> </math>",
+   "expected": "⠈⠱⠏"
+  },
+  {
+   "id": "other::double_struck_bug_334",
+   "mathml": "<math><mn>𝟙</mn><mo>,</mo><mn>𝟐</mn><mo>,</mo><mn>𝟯</mn><mo>,</mo><mn>𝟺</mn></math>",
+   "expected": "⠠⠸⠼⠂⠠⠀⠸⠼⠆⠠⠀⠠⠨⠸⠼⠒⠠⠀⠼⠲"
+  },
+  {
+   "id": "other::extra_indicators_bug_343",
+   "mathml": "<math xmlns='http://www.w3.org/1998/Math/MathML'>\n                        <mrow>\n                        <msup>\n                            <mi>e</mi>\n                            <mrow>\n                            <mo>-</mo>\n                            <msup>\n                                <mi>x</mi>\n                                <mn>2</mn>\n                            </msup>\n                            </mrow>\n                        </msup>\n                        <mo>+</mo>\n                        <msub>\n                            <mi>C</mi>\n                            <mn>1</mn>\n                        </msub>\n                        </mrow>\n                    </math>",
+   "expected": "⠑⠘⠤⠭⠘⠘⠆⠐⠬⠠⠉⠂"
+  },
+  {
+   "id": "other::no_omission_for_spaces_at_start_or_end_single",
+   "mathml": "<math><mtext> </mtext><mtext> </mtext><mi>x</mi><mtext> </mtext><mtext> </mtext></math>",
+   "expected": "⠰⠭"
+  },
+  {
+   "id": "other::no_omission_for_spaces_at_start",
+   "mathml": "<math><mtext> </mtext><mtext> </mtext><mn>2</mn><mo>+</mo><mi>x</mi></math>",
+   "expected": "⠼⠆⠬⠭"
+  },
+  {
+   "id": "other::no_omission_for_spaces_at_end",
+   "mathml": "<math><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>9</mn>\n                        <mtext> </mtext><mtext> </mtext><mtext> </mtext><mtext> </mtext><mtext> </mtext></math>",
+   "expected": "⠭⠘⠆⠐⠬⠔"
+  },
+  {
+   "id": "other::no_omission_for_spaces_in_middle",
+   "mathml": "<math xmlns=\"http://www.w3.org/1998/Math/MathML\" display=\"block\">\n        <mstyle displaystyle=\"true\" scriptlevel=\"0\">\n            <mfrac>\n            <mn>1</mn>\n            <mn>2</mn>\n            </mfrac>\n        </mstyle>\n        <mo stretchy=\"false\">(</mo>\n        <mi>p</mi>\n        <mo>+</mo>\n        <mi>q</mi>\n        <mo stretchy=\"false\">)</mo>\n        <mtext>&#xA0;</mtext>\n        <mtext>&#xA0;</mtext>\n        <mtext>&#xA0;</mtext>\n        <mtext>&#xA0;</mtext>\n        <mtext>or</mtext>\n        <mtext>&#xA0;</mtext>\n        <mtext>&#xA0;</mtext>\n        <mtext>&#xA0;</mtext>\n        <mtext>&#xA0;</mtext>\n        <mstyle displaystyle=\"true\" scriptlevel=\"0\">\n            <mfrac>\n            <mrow>\n                <mi>p</mi>\n                <mo>+</mo>\n                <mi>q</mi>\n            </mrow>\n            <mn>2</mn>\n            </mfrac>\n        </mstyle>\n    </math>",
+   "expected": "⠹⠂⠌⠆⠼⠷⠏⠬⠟⠾⠀⠕⠗⠀⠹⠏⠬⠟⠌⠆⠼"
+  },
+  {
+   "id": "other::dots",
+   "mathml": "<math>\n         <mover><mi>x</mi><mo>.</mo></mover><mo>+</mo>\n         <mover><mi>x</mi><mo>..</mo></mover><mo>+</mo>\n         <mover><mi>x</mi><mo>...</mo></mover>\n    </math>",
+   "expected": "⠐⠭⠣⠡⠻⠬⠐⠭⠣⠡⠡⠻⠬⠐⠭⠣⠡⠡⠡⠻"
+  },
+  {
+   "id": "rules::num_indicator_9_a_1",
+   "mathml": "<math><mn>27</mn></math>",
+   "expected": "⠼⠆⠶"
+  },
+  {
+   "id": "rules::num_indicator_9_a_4",
+   "mathml": "<math><mrow><mi>y</mi><mo>=</mo><mrow><mn>2</mn><mo>&#x2062;</mo><mrow><mi>sin</mi><mo>&#x2061;</mo><mi>x</mi></mrow></mrow></mrow></math>",
+   "expected": "⠽⠀⠨⠅⠀⠼⠆⠎⠊⠝⠀⠭"
+  },
+  {
+   "id": "rules::num_indicator_9_a_5",
+   "mathml": "<math><mrow><mi>sin</mi><mo>&#x2061;</mo><mn>1</mn></mrow></math>",
+   "expected": "⠎⠊⠝⠀⠼⠂"
+  },
+  {
+   "id": "rules::num_indicator_9_a_9",
+   "mathml": "<math><mrow><mo>∠</mo><mn>1</mn></mrow></math>",
+   "expected": "⠫⠪⠀⠼⠂"
+  },
+  {
+   "id": "rules::num_indicator_9_a_14",
+   "mathml": "<math><mo>-</mo><mn>1</mn></math>",
+   "expected": "⠤⠼⠂"
+  },
+  {
+   "id": "rules::num_indicator_9_a_15",
+   "mathml": "<math><mo>-</mo><mn>.3</mn></math>",
+   "expected": "⠤⠼⠨⠒"
+  },
+  {
+   "id": "rules::test_9_b_1",
+   "mathml": "<math><mrow><mo>“</mo><mrow><mn>3</mn><mtext>&#xa0;dogs</mtext><mo>”</mo></mrow></mrow></math>",
+   "expected": "⠦⠼⠒⠀⠙⠕⠛⠎⠴"
+  },
+  {
+   "id": "rules::test_9_b_1_mtext",
+   "mathml": "<math><mtext displaystyle='true'>&#x201C;3 dogs&#x201D;</mtext></math>",
+   "expected": "⠦⠼⠒⠀⠙⠕⠛⠎⠴"
+  },
+  {
+   "id": "rules::test_9_b_4",
+   "mathml": "<math><mrow><mo>“</mo><mrow><mo>-</mo><mn>4</mn></mrow></mrow></math>",
+   "expected": "⠦⠤⠼⠲"
+  },
+  {
+   "id": "rules::test_9_c_1_linear",
+   "mathml": "<math><mo>|</mo><mtable>\n            <mtr><mtd><mn>1</mn></mtd><mtd><mn>2</mn></mtd></mtr>\n            <mtr><mtd><mo>-</mo><mn>3</mn></mtd><mtd><mo>-</mo><mn>4</mn></mtd></mtr>\n        </mtable><mo>|</mo></math>",
+   "expected": "⠠⠳⠼⠂⠀⠼⠆⠀⣍⠤⠒⠀⠤⠼⠲⠠⠳"
+  },
+  {
+   "id": "rules::num_indicator_9_d_2",
+   "mathml": "<math><mn>3</mn><mi mathvariant='normal'>#<!-- # --></mi><mn>4</mn></math>",
+   "expected": "⠼⠒⠨⠼⠼⠲"
+  },
+  {
+   "id": "rules::num_indicator_9_d_3",
+   "mathml": "<math><mn>3</mn><mo>∗<!-- ∗ --></mo><mn>4</mn></math>",
+   "expected": "⠼⠒⠈⠼⠼⠲"
+  },
+  {
+   "id": "rules::num_indicator_9_e_2",
+   "mathml": "<math><mn mathvariant='bold'>0</mn></math>",
+   "expected": "⠸⠼⠴"
+  },
+  {
+   "id": "rules::num_indicator_9_e_5",
+   "mathml": "<math><mn>𝟒𝟑56</mn></math>",
+   "expected": "⠸⠼⠲⠒⠼⠢⠖"
+  },
+  {
+   "id": "rules::num_indicator_9_e_6",
+   "mathml": "<math><mn>⑤</mn></math>",
+   "expected": "⠫⠉⠸⠫⠼⠢⠻"
+  },
+  {
+   "id": "rules::num_indicator_9_f_1",
+   "mathml": "<math><mtext>1-to-1</mtext></math>",
+   "expected": "⠼⠂⠤⠞⠕⠤⠼⠂"
+  },
+  {
+   "id": "rules::non_list_10_4",
+   "mathml": "<math><mo>(</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mtext>and&#xA0;</mtext><mn>3</mn><mo>)</mo></math>",
+   "expected": "⠷⠂⠠⠀⠼⠆⠠⠀⠁⠝⠙⠀⠼⠒⠾"
+  },
+  {
+   "id": "rules::list_10_6_1",
+   "mathml": "<math><mrow><mn>1</mn><mo>,</mo><mi>i</mi><mo>,</mo><mrow><mo>−</mo><mn>1</mn></mrow><mo>,</mo><mrow><mo>−</mo><mi>i</mi></mrow></mrow></math>",
+   "expected": "⠼⠂⠠⠀⠰⠊⠠⠀⠤⠼⠂⠠⠀⠤⠊"
+  },
+  {
+   "id": "rules::list_10_6_8",
+   "mathml": "<math>\n        <mo>[</mo>\n        <mrow><mo>&#x2220;</mo><mn>1</mn><mo>&#x00B0;</mo><mo>,</mo><mi>sin</mi><mn>1</mn><mo>&#x00B0;</mo></mrow>\t\t\t<mo>]</mo>\n    </math>",
+   "expected": "⠈⠷⠫⠪⠀⠼⠂⠘⠨⠡⠠⠀⠎⠊⠝⠀⠼⠂⠘⠨⠡⠐⠈⠾"
+  },
+  {
+   "id": "rules::list_10_6_11",
+   "mathml": "<math><mo>(</mo>\n          <mrow><mi>x</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>…</mn><mo>,</mo><mn>10</mn></mrow>\n        <mo>)</mo></math>",
+   "expected": "⠷⠭⠀⠨⠅⠀⠼⠂⠠⠀⠼⠆⠠⠀⠄⠄⠄⠠⠀⠼⠂⠴⠾"
+  },
+  {
+   "id": "rules::list_10_6_14",
+   "mathml": "<math><mfenced><mrow><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn></mrow></mfenced></math>",
+   "expected": "⠷⠂⠠⠀⠆⠠⠀⠒⠾"
+  },
+  {
+   "id": "rules::list_num_ind_11_a_1",
+   "mathml": "<math><mo>[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>]</mo></math>",
+   "expected": "⠈⠷⠴⠠⠀⠂⠈⠾"
+  },
+  {
+   "id": "rules::list_num_ind_11_a_2",
+   "mathml": "<math><mo>(</mo><mo>-</mo><mn>1</mn><mo>,</mo><mo>-</mo><mn>2</mn><mo>,</mo><mo>-</mo><mn>3</mn><mo>)</mo></math>",
+   "expected": "⠷⠤⠂⠠⠀⠤⠆⠠⠀⠤⠒⠾"
+  },
+  {
+   "id": "rules::list_num_ind__11_a_3",
+   "mathml": "<math><mo>(</mo><mn>1</mn><mo>+</mo><mi>h</mi><mo>,</mo><mn>2</mn><mo>+</mo><mi>k</mi><mo>,</mo><mn>0</mn><mo>)</mo></math>",
+   "expected": "⠷⠂⠬⠓⠠⠀⠆⠬⠅⠠⠀⠴⠾"
+  },
+  {
+   "id": "rules::list_num_ind__11_a_4",
+   "mathml": "<math><mfenced><mrow><mn>0</mn><mo>,</mo><mrow><mo>−</mo><mn>1</mn></mrow><mo>,</mo><mrow><mo>±</mo><mn>2</mn></mrow></mrow></mfenced></math>",
+   "expected": "⠷⠴⠠⠀⠤⠂⠠⠀⠬⠤⠆⠾"
+  },
+  {
+   "id": "rules::list_num_ind_11_a_5",
+   "mathml": "<math><mfenced class='paren'>\n    <mrow>\n      <mrow><mn>2</mn><mo>⁢</mo><mrow><mi>sin</mi><mo>⁡</mo><mrow><mn>30</mn><mo>⁢</mo><mo>°</mo></mrow></mrow></mrow>\n      <mo>,</mo>\n      <mrow><mn>3</mn><mo>⁢</mo><mrow><mi>cos</mi><mo>⁡</mo><mrow><mn>60</mn><mo>⁢</mo><mo>°</mo></mrow></mrow></mrow>\n    </mrow>\n  </mfenced></math>",
+   "expected": "⠷⠆⠎⠊⠝⠀⠼⠒⠴⠘⠨⠡⠠⠀⠒⠉⠕⠎⠀⠼⠖⠴⠘⠨⠡⠐⠾"
+  },
+  {
+   "id": "rules::lesson_11_35_1",
+   "mathml": "<math><mrow><mrow><mo>(</mo><mrow><mo>∠</mo><mn>1</mn><mo>,</mo><mo>∠</mo><mn>2</mn><mo>,</mo><mo>∠</mo><mn>3</mn></mrow><mo>)</mo></mrow></mrow></math>",
+   "expected": "⠷⠫⠪⠀⠼⠂⠠⠀⠫⠪⠀⠼⠆⠠⠀⠫⠪⠀⠼⠒⠾"
+  },
+  {
+   "id": "rules::list_num_ind_11_a_7",
+   "mathml": "<math><mo>(</mo><mi>x</mi><mo>,</mo><mn>7</mn><mo>,</mo><mn mathvariant='bold'>8</mn><mo>,</mo><mi>y</mi><mo>)</mo></math>",
+   "expected": "⠷⠭⠠⠀⠶⠠⠀⠸⠼⠦⠠⠀⠽⠾"
+  },
+  {
+   "id": "rules::list_num_ind_11_c_1",
+   "mathml": "<math><mi>&#x3C0;</mi><mo>=</mo><mn>3</mn><mo>.</mo><mn>14159</mn><mo>&#xA0;</mo><mn>26535</mn><mo>&#x2026;</mo></math>",
+   "expected": "⠨⠏⠀⠨⠅⠀⠼⠒⠨⠂⠲⠂⠢⠔⠀⠆⠖⠢⠒⠢⠀⠄⠄⠄"
+  },
+  {
+   "id": "rules::list_num_ind_11_d_1",
+   "mathml": "<math><mrow><mn>65</mn><mo>-</mo><mn>75</mn></mrow></math>",
+   "expected": "⠼⠖⠢⠤⠶⠢"
+  },
+  {
+   "id": "rules::list_num_ind_11_d_2",
+   "mathml": "<math><mn>3</mn><mo>:</mo><mn>30</mn><mo>&#x2212;</mo><mn>4</mn><mo>:</mo><mn>45</mn></math>",
+   "expected": "⠼⠒⠸⠒⠼⠒⠴⠤⠲⠸⠒⠼⠲⠢"
+  },
+  {
+   "id": "rules::no_num_ind_11_e_3",
+   "mathml": "<math><mrow><mi>r</mi><mn>5</mn></mrow></math>",
+   "expected": "⠗⠐⠢"
+  },
+  {
+   "id": "rules::cap_roman_numeral_18_a_3",
+   "mathml": "<math><mtext>VII</mtext><mo>+</mo><mtext>V</mtext><mo>=</mo><mtext>XII</mtext></math>",
+   "expected": "⠠⠠⠧⠊⠊⠬⠠⠧⠀⠨⠅⠀⠠⠠⠭⠊⠊"
+  },
+  {
+   "id": "rules::lower_roman_numeral_18_b_4",
+   "mathml": "<math><mtext>vi</mtext><mo>+</mo><mtext>iv</mtext><mo>=</mo><mtext>x</mtext></math>",
+   "expected": "⠧⠊⠬⠊⠧⠀⠨⠅⠀⠭"
+  },
+  {
+   "id": "rules::cap_22_a_1",
+   "mathml": "<math><mo>&#x25B3;</mo><mo>&#xA0;</mo><mi>A</mi><mi>B</mi><mi>C</mi></math>",
+   "expected": "⠫⠞⠀⠠⠁⠠⠃⠠⠉"
+  },
+  {
+   "id": "rules::greek_24_a_1",
+   "mathml": "<math><mi>α</mi></math>",
+   "expected": "⠨⠁"
+  },
+  {
+   "id": "rules::german_24_a_7",
+   "mathml": "<math><mi>𝔄</mi></math>",
+   "expected": "⠸⠠⠁"
+  },
+  {
+   "id": "rules::hebrew_24_a_8",
+   "mathml": "<math><msub><mi>ℵ</mi><mn>0</mn></msub></math>",
+   "expected": "⠠⠠⠁⠴"
+  },
+  {
+   "id": "rules::russian_24_a_10",
+   "mathml": "<math><mi>А</mi></math>",
+   "expected": "⠈⠈⠠⠁"
+  },
+  {
+   "id": "rules::greek_24_b_1_together",
+   "mathml": "<math><mi>αβ</mi></math>",
+   "expected": "⠨⠁⠨⠃"
+  },
+  {
+   "id": "rules::greek_24_b_1",
+   "mathml": "<math><mi>α</mi><mi>β</mi></math>",
+   "expected": "⠨⠁⠨⠃"
+  },
+  {
+   "id": "rules::eli_nemeth_UEB_rule_book_4_11_1",
+   "mathml": "<math>\n            <mtext>p</mtext><mtext>&#xA0;</mtext>\n            <mtext>D</mtext><mtext>&#xA0;</mtext>\n            <mtext>z</mtext><mtext>&#xA0;</mtext>\n            <mtext>R</mtext><mtext>&#xA0;</mtext>\n            <mtext>x</mtext><mo>,</mo><mtext>&#xA0;</mtext>\n            <mtext>“y”</mtext><mtext>&#xA0;</mtext>\n            <mtext>“w S”</mtext><mtext>&#xA0;</mtext>\n            <mtext>“x”</mtext><mo>+</mo><mtext>“y”</mtext>\n        </math>",
+   "expected": "⠰⠏⠀⠰⠠⠙⠀⠰⠵⠀⠰⠠⠗⠀⠰⠭⠠⠀⠦⠰⠽⠸⠴⠀⠦⠰⠺⠀⠰⠠⠎⠸⠴⠀⠦⠰⠭⠸⠴⠬⠸⠦⠰⠽⠸⠴"
+  },
+  {
+   "id": "rules::letter_26_b_18",
+   "mathml": "<math><mo>(</mo><mi>p</mi><mo>&#xA0;</mo><mtext>and</mtext><mo>&#xA0;</mo><mi>q</mi><mo>)</mo></math>",
+   "expected": "⠷⠰⠏⠀⠁⠝⠙⠀⠰⠟⠾"
+  },
+  {
+   "id": "rules::letter_26_b_19",
+   "mathml": "<math><mo>(</mo>\n            <mi mathvariant='normal'>l</mi><mo>,</mo>\n            <mi mathvariant='normal'>m</mi><mo>,</mo>\n            <mi mathvariant='normal'>n</mi><mo>,</mo>\n            <mtext>are in set&#xa0;</mtext>\n            <mi mathvariant='normal'>R</mi>\n        <mo>)</mo></math>",
+   "expected": "⠷⠰⠇⠠⠀⠰⠍⠠⠀⠰⠝⠠⠀⠁⠗⠑⠀⠊⠝⠀⠎⠑⠞⠀⠰⠠⠗⠾"
+  },
+  {
+   "id": "rules::boldface_32_a_7",
+   "mathml": "<math><mn mathvariant='bold-fraktur'>a</mn></math>",
+   "expected": "⠸⠸⠁"
+  },
+  {
+   "id": "rules::boldface_32_a_14",
+   "mathml": "<math><mn mathvariant='sans-serif'>H</mn></math>",
+   "expected": "⠠⠨⠰⠠⠓"
+  },
+  {
+   "id": "rules::boldface_32_b_2",
+   "mathml": "<math><mn mathvariant='script'>2</mn></math>",
+   "expected": "⠈⠼⠆"
+  },
+  {
+   "id": "rules::boldface_32_b_3",
+   "mathml": "<math><mn mathvariant='bold'>345</mn></math>",
+   "expected": "⠸⠼⠒⠲⠢"
+  },
+  {
+   "id": "rules::boldface_32_b_6",
+   "mathml": "<math><mn>𝟒35</mn></math>",
+   "expected": "⠸⠼⠲⠼⠒⠢"
+  },
+  {
+   "id": "rules::punct_37_1_1",
+   "mathml": "<math>\n            <mfrac><mn>1</mn><mn>2</mn></mfrac>\n            <mo>,</mo>\n            <mfrac><mn>3</mn><mn>4</mn></mfrac>\n            <mo>.</mo>\n        </math>",
+   "expected": "⠹⠂⠌⠆⠼⠠⠀⠹⠒⠌⠲⠼⠸⠲"
+  },
+  {
+   "id": "rules::punct_37_1_2",
+   "mathml": "<math>\n            <mover> <mi>velocity</mi> <mo>_</mo> </mover>\n            <mtext>.</mtext>\n        </math>",
+   "expected": "⠐⠧⠑⠇⠕⠉⠊⠞⠽⠣⠱⠻⠸⠲"
+  },
+  {
+   "id": "rules::punct_37_2_2",
+   "mathml": "<math><mtext>“</mtext> <mn>49</mn> <mtext>”</mtext></math>",
+   "expected": "⠦⠼⠲⠔⠸⠴"
+  },
+  {
+   "id": "rules::punct_37_3_1",
+   "mathml": "<math><mtext>I</mtext><mo>,</mo><mtext>II</mtext><mo>,</mo><mtext>III</mtext><mo>.</mo></math>",
+   "expected": "⠰⠠⠊⠠⠀⠠⠠⠊⠊⠠⠀⠠⠠⠊⠊⠊⠸⠲"
+  },
+  {
+   "id": "rules::punct_37_4_2",
+   "mathml": "<math><mn>1</mn><mo>,</mo><mn>3</mn><mo>,</mo><mo>…</mo><mo>.</mo></math>",
+   "expected": "⠼⠂⠠⠀⠼⠒⠠⠀⠄⠄⠄⠸⠲"
+  },
+  {
+   "id": "rules::punct_37_6_1",
+   "mathml": "<math><mn>5</mn><mo>×</mo><mn>3</mn><mo>=</mo><mo>?</mo><mo>.</mo></math>",
+   "expected": "⠼⠢⠈⠡⠒⠀⠨⠅⠀⠿⠸⠲"
+  },
+  {
+   "id": "rules::punct_37_7_1",
+   "mathml": "<math><mi>a</mi><mo>,</mo><mi>b</mi><mo>,</mo><mi>c</mi><mo>.</mo></math>",
+   "expected": "⠰⠁⠠⠀⠰⠃⠠⠀⠰⠉⠸⠲"
+  },
+  {
+   "id": "rules::punct_37_8_1",
+   "mathml": "<math><mo>&#x25B3;</mo><mi>A</mi><mi>B</mi><mi>C</mi><mo>.</mo></math>",
+   "expected": "⠫⠞⠀⠠⠁⠠⠃⠠⠉⠸⠲"
+  },
+  {
+   "id": "rules::punct_37_11_1",
+   "mathml": "<math><mover><mi>x</mi><mo>&#xAF;</mo></mover><mo>.</mo></math>",
+   "expected": "⠭⠱⠸⠲"
+  },
+  {
+   "id": "rules::punct_37_16_1",
+   "mathml": "<math><mn>100</mn><mo>%</mo><mo>.</mo></math>",
+   "expected": "⠼⠂⠴⠴⠈⠴⠸⠲"
+  },
+  {
+   "id": "rules::punct_37_17_1",
+   "mathml": "<math><mn>0</mn><mo>,</mo><mo>”</mo></math>",
+   "expected": "⠼⠴⠠⠸⠴"
+  },
+  {
+   "id": "rules::punct_38_1_2",
+   "mathml": "<math><mo>’</mo><mn>49</mn></math>",
+   "expected": "⠠⠴⠼⠲⠔"
+  },
+  {
+   "id": "rules::punct_38_4_12",
+   "mathml": "<math><mi>rate</mi><mo>×</mo><mi>time</mi><mo>.</mo></math>",
+   "expected": "⠗⠁⠞⠑⠈⠡⠞⠊⠍⠑⠲"
+  },
+  {
+   "id": "rules::punct_38_6_1",
+   "mathml": "<math><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn></math>",
+   "expected": "⠼⠴⠠⠀⠼⠂⠠⠀⠼⠆"
+  },
+  {
+   "id": "rules::punct_38_6_3",
+   "mathml": "<math><mo>(</mo><mn>1</mn><mo>)</mo><mo>,</mo><mo>(</mo><mn>2</mn><mo>)</mo><mo>,</mo><mo>(</mo><mn>3</mn><mo>)</mo><mo>.</mo></math>",
+   "expected": "⠷⠂⠾⠠⠀⠷⠆⠾⠠⠀⠷⠒⠾⠸⠲"
+  },
+  {
+   "id": "rules::colon_40_1",
+   "mathml": "<math><mn>3</mn><mo intent='time'>:</mo><mn>30</mn></math>",
+   "expected": "⠼⠒⠸⠒⠼⠒⠴"
+  },
+  {
+   "id": "rules::colon_40_1_mtext",
+   "mathml": "<math><mtext>3:30</mtext></math>",
+   "expected": "⠼⠒⠸⠒⠼⠒⠴"
+  },
+  {
+   "id": "rules::colon_40_2",
+   "mathml": "<math><mi>f</mi><mo>:</mo><mo>(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>)</mo></math>",
+   "expected": "⠰⠋⠸⠒⠷⠭⠠⠀⠽⠾"
+  },
+  {
+   "id": "rules::dash_42_4",
+   "mathml": "<math><mfrac><mo>&#x2015;</mo><mn>15</mn></mfrac><mo>=</mo><mfrac><mn>2</mn><mn>3</mn></mfrac></math>",
+   "expected": "⠹⠤⠤⠤⠤⠀⠌⠂⠢⠼⠀⠨⠅⠀⠹⠆⠌⠒⠼"
+  },
+  {
+   "id": "rules::dash_42_6",
+   "mathml": "<math><mo>$</mo><mn>2</mn><mo>+</mo><mo>$</mo><mn>3</mn><mo>=</mo><mo>$</mo><mo>&#x2015;</mo></math>",
+   "expected": "⠈⠎⠆⠬⠈⠎⠒⠀⠨⠅⠀⠈⠎⠤⠤⠤⠤"
+  },
+  {
+   "id": "rules::ellipsis_43_a_1",
+   "mathml": "<math><mn>1</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>5</mn><mo>,</mo><mo>…</mo><mo>,</mo><mn>15</mn><mo>.</mo></math>",
+   "expected": "⠼⠂⠠⠀⠼⠒⠠⠀⠼⠢⠠⠀⠄⠄⠄⠠⠀⠼⠂⠢⠸⠲"
+  },
+  {
+   "id": "rules::ellipsis_43_b_3",
+   "mathml": "<math>\n        <msubsup><mi>p</mi><mn>1</mn><msub><mi>&#x3B1;</mi><mn>1</mn></msub></msubsup>\n        <mo>&#x2026;</mo>\n        <msubsup><mi>p</mi><mi>r</mi><msub><mi>&#x3B1;</mi><mi>r</mi></msub></msubsup>\n        </math>",
+   "expected": "⠏⠂⠘⠨⠁⠘⠰⠂⠐⠄⠄⠄⠀⠏⠰⠗⠘⠨⠁⠘⠰⠗"
+  },
+  {
+   "id": "rules::ellipsis_43_b_4",
+   "mathml": "<math><mo>(</mo><mo>…</mo><mo>,</mo><mo>-</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mo>…</mo><mo>)</mo></math>",
+   "expected": "⠷⠄⠄⠄⠠⠀⠤⠂⠠⠀⠴⠠⠀⠂⠠⠀⠄⠄⠄⠾"
+  },
+  {
+   "id": "rules::ellipsis_43_b_5",
+   "mathml": "<math><mn>12</mn><mi>¢</mi><mo>+</mo><mn>14</mn><mi>¢</mi><mo>=</mo><mo>…</mo><mi>¢</mi></math>",
+   "expected": "⠼⠂⠆⠈⠉⠬⠂⠲⠈⠉⠀⠨⠅⠀⠄⠄⠄⠈⠉"
+  },
+  {
+   "id": "rules::omission_57_1",
+   "mathml": "<math><msup><mrow><mo>(</mo><mo>?</mo><mo>)</mo></mrow><mn>3</mn></msup><mo>=</mo><mn>27</mn></math>",
+   "expected": "⠷⠿⠾⠘⠒⠀⠨⠅⠀⠼⠆⠶"
+  },
+  {
+   "id": "rules::omission_57_3",
+   "mathml": "<math><mn>7</mn><mo>&#xD7;</mo><mn>2</mn><mo>?</mo><mn>14</mn></math>",
+   "expected": "⠼⠶⠈⠡⠆⠀⠿⠀⠼⠂⠲"
+  },
+  {
+   "id": "rules::omission_57_4",
+   "mathml": "<math><mo>?</mo><mo>+</mo><mo>?</mo><mo>=</mo><mn>10</mn></math>",
+   "expected": "⠿⠬⠿⠀⠨⠅⠀⠼⠂⠴"
+  },
+  {
+   "id": "rules::omission_57_5",
+   "mathml": "<math><mn>7</mn><mo>-</mo><menclose notation='bottom'><mo>?</mo></menclose><mo>=</mo><mn>5</mn></math>",
+   "expected": "⠼⠶⠤⠿⠀⠨⠅⠀⠼⠢"
+  },
+  {
+   "id": "rules::omission_57_6",
+   "mathml": "<math><mn>9</mn><mo>-</mo><mn>5</mn><mo>=</mo><mtext>-?-</mtext></math>",
+   "expected": "⠼⠔⠤⠢⠀⠨⠅⠀⠿"
+  },
+  {
+   "id": "rules::omission_57_7",
+   "mathml": "<math>\n            <mo>(</mo><mn>5</mn><mo>,</mo><mspace width='1.5em'/><mo>)</mo><mo>+</mo>\n            <mo>(</mo><mo>&#xA0;</mo><mo>&#xA0;</mo><mo>,</mo><mn>15</mn><mo>)</mo><mo>=</mo>\n            <mo>(</mo><mn>7</mn><mo>,</mo><mn>13</mn><mo>)</mo>\n        </math>",
+   "expected": "⠷⠢⠠⠀⠿⠾⠬⠷⠿⠠⠀⠂⠢⠾⠀⠨⠅⠀⠷⠶⠠⠀⠂⠒⠾"
+  },
+  {
+   "id": "rules::omission_57_8",
+   "mathml": "<math><mn>5</mn><mo>×</mo><mn>25</mn><mo>=</mo><mspace width='1.5em'/></math>",
+   "expected": "⠼⠢⠈⠡⠆⠢⠀⠨⠅⠀⠿"
+  },
+  {
+   "id": "rules::simple_frac_62_a_3",
+   "mathml": "<math><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mi>c</mi></mfrac></math>",
+   "expected": "⠹⠁⠬⠃⠌⠉⠼"
+  },
+  {
+   "id": "rules::beveled_frac_62_b_1",
+   "mathml": "<math><mfrac bevelled='true'>\n        <mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow>\n        <mrow><mi>c</mi><mo>+</mo><mi>d</mi></mrow>\n        </mfrac></math>",
+   "expected": "⠹⠁⠬⠃⠸⠌⠉⠬⠙⠼"
+  },
+  {
+   "id": "rules::mixed_frac_63_a_1",
+   "mathml": "<math><mn>4</mn><mfrac><mn>3</mn><mn>8</mn></mfrac></math>",
+   "expected": "⠼⠲⠸⠹⠒⠌⠦⠸⠼"
+  },
+  {
+   "id": "rules::mixed_frac_64_2",
+   "mathml": "<math><mn>4</mn><mn>3</mn><mo>/</mo><mn>8</mn></math>",
+   "expected": "⠼⠲⠸⠹⠒⠸⠌⠦⠸⠼"
+  },
+  {
+   "id": "rules::complex_frac_66_1",
+   "mathml": "<math><mfrac><mfrac><mn>3</mn><mn>8</mn></mfrac><mn>5</mn></mfrac></math>",
+   "expected": "⠠⠹⠹⠒⠌⠦⠼⠠⠌⠢⠠⠼"
+  },
+  {
+   "id": "rules::non_hyper_complex_frac_67_1",
+   "mathml": "<math><mfrac><mi>a</mi><msup><mi>b</mi>\n            <mfrac>\n                <mfrac><mn>3</mn><mn>4</mn></mfrac>\n                <mfrac><mn>5</mn><mn>6</mn></mfrac>\n            </mfrac>\n        </msup></mfrac></math>",
+   "expected": "⠹⠁⠌⠃⠘⠠⠹⠹⠒⠌⠲⠼⠠⠌⠹⠢⠌⠖⠼⠠⠼⠐⠼"
+  },
+  {
+   "id": "rules::hyper_complex_frac_68_a_1",
+   "mathml": "<math><mfrac>\n            <mfrac>\n            <mrow><mn>1</mn><mfrac><mn>1</mn><mn>4</mn></mfrac></mrow>\n            <mrow><mn>1</mn><mfrac><mn>3</mn><mn>5</mn></mfrac></mrow>\n            </mfrac>\n            <mn>5</mn>\n        </mfrac></math>",
+   "expected": "⠠⠠⠹⠠⠹⠂⠸⠹⠂⠌⠲⠸⠼⠠⠌⠂⠸⠹⠒⠌⠢⠸⠼⠠⠼⠠⠠⠌⠢⠠⠠⠼"
+  },
+  {
+   "id": "rules::nested_sup_74_b_1",
+   "mathml": "<math><msup><mi>n</mi><msup><mi>x</mi><mi>y</mi></msup></msup></math>",
+   "expected": "⠝⠘⠭⠘⠘⠽"
+  },
+  {
+   "id": "rules::nested_sup_mmultiscripts_74_b_1",
+   "mathml": "<math><mmultiscripts><mi>n</mi><none/><msup><mi>x</mi><mi>y</mi></msup></mmultiscripts></math>",
+   "expected": "⠝⠘⠭⠘⠘⠽"
+  },
+  {
+   "id": "rules::nested_sup_74_b_4",
+   "mathml": "<math><msub><mi>n</mi><msub><mi>x</mi><mi>y</mi></msub></msub></math>",
+   "expected": "⠝⠰⠭⠰⠰⠽"
+  },
+  {
+   "id": "rules::nested_sub_sup_74_c_5",
+   "mathml": "<math><msup><mi>n</mi><msub><mi>x</mi><msub><mi>a</mi><mi>j</mi></msub></msub></msup></math>",
+   "expected": "⠝⠘⠭⠘⠰⠁⠘⠰⠰⠚"
+  },
+  {
+   "id": "rules::as_multiscript_nested_sub_sup_74_c_5",
+   "mathml": "<math><mmultiscripts><mi>n</mi><none/><msub><mi>x</mi><msub><mi>a</mi><mi>j</mi></msub></msub></mmultiscripts></math>",
+   "expected": "⠝⠘⠭⠘⠰⠁⠘⠰⠰⠚"
+  },
+  {
+   "id": "rules::left_sup_75_1",
+   "mathml": "<math><mmultiscripts><mi>n</mi><mprescripts/><none/><mi>x</mi></mmultiscripts></math>",
+   "expected": "⠘⠭⠐⠝"
+  },
+  {
+   "id": "rules::left_sup_75_4",
+   "mathml": "<math><mmultiscripts><mi>n</mi><mi>y</mi><none/><mprescripts/><mi>x</mi><none/></mmultiscripts></math>",
+   "expected": "⠰⠭⠐⠝⠰⠽"
+  },
+  {
+   "id": "rules::left_sup_75_7",
+   "mathml": "<math><mmultiscripts><mi>x</mi><mprescripts/><none/>\n            <mmultiscripts><mi>n</mi><mprescripts/><mi>a</mi><none/></mmultiscripts>\n        </mmultiscripts></math>",
+   "expected": "⠘⠰⠁⠘⠝⠐⠭"
+  },
+  {
+   "id": "rules::left_sup_75_8",
+   "mathml": "<math><mmultiscripts><mi>x</mi><mprescripts/><msup><mi>n</mi><mi>a</mi></msup><none/></mmultiscripts></math>",
+   "expected": "⠰⠝⠰⠘⠁⠐⠭"
+  },
+  {
+   "id": "rules::left_sup_75_12",
+   "mathml": "<math><msup><mi>p</mi><mi>b</mi></msup><mmultiscripts><mi>q</mi><mprescripts/><none/><mi>c</mi></mmultiscripts></math>",
+   "expected": "⠏⠘⠃⠐⠘⠉⠐⠟"
+  },
+  {
+   "id": "rules::left_sub_14_104",
+   "mathml": "<math><msub><mi>P</mi><mi>b</mi></msub><mmultiscripts><mi>Q</mi><mprescripts/><mi>c</mi><none/></mmultiscripts></math>",
+   "expected": "⠠⠏⠰⠃⠐⠰⠉⠐⠠⠟"
+  },
+  {
+   "id": "rules::german_base_77_4_3",
+   "mathml": "<math><msub> <mi>𝔄</mi> <mn>1</mn> </msub></math>",
+   "expected": "⠸⠠⠁⠂"
+  },
+  {
+   "id": "rules::prime_77_4_4",
+   "mathml": "<math><msub> <msup><mi>x</mi><mo>'</mo></msup> <mn>1</mn> </msub></math>",
+   "expected": "⠭⠄⠂"
+  },
+  {
+   "id": "rules::prescript_77_4_6",
+   "mathml": "<math><mmultiscripts> <mi>x</mi> <mprescripts/> <mn>3</mn><none/></mmultiscripts></math>",
+   "expected": "⠰⠒⠐⠭"
+  },
+  {
+   "id": "rules::prescript_77_4_7",
+   "mathml": "<math><msub><mi>x</mi><msub><mi>i</mi><mn>1</mn></msub></msub></math>",
+   "expected": "⠭⠰⠊⠰⠰⠂"
+  },
+  {
+   "id": "rules::log_77_4_8",
+   "mathml": "<math><msub><mi>log</mi><mn>2</mn></msub> <mi>x</mi></math>",
+   "expected": "⠇⠕⠛⠆⠀⠭"
+  },
+  {
+   "id": "rules::mmultiscripts_77_4_10",
+   "mathml": "<math>\n    <mmultiscripts>\n        <mrow>\n            <mo>(</mo>\n            <mi mathvariant='normal'>C</mi>\n            <mmultiscripts>  <mi mathvariant='normal'>O</mi> <mn>3</mn> <none/> </mmultiscripts>\n            <mo>)</mo>\n        </mrow>\n        <mn>2</mn>\n        <none/>\n    </mmultiscripts>\n</math>",
+   "expected": "⠷⠠⠉⠠⠕⠒⠾⠰⠆"
+  },
+  {
+   "id": "rules::word_77_4_12",
+   "mathml": "<math><msub><mi>seven</mi><mn>3</mn></msub></math>",
+   "expected": "⠎⠑⠧⠑⠝⠰⠒"
+  },
+  {
+   "id": "rules::prescript_77_4_18",
+   "mathml": "<math><msub><mrow/><mn>3</mn></msub><msub><mi>x</mi><mn>1</mn></msub></math>",
+   "expected": "⠰⠒⠐⠭⠂"
+  },
+  {
+   "id": "rules::mmultiscripts_77_4_18",
+   "mathml": "<math><mmultiscripts><mi>x</mi><mn>1</mn><none/><mprescripts/><mn>3</mn><none/></mmultiscripts></math>",
+   "expected": "⠰⠒⠐⠭⠂"
+  },
+  {
+   "id": "rules::comma_number_77_4_20",
+   "mathml": "<math><msub><mi>x</mi><mrow><mn>10</mn><mo>,</mo><mn>000</mn></mrow></msub></math>",
+   "expected": "⠭⠂⠴⠠⠴⠴⠴"
+  },
+  {
+   "id": "rules::sum_77_4_23",
+   "mathml": "<math><msubsup><mo>&#x2211;</mo><mn>0</mn><mi>n</mi></msubsup><msub><mi>a</mi><mi>k</mi></msub></math>",
+   "expected": "⠨⠠⠎⠴⠘⠝⠐⠁⠰⠅"
+  },
+  {
+   "id": "rules::product_77_4_24",
+   "mathml": "<math><msubsup><mo>&#x220F;</mo><mn>0</mn><mi>n</mi></msubsup><msub><mi>a</mi><mi>k</mi></msub></math>",
+   "expected": "⠨⠠⠏⠴⠘⠝⠐⠁⠰⠅"
+  },
+  {
+   "id": "rules::integral_77_4_26",
+   "mathml": "<math>\n            <msubsup>\n                <mo>&#x222B;</mo>\n                <mn>0</mn>\n                <msqrt><mn>1</mn><mo>-</mo><msup><mi>x</mi><mn>2</mn></msup></msqrt> \n            </msubsup>\n            <mrow><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mi>d</mi><mi>x</mi></mrow>\n        </math>",
+   "expected": "⠮⠰⠴⠘⠜⠂⠤⠭⠘⠘⠆⠘⠻⠐⠋⠷⠭⠾⠙⠭"
+  },
+  {
+   "id": "rules::comma_space_78_1",
+   "mathml": "<math><msub><mi>x</mi>\n         <mrow><mi>i</mi><mo>,</mo><mo>&#xA0;</mo><mi>j</mi><mo>,</mo><mo>&#xA0;</mo><mi>k</mi></mrow></msub></math>",
+   "expected": "⠭⠰⠊⠪⠚⠪⠅"
+  },
+  {
+   "id": "rules::comma_78_2",
+   "mathml": "<math><msub><mi>x</mi><mrow><mo>(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>)</mo></mrow></msub></math>",
+   "expected": "⠭⠰⠷⠁⠪⠃⠾"
+  },
+  {
+   "id": "rules::comma_78_2_invisible",
+   "mathml": "<math><msub><mi>x</mi><mrow><mo>(</mo><mi>a</mi><mo>&#x2063;</mo><mi>b</mi><mo>)</mo></mrow></msub></math>",
+   "expected": "⠭⠰⠷⠁⠪⠃⠾"
+  },
+  {
+   "id": "rules::comma_78_3",
+   "mathml": "<math><msub><mi>x</mi><mrow><mn>1</mn><mo>,</mo><mn>2</mn></mrow></msub></math>",
+   "expected": "⠭⠰⠂⠪⠆"
+  },
+  {
+   "id": "rules::comma_78_6",
+   "mathml": "<math><mo>(</mo><mi>x</mi><mo>,</mo><mo>&#xA0;</mo><mi>y</mi><mo>)</mo></math>",
+   "expected": "⠷⠭⠠⠀⠽⠾"
+  },
+  {
+   "id": "rules::nested_super_79_a_2",
+   "mathml": "<math><msub><mi>x</mi><mi>a</mi></msub><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup></math>",
+   "expected": "⠭⠰⠁⠐⠬⠽⠘⠆"
+  },
+  {
+   "id": "rules::nested_super_79_a_3",
+   "mathml": "<math><mfrac><mrow><msup><mi>e</mi><mrow><msup><mi>x</mi><mn>2</mn></msup></mrow></msup></mrow><mn>2</mn></mfrac></math>",
+   "expected": "⠹⠑⠘⠭⠘⠘⠆⠐⠌⠆⠼"
+  },
+  {
+   "id": "rules::punctuation_after_sup_79_b_2",
+   "mathml": "<math><msup><mi>x</mi><mn>2</mn></msup><mo>,</mo><msup><mi>x</mi><mn>3</mn></msup></math>",
+   "expected": "⠭⠘⠆⠠⠀⠭⠘⠒"
+  },
+  {
+   "id": "rules::comma_in_number_in_sup_79_b_3",
+   "mathml": "<math><msup><mi>x</mi><mrow><mn>10</mn><mo>,</mo><mn>000</mn></mrow></msup></math>",
+   "expected": "⠭⠘⠂⠴⠠⠴⠴⠴"
+  },
+  {
+   "id": "rules::comma_in_sup_79_b_4",
+   "mathml": "<math><msub><mi>x</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub></math>",
+   "expected": "⠭⠰⠊⠪⠚"
+  },
+  {
+   "id": "rules::comma_ellipsis_in_sub_79_b_5",
+   "mathml": "<math> <msub><mi>P</mi>\n        <mrow><msub><mi>n</mi><mn>1</mn></msub>\n          <mo>,</mo>\n          <msub><mi>n</mi><mn>2</mn></msub>\n          <mo>,</mo><mo>&#x2026;</mo>\n          </mrow></msub></math>",
+   "expected": "⠠⠏⠰⠝⠰⠰⠂⠰⠪⠝⠰⠰⠆⠰⠪⠀⠄⠄⠄"
+  },
+  {
+   "id": "rules::text_after_sup_79_c_3",
+   "mathml": "<math><mn>6</mn><mo>.</mo><mn>696</mn><mo>×</mo><msup><mn>10</mn><mn>8</mn></msup><mo>&#xA0;</mo><mtext>mph</mtext></math>",
+   "expected": "⠼⠖⠨⠖⠔⠖⠈⠡⠂⠴⠘⠦⠀⠍⠏⠓"
+  },
+  {
+   "id": "rules::table_entry_after_sup_79_c_4",
+   "mathml": "<math><mrow><mo>(</mo>\n        <mtable><mtr>\n          <mtd><msup><mi>x</mi><mn>2</mn></msup></mtd>\n          <mtd><msup><mi>y</mi><mn>2</mn></msup></mtd>\n        </mtr></mtable>\n        <mo>)</mo></mrow></math>",
+   "expected": "⠷⠭⠘⠆⠀⠽⠘⠆⠐⠾"
+  },
+  {
+   "id": "rules::nested_super_space_79_d_3",
+   "mathml": "<math><msup><mi>cos</mi><mn>2</mn></msup><mi>x</mi></math>",
+   "expected": "⠉⠕⠎⠘⠆⠀⠭"
+  },
+  {
+   "id": "rules::nested_super_space_79_d_7",
+   "mathml": "<math><mrow><msup><mi>e</mi><mrow><msup><mi>cos</mi><mn>2</mn></msup><mi>x</mi></mrow></msup></mrow></math>",
+   "expected": "⠑⠘⠉⠕⠎⠘⠘⠆⠀⠭"
+  },
+  {
+   "id": "rules::nested_sup_sup_space_79_d_9",
+   "mathml": "<math><msup><mi>q</mi><mrow><msub><mi>log</mi><mi>q</mi></msub><mi>a</mi></mrow></msup></math>",
+   "expected": "⠟⠘⠇⠕⠛⠘⠰⠟⠀⠁"
+  },
+  {
+   "id": "rules::whitespace_in_sup_79_e_1",
+   "mathml": "<math><msup><mi>e</mi><mn>3.14159 26535</mn></msup></math>",
+   "expected": "⠑⠘⠒⠨⠂⠲⠂⠢⠔⠀⠆⠖⠢⠒⠢"
+  },
+  {
+   "id": "rules::ellipsis_level_79_f_1",
+   "mathml": "<math><msup><mi>x</mi>\n        <mrow><mn>1</mn><mo>+</mo><mn>1</mn><mo>/</mo><mn>2</mn><mo>+</mo><mn>1</mn><mo>/</mo><mn>3</mn><mo>+</mo>\n        <mo>…</mo><mo>+</mo><mn>1</mn><mo>/</mo><mi>n</mi></mrow></msup></math>",
+   "expected": "⠭⠘⠂⠬⠂⠸⠌⠆⠬⠂⠸⠌⠒⠬⠀⠄⠄⠄⠀⠬⠂⠸⠌⠝"
+  },
+  {
+   "id": "rules::comparison_79_g_2",
+   "mathml": "<math><msup><mn>2</mn><mi>x</mi></msup><mo>&lt;</mo><msup><mn>3</mn><mi>x</mi></msup></math>",
+   "expected": "⠼⠆⠘⠭⠀⠐⠅⠀⠼⠒⠘⠭"
+  },
+  {
+   "id": "rules::sub_ind_79_g_4",
+   "mathml": "<math><msub><mo>∫</mo><mrow><mi>u</mi><mo>=</mo><mi>a</mi></mrow></msub></math>",
+   "expected": "⠮⠰⠥⠀⠰⠨⠅⠀⠁"
+  },
+  {
+   "id": "rules::baseline_80_a_1",
+   "mathml": "<math><msqrt><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup></msqrt></math>",
+   "expected": "⠜⠭⠘⠆⠐⠬⠽⠘⠆⠐⠻"
+  },
+  {
+   "id": "rules::superscript_80_a_2",
+   "mathml": "<math><msup><mi>e</mi><msqrt><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup></msqrt></msup></math>",
+   "expected": "⠑⠘⠜⠭⠘⠘⠆⠘⠬⠽⠘⠘⠆⠘⠻"
+  },
+  {
+   "id": "rules::sub_ind_80_b_3",
+   "mathml": "<math><msub><mi>P</mi><mn>1</mn></msub><mmultiscripts><mi>Q</mi><mprescripts/><mn>2</mn><none/></mmultiscripts></math>",
+   "expected": "⠠⠏⠂⠐⠰⠆⠐⠠⠟"
+  },
+  {
+   "id": "rules::left_sub_14_105",
+   "mathml": "<math><msub><mi>P</mi><mn>1</mn></msub><mmultiscripts><mi>Q</mi><mprescripts/><mn>2</mn><none/></mmultiscripts></math>",
+   "expected": "⠠⠏⠂⠐⠰⠆⠐⠠⠟"
+  },
+  {
+   "id": "rules::sub_ind_mmultiscripts_80_b_3",
+   "mathml": "<math><mmultiscripts><mi>P</mi><mn>1</mn><none/></mmultiscripts>\n                           <mmultiscripts><mi>Q</mi><mprescripts/><mn>2</mn><none/></mmultiscripts></math>",
+   "expected": "⠠⠏⠂⠰⠆⠐⠠⠟"
+  },
+  {
+   "id": "rules::sub_ind_80_b_4",
+   "mathml": "<math><msub><mi>A</mi><mrow><mover><mi>x</mi><mo>~</mo></mover><mo>+</mo><mover><mi>y</mi><mo>~</mo></mover></mrow></msub></math>",
+   "expected": "⠠⠁⠰⠐⠭⠣⠈⠱⠻⠬⠰⠐⠽⠣⠈⠱⠻"
+  },
+  {
+   "id": "rules::numeric_sub_81_a_1",
+   "mathml": "<math><mo>(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><mn>1</mn><mo>)</mo></math>",
+   "expected": "⠷⠭⠂⠬⠂⠾"
+  },
+  {
+   "id": "rules::msubsup_82_a_1",
+   "mathml": "<math><msubsup><mi>x</mi><mi>a</mi><mi>n</mi></msubsup></math>",
+   "expected": "⠭⠰⠁⠘⠝"
+  },
+  {
+   "id": "rules::msubsup_82_a_3",
+   "mathml": "<math><msubsup><mi>x</mi><mn>1</mn><mn>2</mn></msubsup></math>",
+   "expected": "⠭⠂⠘⠆"
+  },
+  {
+   "id": "rules::mmultiscripts_82_a_1",
+   "mathml": "<math><mmultiscripts><mi>x</mi><mi>a</mi><mi>n</mi></mmultiscripts></math>",
+   "expected": "⠭⠰⠁⠘⠝"
+  },
+  {
+   "id": "rules::mmultiscripts_82_a_2",
+   "mathml": "<math><mmultiscripts><mi>x</mi><mprescripts/><mi>a</mi><mi>n</mi></mmultiscripts></math>",
+   "expected": "⠰⠁⠘⠝⠐⠭"
+  },
+  {
+   "id": "rules::mmultiscripts_82_a_3",
+   "mathml": "<math><mmultiscripts><mi>x</mi><mn>1</mn><mn>2</mn></mmultiscripts></math>",
+   "expected": "⠭⠂⠘⠆"
+  },
+  {
+   "id": "rules::sub_sup_82_b_1",
+   "mathml": "<math><msub><msup><mi>a</mi><mi>n</mi></msup><mi>m</mi></msub></math>",
+   "expected": "⠁⠘⠝⠐⠰⠍"
+  },
+  {
+   "id": "rules::mmultiscripts_82_b_1",
+   "mathml": "<math><mmultiscripts><mi>a</mi><none/><mi>n</mi><mi>m</mi><none/></mmultiscripts></math>",
+   "expected": "⠁⠘⠝⠐⠰⠍"
+  },
+  {
+   "id": "rules::sub_sup_82_b_2",
+   "mathml": "<math><msup><msub><mi>a</mi><mi>m</mi></msub><mi>n</mi></msup></math>",
+   "expected": "⠁⠰⠍⠐⠘⠝"
+  },
+  {
+   "id": "rules::mmultiscripts_82_b_2",
+   "mathml": "<math><mmultiscripts><mi>a</mi><mi>m</mi><none/><none/><mi>n</mi></mmultiscripts></math>",
+   "expected": "⠁⠰⠍⠐⠘⠝"
+  },
+  {
+   "id": "rules::mmultiscripts_82_b_3",
+   "mathml": "<math><mmultiscripts><mi>x</mi><mprescripts/><none/><mi>a</mi><mi>b</mi><none/></mmultiscripts></math>",
+   "expected": "⠘⠁⠐⠰⠃⠐⠭"
+  },
+  {
+   "id": "rules::mmultiscripts_82_b_4",
+   "mathml": "<math><mmultiscripts><mi>x</mi><mprescripts/><mi>b</mi><none/><none/><mi>a</mi></mmultiscripts></math>",
+   "expected": "⠰⠃⠐⠘⠁⠐⠭"
+  },
+  {
+   "id": "rules::mmultiscripts_82_b_5",
+   "mathml": "<math><mmultiscripts><mi>x</mi><mn>1</mn><none/><none/><mn>2</mn></mmultiscripts></math>",
+   "expected": "⠭⠂⠐⠘⠆"
+  },
+  {
+   "id": "rules::mmultiscripts_82_b_6",
+   "mathml": "<math><mmultiscripts><mi>x</mi><mi>a</mi><mo>'</mo><none/><mi>b</mi></mmultiscripts></math>",
+   "expected": "⠭⠄⠰⠁⠐⠘⠃"
+  },
+  {
+   "id": "rules::prime_83_b_1",
+   "mathml": "<math><msubsup><mi>x</mi><mi>a</mi><mo>'</mo></msubsup></math>",
+   "expected": "⠭⠄⠰⠁"
+  },
+  {
+   "id": "rules::prime_mmultiscripts_83_b_2",
+   "mathml": "<math><mmultiscripts> <mi>x</mi> <none/><mo>'</mo> <none/><mn>2</mn></mmultiscripts></math>",
+   "expected": "⠭⠄⠘⠆"
+  },
+  {
+   "id": "rules::prime_mathjax_83_b_2",
+   "mathml": "<math><msup> <mrow><mi>x</mi><mo>'</mo></mrow> <mn>2</mn></msup></math>",
+   "expected": "⠭⠄⠘⠆"
+  },
+  {
+   "id": "rules::prime_wiris_83_b_2",
+   "mathml": "<math><msup><mi>x</mi> <mrow><mi>&#x2032;</mi><mn>2</mn></mrow> </msup></math>",
+   "expected": "⠭⠄⠘⠆"
+  },
+  {
+   "id": "rules::prime_83_b_3",
+   "mathml": "<math><mmultiscripts> <mi>x</mi> <none/><mo>'</mo> <mi>a</mi><mi>b</mi></mmultiscripts></math>",
+   "expected": "⠭⠄⠰⠁⠘⠃"
+  },
+  {
+   "id": "rules::prime_83_b_4",
+   "mathml": "<math><msubsup> <msup><mi>x</mi><mo>''</mo></msup> <mn>1</mn> <mn>3</mn></msubsup></math>",
+   "expected": "⠭⠄⠄⠂⠘⠒"
+  },
+  {
+   "id": "rules::prime_mmultiscripts_83_b_4",
+   "mathml": "<math><mmultiscripts> <mi>x</mi> <none/><mo>''</mo> <mn>1</mn><mn>3</mn></mmultiscripts></math>",
+   "expected": "⠭⠄⠄⠂⠘⠒"
+  },
+  {
+   "id": "rules::prime_83_b_5",
+   "mathml": "<math><mmultiscripts> <mi>x</mi> <none/><mo>'</mo> <none/><mo>*</mo></mmultiscripts></math>",
+   "expected": "⠭⠄⠘⠈⠼"
+  },
+  {
+   "id": "rules::prime_83_b_6",
+   "mathml": "<math><msup> <mi>x</mi> <mrow><mo>*</mo> <mo>'</mo></mrow> </msup></math>",
+   "expected": "⠭⠘⠈⠼⠄"
+  },
+  {
+   "id": "rules::prime_83_b_7",
+   "mathml": "<math>\n        <msubsup>\n            <mi>A</mi>\n            <mrow><mi>u</mi><mi>e</mi></mrow>\n            <mrow><mo>&#x2217;</mo><mo>&#x2032;</mo></mrow>\n        </msubsup>\n    </math>",
+   "expected": "⠠⠁⠰⠥⠑⠘⠈⠼⠄"
+  },
+  {
+   "id": "rules::prime_83_b_8",
+   "mathml": "<math>\n        <msubsup>\n            <mi>A</mi>\n            <mrow><mi>u</mi><mi>e</mi></mrow>\n            <mrow><mo>&#x2032;</mo><mo>&#x2217;</mo></mrow>\n        </msubsup>\n    </math>",
+   "expected": "⠠⠁⠄⠰⠥⠑⠘⠈⠼"
+  },
+  {
+   "id": "rules::underbar_86_a_1",
+   "mathml": "<math><munder><mi>x</mi><mo>&#xAF;</mo></munder></math>",
+   "expected": "⠭⠩⠱"
+  },
+  {
+   "id": "rules::menclose_86_a_1",
+   "mathml": "<math><menclose notation='bottom'><mi>x</mi></menclose></math>",
+   "expected": "⠭⠩⠱"
+  },
+  {
+   "id": "rules::lim_86_a_3",
+   "mathml": "<math><munder><mi>lim</mi><mrow><mi>x</mi><mo>&#x2192;</mo><mn>0</mn></mrow></munder><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo></math>",
+   "expected": "⠐⠇⠊⠍⠩⠭⠀⠫⠕⠀⠼⠴⠻⠀⠋⠷⠭⠾"
+  },
+  {
+   "id": "rules::overbar_86_a_4",
+   "mathml": "<math><mover><msup><mi>x</mi><mn>2</mn></msup><mo>&#xAF;</mo></mover></math>",
+   "expected": "⠐⠭⠘⠆⠐⠣⠱⠻"
+  },
+  {
+   "id": "rules::menclose_86_a_4",
+   "mathml": "<math><menclose notation='top'><msup><mi>x</mi><mn>2</mn></msup></menclose></math>",
+   "expected": "⠐⠭⠘⠆⠐⠣⠱⠻"
+  },
+  {
+   "id": "rules::overbar_86_a_5",
+   "mathml": "<math><mover><msup><mi>x</mi><mn>2</mn></msup><mo>&#xAF;</mo></mover></math>",
+   "expected": "⠐⠭⠘⠆⠐⠣⠱⠻"
+  },
+  {
+   "id": "rules::mathml_spec_example_86_a",
+   "mathml": "<math>\n        <munder><mo>(</mo><mo>&#x5F;<!--LOW LINE--></mo></munder>\n        <mfrac><mi>a</mi><mi>b</mi></mfrac>\n        <mover><mo>)</mo><mo>&#x203E;<!--OVERLINE--></mo></mover>\n    </math>",
+   "expected": "⠐⠷⠩⠱⠻⠹⠁⠌⠃⠼⠐⠾⠣⠱⠻"
+  },
+  {
+   "id": "rules::mathml_spec_example_alt_char_86_a",
+   "mathml": "<math>\n        <munder><mo>(</mo><mo>&#x2015;</mo></munder>\n        <mfrac><mi>a</mi><mi>b</mi></mfrac>\n        <mover><mo>)</mo><mo>&#x2015;</mo></mover>\n    </math>",
+   "expected": "⠐⠷⠩⠱⠻⠹⠁⠌⠃⠼⠐⠾⠣⠱⠻"
+  },
+  {
+   "id": "rules::menclose_lesson_12_5_5_5",
+   "mathml": "<math><mi>A</mi><mo>(</mo><menclose notation='bottom'><mi>s</mi></menclose><mi>n</mi><mo>)</mo></math>",
+   "expected": "⠠⠁⠷⠎⠩⠱⠝⠾"
+  },
+  {
+   "id": "rules::munder_lesson_12_5_5_5",
+   "mathml": "<math><mi>A</mi><mo>(</mo><munder><mi>s</mi><mo>&#xAF;</mo></munder><mi>n</mi><mo>)</mo></math>",
+   "expected": "⠠⠁⠷⠎⠩⠱⠝⠾"
+  },
+  {
+   "id": "rules::overbar_86_b_1",
+   "mathml": "<math><mover><mi>x</mi><mo>&#xAF;</mo></mover></math>",
+   "expected": "⠭⠱"
+  },
+  {
+   "id": "rules::menclose_86_b_1",
+   "mathml": "<math><menclose notation='top'><mi>x</mi></menclose></math>",
+   "expected": "⠭⠱"
+  },
+  {
+   "id": "rules::overbar_86_b_2",
+   "mathml": "<math><mover>\n            <mrow><mi>x</mi><mo>+</mo><mi>y</mi></mrow>\n            <mo>&#xAF;</mo>\n        </mover></math>",
+   "expected": "⠐⠭⠬⠽⠣⠱⠻"
+  },
+  {
+   "id": "rules::primed_86_b_6",
+   "mathml": "<math><msup><mrow><mover><mi>x</mi><mo>&#xAF;</mo></mover></mrow><mo>&#x2032;</mo></msup></math>",
+   "expected": "⠭⠱⠄"
+  },
+  {
+   "id": "rules::menclose_primed_86_b_6",
+   "mathml": "<math><msup><menclose notation='top'><mi>x</mi></menclose><mo>&#x2032;</mo></msup></math>",
+   "expected": "⠭⠱⠄"
+  },
+  {
+   "id": "rules::overbar_86_b_10",
+   "mathml": "<math><mn>3</mn><mo>.</mo><mn>5</mn><mover><mn>4</mn><mo>&#xAF;</mo></mover></math>",
+   "expected": "⠼⠒⠨⠢⠲⠱"
+  },
+  {
+   "id": "rules::overbar_86_b_11",
+   "mathml": "<math><mover><mfenced>\n            <mrow><mover><mi>a</mi><mo>&#xAF;</mo></mover><mi mathvariant='bold'>A</mi><mo>+</mo>\n                <mover><mi>b</mi><mo>&#xAF;</mo></mover><mi mathvariant='bold'>B</mi></mrow>\n        </mfenced><mo>&#xAF;</mo></mover></math>",
+   "expected": "⠐⠷⠁⠱⠸⠰⠠⠁⠬⠃⠱⠸⠰⠠⠃⠾⠣⠱⠻"
+  },
+  {
+   "id": "rules::menclose_86_b_11",
+   "mathml": "<math><menclose notation='top'><mfenced>\n            <mrow><menclose notation='top'><mi>a</mi></menclose><mi mathvariant='bold'>A</mi><mo>+</mo>\n            <menclose notation='top'><mi>b</mi></menclose><mi mathvariant='bold'>B</mi></mrow>\n        </mfenced></menclose></math>",
+   "expected": "⠐⠷⠁⠱⠸⠰⠠⠁⠬⠃⠱⠸⠰⠠⠃⠾⠣⠱⠻"
+  },
+  {
+   "id": "rules::order2_overbar_87_a_1",
+   "mathml": "<math><mover>\n            <mrow><mi>x</mi><mo>+</mo><mi>y</mi></mrow>\n            <mover><mo>&#xAF;</mo><mrow><mi>a</mi><mo>=</mo><mn>3</mn></mrow></mover>\n        </mover></math>",
+   "expected": "⠐⠭⠬⠽⠣⠱⠣⠣⠁⠀⠨⠅⠀⠼⠒⠻"
+  },
+  {
+   "id": "rules::bar_above_and_below_88_1",
+   "mathml": "<math><munderover>\n            <mrow><mi>x</mi><mo>+</mo><mi>y</mi></mrow>\n            <mo>&#xAF;</mo>\n            <mo>&#xAF;</mo>\n        </munderover></math>",
+   "expected": "⠐⠭⠬⠽⠩⠱⠣⠱⠻"
+  },
+  {
+   "id": "rules::above_and_below_88_2",
+   "mathml": "<math><munderover><mo>&#x2211;</mo><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mo>&#x221E;</mo></munderover>\n                            <mfrac><mn>1</mn><msup><mn>2</mn><mi>n</mi></msup></mfrac><mo>=</mo><mn>1</mn></math>",
+   "expected": "⠐⠨⠠⠎⠩⠝⠀⠨⠅⠀⠼⠂⠣⠠⠿⠻⠹⠂⠌⠆⠘⠝⠐⠼⠀⠨⠅⠀⠼⠂"
+  },
+  {
+   "id": "rules::menclose_top_bottom_88_1",
+   "mathml": "<math><menclose notation='top bottom'><mi>x</mi><mo>+</mo><mi>y</mi></menclose></math>",
+   "expected": "⠐⠭⠬⠽⠩⠱⠣⠱⠻"
+  },
+  {
+   "id": "rules::binomial_90_1",
+   "mathml": "<math><mo>(</mo><mfrac linethickness='0'><mi>n</mi><mi>k</mi></mfrac><mo>)</mo></math>",
+   "expected": "⠷⠝⠩⠅⠾"
+  },
+  {
+   "id": "rules::binomial_90_1_mtable",
+   "mathml": "<math><mrow intent='binomial($n,$k)'>\n            <mo>(</mo>\n                <mtable>\n                <mtr><mtd><mi arg='n'>n</mi></mtd></mtr>\n                <mtr><mtd><mi arg='k'>k</mi></mtd></mtr>\n                </mtable>\n            <mo>)</mo>\n        </mrow></math>",
+   "expected": "⠷⠝⠩⠅⠾"
+  },
+  {
+   "id": "rules::modifier_in_script_91_1",
+   "mathml": "<math><msub><mi>A</mi><mover><mi>x</mi><mo>~</mo></mover></msub></math>",
+   "expected": "⠠⠁⠰⠐⠭⠣⠈⠱⠻"
+  },
+  {
+   "id": "rules::arrow_96_1",
+   "mathml": "<math>\n        <mover>\n        <mrow><mi mathvariant='normal'>A</mi> <mi mathvariant='normal'>B</mi></mrow>\n        <mo>→</mo>\n        </mover>\n    </math>",
+   "expected": "⠐⠠⠁⠠⠃⠣⠫⠕⠻"
+  },
+  {
+   "id": "rules::arrow_96_10",
+   "mathml": "<math>\n        <mi>X</mi>\n        <mover>\n        <mo>→</mo>\n        <mrow><mi>f</mi> <mo>∘</mo><mi>g</mi></mrow>\n        </mover>\n        <mi>Y</mi>\n    </math>",
+   "expected": "⠠⠭⠀⠐⠫⠒⠒⠕⠣⠋⠨⠡⠛⠻⠀⠠⠽"
+  },
+  {
+   "id": "rules::bar_97_b_1",
+   "mathml": "<math><mo>.</mo><mover><mn>3</mn><mo>&#xAF;</mo></mover></math>",
+   "expected": "⠼⠨⠒⠱"
+  },
+  {
+   "id": "rules::menclose_bar_97_b_1",
+   "mathml": "<math><mo>.</mo><menclose notation='top'><mn>3</mn></menclose></math>",
+   "expected": "⠼⠨⠒⠱"
+  },
+  {
+   "id": "rules::menclose_bar_97_b_3",
+   "mathml": "<math><mn>3.57</mn><mover><mn>29</mn><mo stretchy='true'>&#xAF;</mo></mover></math>",
+   "expected": "⠼⠒⠨⠢⠶⠐⠆⠔⠣⠱⠻"
+  },
+  {
+   "id": "rules::carrot_98_1",
+   "mathml": "<math><mover><mi>x</mi><mo>^</mo></mover></math>",
+   "expected": "⠐⠭⠣⠸⠣⠻"
+  },
+  {
+   "id": "rules::dots_99_a_1",
+   "mathml": "<math><mo>.</mo><mover><mn>3</mn><mo>&#x2D9;</mo></mover></math>",
+   "expected": "⠼⠨⠐⠒⠣⠡⠻"
+  },
+  {
+   "id": "rules::dots_99_a_2",
+   "mathml": "<math><mo>.</mo><mover><mn>1</mn><mo>&#x2D9;</mo></mover><mover><mn>3</mn><mo>&#x2D9;</mo></mover><mover><mn>5</mn><mo>&#x2D9;</mo></mover></math>",
+   "expected": "⠼⠨⠐⠂⠒⠢⠣⠡⠻"
+  },
+  {
+   "id": "rules::dots_99_a_3",
+   "mathml": "<math><mn>.13</mn><mover><mn>5</mn><mo>&#x2D9;</mo></mover></math>",
+   "expected": "⠼⠨⠂⠒⠐⠢⠣⠡⠻"
+  },
+  {
+   "id": "rules::ring_dot_100_1",
+   "mathml": "<math><mo>≗</mo></math>",
+   "expected": "⠐⠨⠅⠣⠨⠡⠻"
+  },
+  {
+   "id": "rules::question_mark_over_equals_101_1",
+   "mathml": "<math><mover><mo>=</mo><mo>?</mo></mover></math>",
+   "expected": "⠐⠨⠅⠣⠸⠦⠻"
+  },
+  {
+   "id": "rules::question_mark_under_equals_101_2",
+   "mathml": "<math><munder><mo>=</mo><mo>?</mo></munder></math>",
+   "expected": "⠐⠨⠅⠩⠸⠦⠻"
+  },
+  {
+   "id": "rules::sqrt_103_a_2",
+   "mathml": "<math><msqrt><mrow><mi>x</mi><mo>+</mo><mi>y</mi></mrow></msqrt></math>",
+   "expected": "⠜⠭⠬⠽⠻"
+  },
+  {
+   "id": "rules::sqrt_103_a_4",
+   "mathml": "<math><msqrt>\n            <msup><mi>x</mi><mn>2</mn></msup>\n            <mo>+</mo>\n            <msup><mi>y</mi><mn>2</mn></msup>\n        </msqrt></math>",
+   "expected": "⠜⠭⠘⠆⠐⠬⠽⠘⠆⠐⠻"
+  },
+  {
+   "id": "rules::sqrt_103_b_2",
+   "mathml": "<math><mo>√</mo><mo>(</mo><mi>x</mi><mo>+</mo><mi>y</mi><mo>)</mo></math>",
+   "expected": "⠜⠷⠭⠬⠽⠾"
+  },
+  {
+   "id": "rules::root_104_iii_1",
+   "mathml": "<math><mroot><mn>2</mn><mn>3</mn></mroot></math>",
+   "expected": "⠣⠒⠜⠆⠻"
+  },
+  {
+   "id": "rules::root_104_iii_4",
+   "mathml": "<math><mroot>\n            <mrow><mi>p</mi><mo>+</mo><mi>q</mi></mrow>\n            <mrow><mi>m</mi><mo>+</mo><mi>n</mi></mrow>\n        </mroot></math>",
+   "expected": "⠣⠍⠬⠝⠜⠏⠬⠟⠻"
+  },
+  {
+   "id": "rules::nested_sqrt_105_1",
+   "mathml": "<math><msqrt><mi>x</mi><mo>+</mo>\n            <msqrt><mi>x</mi><mo>+</mo><mi>y</mi></msqrt>\n            <mo>+</mo><mi>z</mi></msqrt></math>",
+   "expected": "⠜⠭⠬⠨⠜⠭⠬⠽⠨⠻⠬⠵⠻"
+  },
+  {
+   "id": "rules::nested_root_105_2",
+   "mathml": "<math><mroot>\n    <mrow>\n        <msup> <mi>x</mi><mn>2</mn> </msup>\n        <mo>+</mo>\n        <mroot>\n            <mrow>\n                <msup> <mi>x</mi> <mn>2</mn> </msup>\n                <mo>+</mo>\n                <msup> <mi>y</mi> <mn>2</mn>  </msup>\n            </mrow>\n            <mn>3</mn>\n        </mroot>\n        <mo>+</mo>\n        <msup> <mi>y</mi> <mn>2</mn> </msup>\n    </mrow>\n    <mn>3</mn>\n</mroot></math>",
+   "expected": "⠣⠒⠜⠭⠘⠆⠐⠬⠨⠣⠒⠜⠭⠘⠆⠐⠬⠽⠘⠆⠐⠨⠻⠬⠽⠘⠆⠐⠻"
+  },
+  {
+   "id": "rules::nested_sqrt_105_3",
+   "mathml": "<math>\n        <msqrt> <mroot> <mi>x</mi><mn>3</mn> </mroot> </msqrt>\n        <mo>=</mo>\n        <mroot> <msqrt><mi>x</mi></msqrt> <mn>3</mn></mroot>\n    </math>",
+   "expected": "⠜⠨⠣⠒⠜⠭⠨⠻⠻⠀⠨⠅⠀⠣⠒⠜⠨⠜⠭⠨⠻⠻"
+  },
+  {
+   "id": "rules::nested_sqrt_105_4",
+   "mathml": "<math>\n            <msqrt><mi>x</mi><mo>+</mo><msqrt><mi>y</mi><mo>+</mo><msqrt><mi>z</mi></msqrt></msqrt></msqrt>\n        </math>",
+   "expected": "⠜⠭⠬⠨⠜⠽⠬⠨⠨⠜⠵⠨⠨⠻⠨⠻⠻"
+  },
+  {
+   "id": "rules::menclose_111_a_4",
+   "mathml": "<math><menclose notation='phasorangle'><mrow><mn>30</mn><mo>&#xB0;</mo></mrow></menclose></math>",
+   "expected": "⠫⠪⠸⠫⠼⠒⠴⠘⠨⠡⠐⠻"
+  },
+  {
+   "id": "rules::menclose_111_a_1",
+   "mathml": "<math><menclose notation='circle'><mi>A</mi></menclose></math>",
+   "expected": "⠫⠉⠸⠫⠠⠁⠻"
+  },
+  {
+   "id": "rules::shape_115_a_1",
+   "mathml": "<math><mo>∠</mo><mn>1</mn></math>",
+   "expected": "⠫⠪⠀⠼⠂"
+  },
+  {
+   "id": "rules::shape_115_a_3",
+   "mathml": "<math><mo>&#x25CB;</mo><mi>R</mi></math>",
+   "expected": "⠫⠉⠀⠠⠗"
+  },
+  {
+   "id": "rules::shape_115_a_6",
+   "mathml": "<math><mo>∟</mo><mi>A</mi></math>",
+   "expected": "⠫⠪⠨⠗⠻⠀⠠⠁"
+  },
+  {
+   "id": "rules::shape_115_a_11",
+   "mathml": "<math><mi>m</mi><mo>&#x2220;</mo><mi>A</mi><mi>B</mi><mi>C</mi></math>",
+   "expected": "⠍⠫⠪⠀⠠⠁⠠⠃⠠⠉"
+  },
+  {
+   "id": "rules::function_space_119_c_3",
+   "mathml": "<math><mi>sin</mi><mn>30</mn><mo>&#xB0;</mo><mi>cos</mi><mn>45</mn><mo>&#xB0;</mo>\n           <mo>+</mo><mi>cos</mi><mn>30</mn><mo>&#xB0;</mo><mi>sin</mi><mn>45</mn><mo>&#xB0;</mo></math>",
+   "expected": "⠎⠊⠝⠀⠼⠒⠴⠘⠨⠡⠐⠉⠕⠎⠀⠼⠲⠢⠘⠨⠡⠐⠬⠉⠕⠎⠀⠼⠒⠴⠘⠨⠡⠐⠎⠊⠝⠀⠼⠲⠢⠘⠨⠡"
+  },
+  {
+   "id": "rules::brace_above_121_1",
+   "mathml": "<math><mover><mrow><mi>x</mi><mo>+</mo><mi>y</mi></mrow><mo>&#x23DE;</mo></mover></math>",
+   "expected": "⠐⠭⠬⠽⠣⠨⠷⠻"
+  },
+  {
+   "id": "rules::brace_below_121_2",
+   "mathml": "<math><munder><mrow><mi>x</mi><mo>+</mo><mi>y</mi></mrow><mo>&#x23DF;</mo></munder></math>",
+   "expected": "⠐⠭⠬⠽⠩⠨⠾⠻"
+  },
+  {
+   "id": "rules::bracket_above_121_3",
+   "mathml": "<math><mover><mrow><mi>x</mi><mo>+</mo><mi>y</mi></mrow><mo>&#x23B4;</mo></mover></math>",
+   "expected": "⠐⠭⠬⠽⠣⠈⠷⠻"
+  },
+  {
+   "id": "rules::racket_below_121_4",
+   "mathml": "<math><munder><mrow><mi>x</mi><mo>+</mo><mi>y</mi></mrow><mo>&#x23B5;</mo></munder></math>",
+   "expected": "⠐⠭⠬⠽⠩⠈⠾⠻"
+  },
+  {
+   "id": "rules::identity_matrix_126_linearize",
+   "mathml": "<math> <mrow><mo>(</mo> <mtable>\n        <mtr><mtd><mn>1</mn></mtd><mtd><mn>0</mn></mtd><mtd><mn>0</mn></mtd></mtr>\n        <mtr><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd><mtd><mn>0</mn></mtd></mtr>\n        <mtr><mtd><mn>0</mn></mtd><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd></mtr>\n      </mtable><mo>)</mo></mrow></math>",
+   "expected": "⠠⠷⠼⠂⠀⠼⠴⠀⠼⠴⠀⣍⠴⠀⠼⠂⠀⠼⠴⠀⣍⠴⠀⠼⠴⠀⠼⠂⠠⠾"
+  },
+  {
+   "id": "rules::multipurpose_134_1",
+   "mathml": "<math><mo>+</mo><mn>2</mn><mo>-</mo><mo>+</mo><mn>3</mn></math>",
+   "expected": "⠬⠆⠤⠐⠬⠒"
+  },
+  {
+   "id": "rules::plus_minus_134_4",
+   "mathml": "<math><mi>x</mi><mo>&#xB1;</mo><mi>y</mi></math>",
+   "expected": "⠭⠬⠤⠽"
+  },
+  {
+   "id": "rules::multipurpose_lesson_5_2_3",
+   "mathml": "<math><mn>10</mn><mo>+</mo><mo>-</mo><mn>5</mn></math>",
+   "expected": "⠼⠂⠴⠬⠐⠤⠢"
+  },
+  {
+   "id": "rules::multipurpose_lesson_5_2_4",
+   "mathml": "<math><mn>10</mn><mo>-</mo><mo>+</mo><mn>5</mn></math>",
+   "expected": "⠼⠂⠴⠤⠐⠬⠢"
+  },
+  {
+   "id": "rules::multipurpose_lesson_5_2_5",
+   "mathml": "<math><mn>10</mn><mo>-</mo><mo>-</mo><mn>5</mn></math>",
+   "expected": "⠼⠂⠴⠤⠐⠤⠢"
+  },
+  {
+   "id": "rules::tilde_137_2",
+   "mathml": "<math><mo>∼</mo><mi>p</mi><mo>∨</mo><mo>∼</mo><mi>q</mi><mo>∨</mo><mo>∼</mo><mi>r</mi></math>",
+   "expected": "⠈⠱⠏⠈⠬⠈⠱⠟⠈⠬⠈⠱⠗"
+  },
+  {
+   "id": "rules::tilde_137_3",
+   "mathml": "<math><mo>~</mo><mo>~</mo><mi>T</mi><mo>&#x2228;</mo><mi>R</mi></math>",
+   "expected": "⠈⠱⠐⠈⠱⠠⠞⠈⠬⠠⠗"
+  },
+  {
+   "id": "rules::tilde_137_3_mathjax",
+   "mathml": "<math><mo>∼∼</mo><mi>T</mi><mo>∨</mo><mi>R</mi></math>",
+   "expected": "⠈⠱⠐⠈⠱⠠⠞⠈⠬⠠⠗"
+  },
+  {
+   "id": "rules::tilde_144_1",
+   "mathml": "<math><mi>x</mi><mo>∼</mo><mi>y</mi></math>",
+   "expected": "⠭⠀⠈⠱⠀⠽"
+  },
+  {
+   "id": "rules::set_vertical_bar_145_1",
+   "mathml": "<math><mo>{</mo><mi>x</mi><mo>|</mo><mo>|</mo><mi>x</mi><mo>|</mo><mo>&lt;</mo><mn>10</mn><mo>}</mo></math>",
+   "expected": "⠨⠷⠭⠀⠳⠀⠳⠭⠳⠀⠐⠅⠀⠼⠂⠴⠨⠾"
+  },
+  {
+   "id": "rules::vertical_bar_145_4",
+   "mathml": "<math><mi>P</mi><mo>(</mo><mi>A</mi><mo>|</mo><mi>B</mi><mo>)</mo></math>",
+   "expected": "⠠⠏⠷⠠⠁⠀⠳⠀⠠⠃⠾"
+  },
+  {
+   "id": "rules::ratio_151_10",
+   "mathml": "<math><mn>1</mn><mo>:</mo><mn>2</mn><mo>∷</mo><mn>3</mn><mo>:</mo><mn>6</mn></math>",
+   "expected": "⠼⠂⠀⠐⠂⠀⠼⠆⠀⠰⠆⠀⠼⠒⠀⠐⠂⠀⠼⠖"
+  },
+  {
+   "id": "rules::ratio_151_11",
+   "mathml": "<math><mi>a</mi><mo>+</mo><mi>b</mi><mo>:</mo><mi>b</mi><mo>∷</mo><mi>c</mi><mo>+</mo><mi>d</mi><mo>:</mo><mi>d</mi></math>",
+   "expected": "⠁⠬⠃⠀⠐⠂⠀⠃⠀⠰⠆⠀⠉⠬⠙⠀⠐⠂⠀⠙"
+  },
+  {
+   "id": "rules::space_after_punct_bug_152",
+   "mathml": "<math><mn>7</mn><mover><mo>=</mo><mo>?</mo></mover><mn>8</mn></math>",
+   "expected": "⠼⠶⠀⠐⠨⠅⠣⠸⠦⠻⠀⠼⠦"
+  },
+  {
+   "id": "rules::arrow_lesson_9_5_1",
+   "mathml": "<math><mi>A</mi><mo>→</mo><mi>B</mi></math>",
+   "expected": "⠠⠁⠀⠫⠕⠀⠠⠃"
+  },
+  {
+   "id": "rules::not_ratio_nfb_5_7_b_2",
+   "mathml": "<math><mo>{</mo><mi>x</mi><mo>:</mo><mi>x</mi><mo>></mo><mn>0</mn><mo>}</mo></math>",
+   "expected": "⠨⠷⠰⠭⠸⠒⠀⠭⠀⠨⠂⠀⠼⠴⠨⠾"
+  },
+  {
+   "id": "rules::not_ratio_nfb_5_7_b_4",
+   "mathml": "<math><mi>p</mi><mo>:</mo><mi>r</mi><mo>=</mo><mi>q</mi><mo>:</mo><mi>s</mi></math>",
+   "expected": "⠰⠏⠸⠒⠗⠀⠨⠅⠀⠟⠸⠒⠰⠎"
+  },
+  {
+   "id": "rules::trilinear_not_ratio",
+   "mathml": "<math><mi>a</mi><mo>:</mo><mi>b</mi><mo>:</mo><mi>c</mi></math>",
+   "expected": "⠰⠁⠸⠒⠰⠃⠸⠒⠰⠉"
+  },
+  {
+   "id": "rules::extension_field_not_ratio",
+   "mathml": "<math><mo>[</mo><mi>K</mi><mo>:</mo><mi>F</mi><mo>]</mo></math>",
+   "expected": "⠈⠷⠰⠠⠅⠸⠒⠰⠠⠋⠈⠾"
+  },
+  {
+   "id": "rules::proportional_151_12",
+   "mathml": "<math><mi>x</mi><mo>∝</mo><mi>y</mi></math>",
+   "expected": "⠭⠀⠸⠿⠀⠽"
+  },
+  {
+   "id": "rules::comparison_ops_151_14",
+   "mathml": "<math><mo>{</mo><mi>x</mi><mo>|</mo><mn>0</mn><mo>≤</mo><mi>x</mi><mo>≤</mo><mn>1</mn><mo>}</mo></math>",
+   "expected": "⠨⠷⠭⠀⠳⠀⠼⠴⠀⠐⠅⠱⠀⠭⠀⠐⠅⠱⠀⠼⠂⠨⠾"
+  },
+  {
+   "id": "rules::no_space_comparison_151_16",
+   "mathml": "<math><mo>(</mo><mo>&lt;</mo><mo>,</mo><mo>=</mo><mo>,</mo><mo>&gt;</mo><mo>)</mo></math>",
+   "expected": "⠷⠐⠅⠠⠀⠨⠅⠠⠀⠨⠂⠾"
+  },
+  {
+   "id": "rules::in_scripts_comparison_151_17",
+   "mathml": "<math>\n            <msubsup>\n            <mo>∫</mo>\n            <mrow><mi>x</mi><mo>=</mo><mi>a</mi></mrow>\n            <mrow><mi>x</mi><mo>=</mo><mi>b</mi></mrow>\n            </msubsup>\n            <mrow>\n            <mrow>\n                <mi>f</mi>\n                <mrow><mo>(</mo><mi>x</mi><mo>)</mo></mrow>\n            </mrow>\n            <mi>d</mi>\n            <mi>x</mi>\n            </mrow>\n        </math>",
+   "expected": "⠮⠰⠭⠀⠰⠨⠅⠀⠁⠘⠭⠀⠘⠨⠅⠀⠃⠐⠋⠷⠭⠾⠙⠭"
+  },
+  {
+   "id": "rules::degrees_165_1",
+   "mathml": "<math><mn>90</mn><mo>&#xB0;</mo><mo>+</mo><mn>90</mn><mo>&#xB0;</mo><mo>=</mo><mn>180</mn><mo>&#xB0;</mo></math>",
+   "expected": "⠼⠔⠴⠘⠨⠡⠐⠬⠔⠴⠘⠨⠡⠀⠨⠅⠀⠼⠂⠦⠴⠘⠨⠡"
+  },
+  {
+   "id": "rules::prime_172_5",
+   "mathml": "<math><msubsup><mi>x</mi><mi>i</mi><mo>'</mo></msubsup></math>",
+   "expected": "⠭⠄⠰⠊"
+  },
+  {
+   "id": "rules::prime_172_6",
+   "mathml": "<math><msubsup><mi>x</mi><mn>1</mn><mo>'</mo></msubsup></math>",
+   "expected": "⠭⠄⠂"
+  },
+  {
+   "id": "rules::prime_172_8",
+   "mathml": "<math><msup><mover><mi>x</mi><mo>&#xAF;</mo></mover><mo>'</mo></msup></math>",
+   "expected": "⠭⠱⠄"
+  },
+  {
+   "id": "rules::prime_172_9",
+   "mathml": "<math><msup><mn>5</mn><mo>'</mo></msup><msup><mn>8</mn><mrow><mo>'</mo><mo>'</mo></mrow></msup></math>",
+   "expected": "⠼⠢⠄⠦⠄⠄"
+  },
+  {
+   "id": "rules::multipurpose_177_2_1",
+   "mathml": "<math> <mi>x5</mi> </math>",
+   "expected": "⠭⠐⠢"
+  },
+  {
+   "id": "rules::multipurpose_177_2_2",
+   "mathml": "<math> <mi>x</mi> <mn>.6</mn> </math>",
+   "expected": "⠭⠐⠨⠖"
+  },
+  {
+   "id": "rules::multipurpose_177_3_1",
+   "mathml": "<math>\n            <msub><mi>c</mi><mn>0</mn></msub>\n            <msup><mn>10</mn><mn>2</mn></msup>\n            <mo>+</mo>\n            <msub><mi>c</mi><mn>1</mn></msub>\n            <mn>10</mn><mo>+</mo>\n            <msub><mi>c</mi><mn>2</mn></msub>\n        </math>",
+   "expected": "⠉⠴⠐⠂⠴⠘⠆⠐⠬⠉⠂⠐⠂⠴⠬⠉⠆"
+  },
+  {
+   "id": "rules::multipurpose_177_5_1",
+   "mathml": "<math><mn>0.</mn><msub><mi>a</mi><mn>1</mn></msub><msub><mi>a</mi><mn>2</mn></msub><mo>…</mo></math>",
+   "expected": "⠼⠴⠨⠐⠁⠂⠁⠆⠀⠄⠄⠄"
+  },
+  {
+   "id": "rules::multipurpose_177_5_4",
+   "mathml": "<math><mn>3.</mn><mo>+</mo><mn>.4</mn><mo>=</mo><mn>3.4</mn></math>",
+   "expected": "⠼⠒⠨⠐⠬⠨⠲⠀⠨⠅⠀⠼⠒⠨⠲"
+  },
+  {
+   "id": "rules::multipurpose_177_5_5",
+   "mathml": "<math><mo>(</mo><mn>3.</mn><mo>)</mo></math>",
+   "expected": "⠷⠒⠨⠐⠾"
+  },
+  {
+   "id": "rules::multipurpose_177_5_6",
+   "mathml": "<math><mfrac><mn>1.</mn><mn>2.</mn></mfrac></math>",
+   "expected": "⠹⠂⠨⠐⠌⠆⠨⠐⠼"
+  },
+  {
+   "id": "rules::multipurpose_177_7_1",
+   "mathml": "<math><mrow><mo>|</mo><mi>x</mi><mo>|</mo></mrow><mrow><mo>|</mo><mi>y</mi><mo>|</mo></mrow></math>",
+   "expected": "⠳⠭⠳⠐⠳⠽⠳"
+  },
+  {
+   "id": "rules::multipurpose_177_7_2",
+   "mathml": "<math><mrow><mo>‖</mo><mi>x</mi><mo>‖</mo></mrow><mrow><mo>‖</mo><mi>y</mi><mo>‖</mo></mrow></math>",
+   "expected": "⠳⠳⠭⠳⠳⠐⠳⠳⠽⠳⠳"
+  },
+  {
+   "id": "rules::multipurpose_177_7_9",
+   "mathml": "<math><mo>∼</mo><mo>∼</mo><mi>T</mi></math>",
+   "expected": "⠈⠱⠐⠈⠱⠠⠞"
+  },
+  {
+   "id": "rules::no_multipurpose_lesson_5_2_6",
+   "mathml": "<math><mo>-</mo><mn>10</mn><mo>+</mo><mo>+</mo><mn>5</mn></math>",
+   "expected": "⠤⠼⠂⠴⠬⠬⠢"
+  },
+  {
+   "id": "rules::multipurpose_lesson_5_9_1_1",
+   "mathml": "<math><mi>n</mi><mo>&gt;</mo><mo>&lt;</mo><mn>1</mn></math>",
+   "expected": "⠝⠀⠨⠂⠐⠐⠅⠀⠼⠂"
+  },
+  {
+   "id": "rules::multipurpose_lesson_5_9_2_1",
+   "mathml": "<math><mi>n</mi><mo>&lt;</mo><mo>&gt;</mo><mn>1</mn></math>",
+   "expected": "⠝⠀⠐⠅⠐⠨⠂⠀⠼⠂"
+  },
+  {
+   "id": "rules::multipurpose_lesson_5_9_2_2",
+   "mathml": "<math><mi>n</mi><mo>&lt;</mo><mo>=</mo><mo>&gt;</mo><mn>1</mn></math>",
+   "expected": "⠝⠀⠐⠅⠐⠨⠅⠐⠨⠂⠀⠼⠂"
+  },
+  {
+   "id": "rules::lesson_11_24_1",
+   "mathml": "<math><menclose notation='roundedbox'><msup><mi>x</mi><mn>2</mn></msup></menclose></math>",
+   "expected": "⠫⠅⠭⠘⠆⠐⠻"
+  },
+  {
+   "id": "rules::ms_38_4_8",
+   "mathml": "<math><mo>(</mo><ms lquote='“' rquote='”'>three</ms><mo>)</mo></math>",
+   "expected": "⠷⠸⠦⠞⠓⠗⠑⠑⠴⠾"
+  },
+  {
+   "id": "rules::ms",
+   "mathml": "<math><ms>a string</ms><mo>,</mo><ms lquote='‘' rquote='’'>another string</ms></math>",
+   "expected": "⠄⠄⠁⠀⠎⠞⠗⠊⠝⠛⠄⠄⠠⠀⠸⠠⠦⠁⠝⠕⠞⠓⠑⠗⠀⠎⠞⠗⠊⠝⠛⠠⠴"
+  },
+  {
+   "id": "rules::full_binomial",
+   "mathml": "<math>\n    <mo stretchy='false'>(</mo>\n    <mi>x</mi>\n    <mo>+</mo>\n    <mi>a</mi>\n    <msup>\n        <mo stretchy='false'>)</mo>\n        <mrow>\n            <mi>n</mi>\n        </mrow>\n    </msup>\n    <mo>=</mo>\n    <munderover>\n        <mo>∑</mo>\n        <mrow>\n            <mi>k</mi>\n            <mo>=</mo>\n            <mn>0</mn>\n        </mrow>\n        <mrow>\n            <mi>n</mi>\n        </mrow>\n    </munderover>\n    <mrow>\n        <mo>(</mo>\n        <mfrac linethickness='0'>\n            <mi>n</mi>\n            <mi>k</mi>\n        </mfrac>\n        <mo>)</mo>\n    </mrow>\n    <msup>\n        <mi>x</mi>\n        <mrow>\n            <mi>k</mi>\n        </mrow>\n    </msup>\n    <msup>\n        <mi>a</mi>\n        <mrow>\n            <mi>n</mi>\n            <mo>−</mo>\n            <mi>k</mi>\n        </mrow>\n    </msup>\n</math>",
+   "expected": "⠷⠭⠬⠁⠾⠘⠝⠀⠨⠅⠀⠐⠨⠠⠎⠩⠅⠀⠨⠅⠀⠼⠴⠣⠝⠻⠷⠝⠩⠅⠾⠭⠘⠅⠐⠁⠘⠝⠤⠅"
+  },
+  {
+   "id": "rules::number_space_before",
+   "mathml": "<math><mtext>&#xA0;</mtext><mn>2</mn></math>",
+   "expected": "⠼⠆"
+  },
+  {
+   "id": "rules::number_space_after",
+   "mathml": "<math><mn>2</mn><mtext>&#xA0;</mtext></math>",
+   "expected": "⠼⠆"
+  },
+  {
+   "id": "rules::number_space_before_and_after",
+   "mathml": "<math><mtext>&#xA0;</mtext><mn>2</mn><mtext>&#xA0;</mtext></math>",
+   "expected": "⠼⠆"
+  },
+  {
+   "id": "rules::tensor_from_mathml_spec",
+   "mathml": "<math>\n    <mmultiscripts>\n      <mi>R</mi>\n      <mi>i</mi> <none></none>\n      <none></none> <mi>j</mi>\n      <mi>k</mi> <none></none>\n      <mi>l</mi> <none></none>\n    </mmultiscripts>\n    </math>",
+   "expected": "⠠⠗⠰⠊⠐⠘⠚⠐⠰⠅⠐⠰⠇"
+  },
+  {
+   "id": "rules::perpendicular_17_57",
+   "mathml": "<math><mi>A</mi><mi>B</mi><mo>&#x22A5;</mo><mi>C</mi><mi>D</mi></math>",
+   "expected": "⠠⠁⠠⠃⠀⠫⠏⠀⠠⠉⠠⠙"
+  },
+  {
+   "id": "rules::chem_HOH_1_1_1_mchem",
+   "mathml": "<math>\n      <mi mathvariant='normal'>H</mi>\n      <mo>-</mo>\n      <mi mathvariant='normal'>O</mi>\n      <mo>-</mo>\n      <mi mathvariant='normal'>H</mi>\n   </math>",
+   "expected": "⠠⠓⠸⠒⠻⠠⠕⠸⠒⠻⠠⠓"
+  },
+  {
+   "id": "rules::chem_2_5_1_mchem",
+   "mathml": "<math>\n        <mrow>\n        <mrow><mi>CaC</mi></mrow>\n        <msub>\n            <mrow><mrow><mpadded width='0'><mphantom><mi>A</mi></mphantom></mpadded></mrow></mrow>\n            <mrow><mrow><mpadded height='0'><mn>2</mn></mpadded></mrow></mrow>\n        </msub>\n        <mrow></mrow>\n        <mo>+</mo>\n        <mrow></mrow>\n        <mn>2</mn>\n        <mstyle scriptlevel='0'><mspace width='0.167em'/></mstyle>\n        <mrow><mi>HOH</mi></mrow>\n        <mrow></mrow>\n        <mrow><mo stretchy='false'>&#x27F6;</mo></mrow>\n        <mrow></mrow>\n        <mrow><mi mathvariant='normal'>H</mi></mrow>\n        <mrow><mo>&#x2212;</mo></mrow>\n        <mrow><mi mathvariant='normal'>C</mi></mrow>\n        <mrow><mo>&#x2261;</mo></mrow>\n        <mrow><mi mathvariant='normal'>C</mi></mrow>\n        <mrow><mo>&#x2212;</mo></mrow>\n        <mrow><mi mathvariant='normal'>H</mi></mrow>\n        <mrow></mrow>\n        <mo>+</mo>\n        <mrow></mrow>\n        <mrow><mi>Ca</mi></mrow>\n        <mo stretchy='false'>(</mo>\n        <mrow><mi>OH</mi></mrow>\n        <mo stretchy='false'>)</mo>\n        <msub>\n            <mrow><mrow><mpadded width='0'><mphantom><mi>A</mi></mphantom></mpadded></mrow></mrow>\n            <mrow><mrow><mpadded height='0'><mn>2</mn></mpadded></mrow></mrow>\n        </msub>\n        </mrow>\n    </math>",
+   "expected": "⠠⠉⠁⠠⠉⠆⠬⠆⠠⠓⠠⠕⠠⠓⠀⠫⠒⠒⠒⠕⠀⠠⠓⠸⠒⠻⠠⠉⠸⠿⠻⠠⠉⠸⠒⠻⠠⠓⠬⠠⠉⠁⠷⠠⠕⠠⠓⠾⠰⠆"
+  }
+ ]
+}

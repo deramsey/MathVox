@@ -354,18 +354,95 @@ kbd{
     display: none;
 }
 
-#svg-alt-suggestion{
-    margin-bottom: .8rem;
+/* Download the exported SVG as a standalone file -- same visual language
+   as the "Convert" secondary button (outlined, contrast-safe text-blue),
+   shown/hidden together with #svg-preview above. */
+.btn-icon{
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
 }
 
-#svg-alt-suggestion:empty{
+/* Shrink-to-fit centered pill (icon + label) rather than a full-width
+   slab, so it reads as a lighter secondary action next to the SVG
+   preview above it -- same outlined, contrast-safe text-blue visual
+   language as the "Convert" secondary button. */
+#download-svg{
+    display: flex;
+    width: fit-content;
+    align-items: center;
+    gap: .5em;
+    margin: 0 auto .8rem auto;
+    font-size: 1em;
+    font-weight: 600;
+    background-color: var(--panel-bg);
+    color: var(--blue-text);
+    border: 2px solid var(--blue-text);
+    border-radius: .3em;
+    padding: .5em 1em;
+    cursor: pointer;
+    min-height: 44px;
+}
+
+#download-svg:active{
+    background-color: var(--blue-text);
+    color: var(--panel-bg);
+}
+
+#download-svg[hidden]{
     display: none;
-    margin-bottom: 0;
+}
+
+#svg-alt-wrap{
+    margin-bottom: .8rem;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5em;
+}
+
+#svg-alt-wrap[hidden]{
+    display: none;
+}
+
+#svg-alt-suggestion{
+    margin: 0;
+}
+
+/* Copies just the suggested alt-text sentence's payload (the description
+   itself, not the "Suggested alt text..." lead-in) -- see copyAltText()
+   in script.js. Sized like the icon buttons (WCAG 2.5.5) but shaped as a
+   small pill rather than a 44x44 square, since it sits inline with text
+   rather than in the corner icon row. */
+#copy-alt-text{
+    font-size: .85em;
+    font-weight: 600;
+    background-color: var(--panel-bg);
+    color: var(--blue-text);
+    border: 1px solid var(--blue-text);
+    border-radius: .3em;
+    padding: .3em .8em;
+    cursor: pointer;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: .4em;
+    flex-shrink: 0;
+}
+
+#copy-alt-text:active{
+    background-color: var(--blue-text);
+    color: var(--panel-bg);
 }
 
 #mathml-notes{
     margin-top: .8rem;
     margin-bottom: 0;
+    /* Clear the absolutely positioned Share/Copy buttons in the panel's
+       bottom-right corner, which otherwise sit on top of the meaning
+       picker's last row. */
+    padding-bottom: calc(44px + .75rem);
 }
 
 #mathml-notes:empty{
@@ -373,7 +450,58 @@ kbd{
     margin-top: 0;
 }
 
-#svg-preview svg{
+.intent-picker{
+    /* A <fieldset> defaults to min-width: min-content, which lets a long
+       <option> label push it past a narrow panel. */
+    min-width: 0;
+    margin: .6rem 0 0 0;
+    padding: .5rem .8rem .7rem .8rem;
+    border: 1px solid var(--panel-border);
+    border-radius: .3em;
+    display: flex;
+    flex-direction: column;
+    gap: .5em;
+}
+
+.intent-picker legend{
+    font-weight: bold;
+    padding: 0 .3em;
+}
+
+.intent-row{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5em;
+}
+
+.intent-row code{
+    font-family: "Consolas", monospace;
+}
+
+.intent-row select{
+    font-size: 1em;
+    padding: .35em;
+    min-height: 44px;
+    max-width: 100%;
+    border: 2px solid var(--blue);
+    border-radius: .3em;
+    background-color: var(--panel-bg);
+    color: var(--fg);
+}
+
+.intent-status:empty{
+    display: none;
+}
+
+.intent-suggestion{
+    flex-basis: 100%;
+}
+
+/* Direct child only: MathJax draws stretchy characters (e.g. the bar in
+   \overline{AB}) as nested <svg> elements, and display:block / height:auto
+   on those makes them disappear from the preview. */
+#svg-preview > svg{
     display: block;
     max-width: 100%;
     height: auto;
@@ -450,6 +578,63 @@ kbd{
     background-color: var(--blue-solid);
 }
 
+/* Third icon in the corner row, left of #share-link: same look and 44x44
+   target as the other two. Portable SVG only (hidden otherwise). */
+#download-svg-corner{
+    position: absolute;
+    bottom: .25rem;
+    right: calc(2 * (44px + .5rem) + .25rem);
+    color: var(--blue-text);
+    background-color: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    font-size: 1.6rem;
+    cursor: pointer;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#download-svg-corner[hidden]{
+    display: none;
+}
+
+#download-svg-corner:active{
+    color: white;
+    background-color: var(--blue-solid);
+}
+
+/* Output code wrapper: only collapsible (with a visible summary) for
+   Portable SVG -- see setCodeCollapsible() in script.js. For every other
+   format it's always open and the summary is hidden, so it looks exactly
+   like the plain output panel it replaced. */
+#code-details:not(.collapsible) > summary{
+    display: none;
+}
+
+#code-details.collapsible > summary{
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--blue-text);
+    margin: .4rem 0;
+    /* Padding rather than min-height/flex, which would drop the native
+       disclosure triangle (matching #kbd-help's), while still giving a
+       roughly 44px-tall click target. */
+    padding: .75em 0;
+}
+
+#code-details.collapsible > summary:focus-visible{
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+/* Collapsed: nothing below the summary but the corner buttons, so the
+   output's usual 2.5rem bottom padding (room for them) moves here. */
+#code-details.collapsible:not([open]){
+    padding-bottom: 2.5rem;
+}
+
 /* Dyslexia-friendly font toggle: swaps to a plainer, more open font
    stack with extra letter/line spacing. This is a reasonable built-in
    approximation; for true OpenDyslexic support a font file would need
@@ -458,4 +643,155 @@ html.dyslexia-font, html.dyslexia-font *{
     font-family: "Verdana", "Trebuchet MS", "Tahoma", sans-serif !important;
     letter-spacing: .03em;
     line-height: 1.6;
+}
+
+/* ------------------------------------------------------------------
+   Windows High Contrast Mode (forced-colors) and prefers-contrast
+   (September 2026)
+   ------------------------------------------------------------------
+   These are two different signals and need different treatment:
+
+   - forced-colors: active fires when the OS (Windows High Contrast Mode
+     is the common case, though some other UAs support it too) has
+     replaced the page's authored colors with a small, user-chosen
+     system palette. The browser already swaps out most of this app's
+     colors automatically at that point (backgrounds, text, borders on
+     ordinary elements) -- nothing to do there. Two things still need
+     explicit handling: (1) state that was only distinguishable by an
+     author background/border color -- the pressed a11y-toggle buttons,
+     the button active/press states -- needs to stay distinguishable
+     using the small set of system colors forced-colors mode guarantees
+     it will NOT strip (Highlight/HighlightText); and (2) the Portable
+     SVG preview panel is deliberately fixed white/black regardless of
+     MathVox's own theme (see the comment on #svg-preview above)
+     because it's a preview of an external, unthemed artifact --
+     forced-colors would otherwise recolor that panel to the user's
+     system palette (its hardcoded black SVG strokes could even end up
+     unreadable against a forced-colors dark background) and defeat the
+     whole point of the preview, so it opts out with
+     forced-color-adjust: none.
+
+   - prefers-contrast: more is a *voluntary* signal (mainly macOS
+     "Increase contrast", though some Windows/Firefox setups respect it
+     too) that the user wants more visual definition, without the
+     browser forcing anything. The existing palette already passes WCAG
+     AA (see the July 2026 contrast-audit comments throughout this
+     file), so this is a light touch -- thicker borders and a wider
+     focus ring -- rather than new colors.
+
+   Not verified against real Windows hardware/a VM in High Contrast Mode
+   as part of this pass -- written against the forced-colors spec and
+   MDN's guidance, but worth a manual check next time that's available. */
+@media (forced-colors: active){
+    :focus-visible{
+        outline: 3px solid Highlight;
+    }
+
+    #kbd-help summary:focus-visible{
+        outline: 3px solid Highlight;
+    }
+
+    /* The pressed/"on" state of Dark Mode and Dyslexia-Friendly Font was
+       previously conveyed only by an author background-color, which
+       forced-colors mode replaces -- fall back to system colors plus a
+       thicker border so pressed vs. unpressed stays visually distinct. */
+    #a11y-controls > button{
+        border-width: 2px;
+    }
+
+    #a11y-controls > button[aria-pressed="true"]{
+        background-color: Highlight;
+        color: HighlightText;
+        border-color: HighlightText;
+        border-width: 3px;
+    }
+
+    #buttons > button:active,
+    #share-link:active,
+    #download-svg-corner:active,
+    #copy:active,
+    #download-svg:active,
+    #copy-alt-text:active{
+        background-color: Highlight;
+        color: HighlightText;
+        border-color: HighlightText;
+    }
+
+    #buttons > button.secondary{
+        border-width: 2px;
+    }
+
+    /* Deliberately opt this one panel OUT of forced-colors recoloring --
+       see the block comment above for why. */
+    #svg-preview,
+    #svg-preview svg{
+        forced-color-adjust: none;
+    }
+}
+
+@media (prefers-contrast: more){
+    main,
+    #kbd-help,
+    #text-output,
+    #svg-preview,
+    #share-link,
+    #download-svg-corner,
+    #copy,
+    #copy-alt-text{
+        border-width: 2px;
+    }
+
+    #latex-editor textarea,
+    #format-picker select,
+    .intent-row select,
+    #a11y-controls > button,
+    #buttons > button,
+    #download-svg{
+        border-width: 3px;
+    }
+
+    :focus-visible{
+        outline-width: 4px;
+    }
+}
+
+/* Phones and narrow windows. At desktop widths the nested 80% columns
+   leave comfortable margins, but at ~360px they compounded down to a
+   ~230px content column, while the logo (no max-width) and the header
+   buttons pushed the page to ~700px wide, forcing horizontal scrolling. */
+@media (max-width: 640px){
+    header{
+        grid-template-columns: 1fr;
+        justify-items: center;
+        gap: .25em;
+        padding: 0 16px .75em;
+    }
+
+    #logo{
+        max-width: 100%;
+        height: auto;
+        padding: .75rem 0 .25rem;
+    }
+
+    #a11y-controls{
+        justify-content: center;
+    }
+
+    main{
+        width: 100%;
+        border-left: none;
+        border-right: none;
+    }
+
+    #format-picker,
+    #mf-sizer,
+    #text-output{
+        width: auto;
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+
+    #format-picker select{
+        max-width: 100%;
+    }
 }
