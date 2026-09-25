@@ -5,5 +5,8 @@
     "mathjax": "^4.1.3",
     "mathlive": "^0.105.3",
     "speech-rule-engine": "^5.0.0-rc.3"
+  },
+  "scripts": {
+    "test": "node --test"
   }
 }

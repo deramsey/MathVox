@@ -123,6 +123,12 @@
                  (not appended into #text-cont) so the Copy button still
                  copies clean MathML, not this note along with it. -->
             <p id="mathml-notes" class="hint"></p>
+            <!-- Shareable link: copies the current page URL, whose hash
+                 already encodes the equation and chosen format (kept in
+                 sync as you type/pick a format -- see updateUrlHash() in
+                 script.js), so following the link reproduces this exact
+                 equation/format instead of the blank app. -->
+            <button id="share-link" title="Copy shareable link" aria-label="Copy a shareable link to this equation and format">🔗</button>
             <button id="copy" title="Copy to clipboard" aria-label="Copy LaTeX output to clipboard">⎘</button>
         </section>
     </main>

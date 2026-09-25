@@ -1,4 +1,13 @@
 import { ComputeEngine } from './vendor/compute-engine/compute-engine.min.esm.js';
+import {
+    findMathJsonError,
+    unquote,
+    describeMathJsonError,
+    escapeXmlText,
+    LATEX_ERROR_MESSAGES,
+    describeLatexError,
+    findBraceImbalance
+} from './pure-logic.js';
 
 // MathLive needs a Compute Engine instance available before it can export
 // the "math-json" format. This must be set before any getValue('math-json')
@@ -25,6 +34,7 @@ const formatSelect = document.querySelector('#format-select');
 const formatNameEl = document.querySelector('#format-name');
 const textCont = document.querySelector('#text-cont');
 const copyBtn = document.querySelector('#copy');
+const shareBtn = document.querySelector('#share-link');
 const readBtn = document.querySelector('#read');
 const themeToggle = document.querySelector('#theme-toggle');
 const dyslexiaToggle = document.querySelector('#dyslexia-toggle');
@@ -38,49 +48,11 @@ const mathmlNotesEl = document.querySelector('#mathml-notes');
 const MATHML_NAMESPACE = 'http://www.w3.org/1998/Math/MathML';
 const LATEX_STORAGE_KEY = 'mathvox-latex';
 const FORMAT_STORAGE_KEY = 'mathvox-format';
-
-// Compute Engine can "succeed" (no thrown exception) while still embedding
-// an ["Error", ["ErrorCode", ...]] node somewhere inside an otherwise-valid
-// MathJSON tree -- e.g. QA found "\pm" inside a "\frac" produces exactly this
-// (± isn't a single number, so dividing it hits an incompatible-type error),
-// silently leaking a raw internal error blob into the output instead of a
-// message a user could act on. Recursively search for that shape.
-function findMathJsonError(node) {
-    if (!Array.isArray(node)) return null;
-    if (node[0] === 'Error') return node;
-    for (const child of node) {
-        const found = findMathJsonError(child);
-        if (found) return found;
-    }
-    return null;
-}
-
-// Strips the single-quote wrapping Compute Engine puts around each string
-// literal inside an ErrorCode node, e.g. "'incompatible-type'" -> "incompatible-type".
-function unquote(value) {
-    return typeof value === 'string' ? value.replace(/^'|'$/g, '') : String(value);
-}
-
-function describeMathJsonError(errorNode) {
-    const detail = errorNode[1];
-    if (!Array.isArray(detail) || detail[0] !== 'ErrorCode') {
-        return 'hit an internal error MathJSON could not fully resolve';
-    }
-    const code = unquote(detail[1]);
-    if (code === 'incompatible-type') {
-        const expected = detail[2] ? unquote(detail[2]) : 'a single value';
-        const actual = detail[3] ? unquote(detail[3]) : 'something else';
-        return `expected ${expected} but got ${actual} -- this commonly happens with "±" (\\pm) inside a fraction or another spot that expects one number, since ± really represents two possible values`;
-    }
-    return `hit a "${code}" error`;
-}
-
-// LaTeX commonly contains "<", ">", or "&" (comparisons, "\&", etc.); escape
-// them so the annotation stays well-formed when the output is pasted as XML
-// text into an HTML document.
-function escapeXmlText(str) {
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
+// URL hash param names for the shareable-link feature (see updateUrlHash()/
+// restoreEquationState() below) -- kept short since they end up in a URL
+// someone might paste somewhere.
+const EQ_HASH_PARAM = 'eq';
+const FORMAT_HASH_PARAM = 'format';
 
 // MathML "semantic ambiguity" audit (see MATHML_SEMANTIC_LINT_PLAN.md for
 // full background/rationale). MathLive's math-ml export is pure Presentation
@@ -138,6 +110,9 @@ function findAmbiguousNotation(mathmlFragment) {
     } catch (err) {
         return found;
     }
+
+    function walk(node, precedingSibling) {
+        const children = elementChildren(node);
 
         // Scan for "(" ... "," ... ")" as a subsequence anywhere within this
         // row's children -- not just when the whole row is exactly that
@@ -367,7 +342,17 @@ async function updateOutput() {
 
     if (format === 'math-json') {
         try {
-            const json = mf.getValue('math-json');
+            const rawJson = mf.getValue('math-json');
+            // mf.getValue('math-json') returns a JSON *string* in this
+            // MathLive version, not an already-parsed structure -- confirmed
+            // via real-browser testing (this was previously only verified
+            // with Node-level Compute Engine tests in isolation, which
+            // didn't catch this). Without parsing it, findMathJsonError()
+            // below can never match (Array.isArray() is false on a string),
+            // so the plain-language explanation never fires, and the
+            // "happy path" output is a double-escaped string instead of
+            // clean JSON.
+            const json = typeof rawJson === 'string' ? JSON.parse(rawJson) : rawJson;
             const errorNode = findMathJsonError(json);
             if (errorNode) {
                 const reason = describeMathJsonError(errorNode);
@@ -487,48 +472,6 @@ function autoGrowLatexInput() {
     latexInput.style.height = `${latexInput.scrollHeight}px`;
 }
 
-// Human-readable summaries for MathLive's LatexSyntaxError.code values
-// (see https://mathlive.io/mathfield/reference/keybindings/ and the
-// Mathfield API reference for the `errors` property). Anything not listed
-// falls back to showing the raw code so nothing is silently swallowed.
-const LATEX_ERROR_MESSAGES = {
-    'unknown-command': 'contains a command MathLive doesn’t recognize',
-    'invalid-command': 'uses a command in a way it doesn’t support',
-    'unbalanced-braces': 'has a brace ({ or }) without a matching pair',
-    'unknown-environment': 'references an environment MathLive doesn’t recognize',
-    'unbalanced-environment': 'has a \\begin{...} without a matching \\end{...} (or vice versa)',
-    'unbalanced-mode-shift': 'has an unbalanced mode shift (e.g. an unmatched $ or \\text{})',
-    'missing-argument': 'is missing an argument a command needs',
-    'too-many-infix-commands': 'has more than one infix command (like \\over) in the same group',
-    'unexpected-command-in-string': 'has a command that can’t be used in plain text',
-    'missing-unit': 'is missing a unit where one is required',
-    'unexpected-delimiter': 'has an unexpected delimiter',
-    'unexpected-token': 'has an unexpected character',
-    'unexpected-end-of-string': 'ends unexpectedly, as if something is missing',
-    'improper-alphabetic-constant': 'has an improperly formatted constant'
-};
-
-function describeLatexError(err) {
-    return LATEX_ERROR_MESSAGES[err.code] || `has a problem MathLive calls "${err.code}"`;
-}
-
-// QA found that mf.errors misses common typos like an unclosed brace
-// ("\frac{1}{") -- MathLive is lenient enough to silently treat it as valid
-// (rendering a broken/incomplete result) rather than flagging it, while
-// catching only more severely broken input. This counts braces directly on
-// the raw text as a backstop, independent of MathLive's own leniency.
-// Escaped braces ("\{" / "\}") are literal characters, not grouping
-// delimiters, so they're stripped before counting.
-function findBraceImbalance(rawLatex) {
-    const stripped = rawLatex.replace(/\\\{|\\\}/g, '');
-    let depth = 0;
-    for (const ch of stripped) {
-        if (ch === '{') depth++;
-        else if (ch === '}') depth--;
-    }
-    return depth;
-}
-
 function reportLatexErrors(rawLatex) {
     const messages = [];
 
@@ -565,9 +508,29 @@ function convertLatex() {
     saveEquationState();
 }
 
+// Keep the address-bar hash in sync with the current equation/format, so
+// the page's own URL at any moment is a valid shareable link -- same
+// pattern as the OrgChart app. replaceState (not pushState) so typing
+// doesn't spam browser history with one entry per keystroke.
+function updateUrlHash() {
+    try {
+        const params = new URLSearchParams();
+        const latex = mf.getValue('latex') || '';
+        if (latex) {
+            params.set(EQ_HASH_PARAM, latex);
+        }
+        params.set(FORMAT_HASH_PARAM, formatSelect.value);
+        history.replaceState(null, '', `${location.pathname}${location.search}#${params.toString()}`);
+    } catch (err) {
+        // Not fatal -- the app still works, just without a shareable URL.
+        console.warn('Could not update the shareable link', err);
+    }
+}
+
 // Persist the current equation and chosen output format so a reload (or
 // coming back later) doesn't lose someone's work -- matches the existing
-// pattern used for the theme and dyslexia-font toggles.
+// pattern used for the theme and dyslexia-font toggles. Also keeps the
+// shareable-link hash (see updateUrlHash() above) current.
 function saveEquationState() {
     try {
         localStorage.setItem(LATEX_STORAGE_KEY, mf.getValue('latex') || '');
@@ -577,21 +540,49 @@ function saveEquationState() {
         // losing persistence isn't fatal, so just skip it.
         console.warn('Could not save MathVox state', err);
     }
+    updateUrlHash();
 }
 
+// A shared link (equation/format in the URL hash) takes priority over
+// locally saved state -- that's the point of following one. Falls back to
+// the locally saved equation only when there's nothing in the hash.
 function restoreEquationState() {
+    let restoredFromLink = false;
     try {
-        const savedFormat = localStorage.getItem(FORMAT_STORAGE_KEY);
-        if (savedFormat && FORMAT_LABELS[savedFormat]) {
-            formatSelect.value = savedFormat;
+        const hashParams = new URLSearchParams(location.hash.slice(1));
+        const hashFormat = hashParams.get(FORMAT_HASH_PARAM);
+        const hashLatex = hashParams.get(EQ_HASH_PARAM);
+        if (hashFormat && FORMAT_LABELS[hashFormat]) {
+            formatSelect.value = hashFormat;
+            restoredFromLink = true;
         }
-        const savedLatex = localStorage.getItem(LATEX_STORAGE_KEY);
-        if (savedLatex) {
-            mf.setValue(savedLatex);
+        if (hashLatex) {
+            mf.setValue(hashLatex);
+            restoredFromLink = true;
         }
     } catch (err) {
-        console.warn('Could not restore MathVox state', err);
+        console.warn('Could not parse the shared link', err);
     }
+
+    if (!restoredFromLink) {
+        try {
+            const savedFormat = localStorage.getItem(FORMAT_STORAGE_KEY);
+            if (savedFormat && FORMAT_LABELS[savedFormat]) {
+                formatSelect.value = savedFormat;
+            }
+            const savedLatex = localStorage.getItem(LATEX_STORAGE_KEY);
+            if (savedLatex) {
+                mf.setValue(savedLatex);
+            }
+        } catch (err) {
+            console.warn('Could not restore MathVox state', err);
+        }
+    }
+
+    // Whichever source won above (or neither), make sure localStorage and
+    // the URL hash both reflect it -- this also means following a shared
+    // link "sticks" as your last-used equation on future visits.
+    saveEquationState();
 }
 
 async function copyOutput() {
@@ -599,6 +590,18 @@ async function copyOutput() {
         await navigator.clipboard.writeText(textCont.textContent);
     } catch (err) {
         console.error('Failed to copy text', err);
+    }
+}
+
+// Copies the current page URL, whose hash already encodes the equation and
+// chosen format (kept current by updateUrlHash()) -- following it
+// reproduces this exact equation/format instead of the blank app.
+async function copyShareLink() {
+    updateUrlHash();
+    try {
+        await navigator.clipboard.writeText(location.href);
+    } catch (err) {
+        console.error('Failed to copy share link', err);
     }
 }
 
@@ -633,6 +636,7 @@ formatSelect.addEventListener('change', () => {
 });
 readBtn.addEventListener('click', speakEquation);
 copyBtn.addEventListener('click', copyOutput);
+shareBtn.addEventListener('click', copyShareLink);
 themeToggle.addEventListener('click', () => setTheme(!document.documentElement.classList.contains('theme-dark')));
 dyslexiaToggle.addEventListener('click', () => setDyslexiaFont(!document.documentElement.classList.contains('dyslexia-font')));
 

@@ -404,6 +404,29 @@ kbd{
     font-family: "Consolas", "Cambria Math", monospace, "Tahoma", sans-serif;
 }
 
+/* Sits to the left of #copy with a gap; same 44x44 target-size treatment
+   (WCAG 2.5.5) and visual style as #copy below. */
+#share-link{
+    position: absolute;
+    bottom: .25rem;
+    right: calc(44px + .25rem + .5rem);
+    color: var(--blue-text);
+    background-color: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    font-size: 1.6rem;
+    cursor: pointer;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#share-link:active{
+    color: white;
+    background-color: var(--blue-solid);
+}
+
 #copy{
     position: absolute;
     bottom: .25rem;
