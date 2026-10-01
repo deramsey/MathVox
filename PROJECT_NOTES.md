@@ -101,8 +101,9 @@ multiplication?" choice'.
 
 ## Current features
 
-- **Input:** MathLive `<math-field>` visual editor (with an accessible name on
-  its inner textbox) and a raw LaTeX box (`#latex-input` + Convert /
+- **Input:** MathLive `<math-field>` visual editor (visible label "Enter or
+  edit the equation visually", which also focuses the field when clicked; the
+  same text is the accessible name on its inner textbox) and a raw LaTeX box (`#latex-input` + Convert /
   Ctrl+Enter) kept in two-way sync; `#kbd-help` keyboard shortcut panel.
 - **Format picker** (native `<select>`, placed above the input on purpose) with
   eight formats:

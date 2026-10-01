@@ -64,7 +64,7 @@ const mf = document.querySelector('#formula');
 function labelMathfieldInput() {
     const sink = mf.shadowRoot && mf.shadowRoot.querySelector('[role="textbox"]');
     if (!sink) return;
-    const fallback = mf.getAttribute('aria-label') || 'Enter a math expression';
+    const fallback = mf.getAttribute('aria-label') || 'Enter or edit the equation visually';
     const ensureLabel = () => {
         if (!(sink.getAttribute('aria-label') || '').trim()) sink.setAttribute('aria-label', fallback);
     };
@@ -72,6 +72,9 @@ function labelMathfieldInput() {
     new MutationObserver(ensureLabel).observe(sink, { attributes: true, attributeFilter: ['aria-label'] });
 }
 labelMathfieldInput();
+// <label for> only focuses native form controls, so clicking the visible
+// "Enter or edit the equation visually" label would otherwise do nothing.
+document.querySelector('#formula-label').addEventListener('click', () => mf.focus());
 const formatSelect = document.querySelector('#format-select');
 const speechStyleSelect = document.querySelector('#speech-style-select');
 const formatNameEl = document.querySelector('#format-name');

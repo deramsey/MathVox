@@ -73,11 +73,14 @@
 
         <div id="mf-sizer">
             <h2 class="sr-only">Enter your equation</h2>
-            <label for="formula" class="sr-only">Enter a math expression</label>
+            <label for="formula" id="formula-label">Enter or edit the equation visually</label>
             <!-- aria-label as well as the <label>: <math-field> isn't a native
                  form control, so label-for doesn't give it (or the editable
-                 element inside its shadow DOM) an accessible name. -->
-            <math-field id="formula" aria-label="Enter a math expression"></math-field>
+                 element inside its shadow DOM) an accessible name. Keep the
+                 aria-label's wording the same as the visible label so voice
+                 control users can say what they see (WCAG 2.5.3). Clicking
+                 the label focuses the field via script.js. -->
+            <math-field id="formula" aria-label="Enter or edit the equation visually"></math-field>
 
             <details id="kbd-help">
                 <summary>Keyboard help for the equation field</summary>
