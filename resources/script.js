@@ -86,6 +86,8 @@ const themeToggle = document.querySelector('#theme-toggle');
 const dyslexiaToggle = document.querySelector('#dyslexia-toggle');
 const latexInput = document.querySelector('#latex-input');
 const convertBtn = document.querySelector('#convert');
+const clearBtn = document.querySelector('#clear');
+const undoClearBtn = document.querySelector('#undo-clear');
 const latexErrorEl = document.querySelector('#latex-error');
 const svgPreviewEl = document.querySelector('#svg-preview');
 const downloadSvgBtn = document.querySelector('#download-svg');
@@ -945,6 +947,58 @@ function convertLatex() {
     saveEquationState();
 }
 
+// Clear Equation: empties both inputs and forgets the meaning choices
+// (they belong to the equation being cleared), saved state and link
+// included. Format, Description style, theme and font are settings, not
+// fields, so they stay. MathLive's own undo doesn't cover setValue(), so
+// the cleared equation is kept for one "Undo Clear" until the next edit.
+let clearedState = null;
+
+function hideUndoClear() {
+    clearedState = null;
+    if (undoClearBtn.hidden) return;
+    // Don't strand keyboard focus on a button that's about to disappear.
+    if (document.activeElement === undoClearBtn) clearBtn.focus();
+    undoClearBtn.hidden = true;
+}
+
+function clearEquation() {
+    const latex = mf.getValue('latex') || '';
+    if (!latex && !latexInput.value && !Object.keys(intentChoices).length) {
+        announce('The equation is already empty.');
+        mf.focus();
+        return;
+    }
+    const saved = { latex, latexText: latexInput.value, intents: intentChoices };
+    mf.setValue('');
+    latexInput.value = '';
+    autoGrowLatexInput();
+    latexErrorEl.textContent = '';
+    intentChoices = {};
+    updateOutput();
+    saveEquationState();
+    clearedState = saved;
+    undoClearBtn.hidden = false;
+    // Focus goes where the next equation will be typed.
+    mf.focus();
+    announce('Equation cleared. Undo Clear is available below the Clear Equation button.');
+}
+
+function undoClear() {
+    if (!clearedState) return;
+    const { latex, latexText, intents } = clearedState;
+    hideUndoClear();
+    mf.setValue(latex);
+    latexInput.value = latexText;
+    autoGrowLatexInput();
+    intentChoices = intents;
+    reportLatexErrors(latex);
+    updateOutput();
+    saveEquationState();
+    mf.focus();
+    announce('Equation restored.');
+}
+
 // Keep the address-bar hash in sync with the current equation/format, so
 // the page's own URL at any moment is a valid shareable link -- same
 // pattern as the OrgChart app. replaceState (not pushState) so typing
@@ -1161,6 +1215,12 @@ themeToggle.addEventListener('click', () => setTheme(!document.documentElement.c
 dyslexiaToggle.addEventListener('click', () => setDyslexiaFont(!document.documentElement.classList.contains('dyslexia-font')));
 
 convertBtn.addEventListener('click', convertLatex);
+clearBtn.addEventListener('click', clearEquation);
+undoClearBtn.addEventListener('click', undoClear);
+// Any new edit after a clear makes the new work the thing to keep; an undo
+// at that point would throw it away.
+mf.addEventListener('input', hideUndoClear);
+latexInput.addEventListener('input', hideUndoClear);
 latexInput.addEventListener('input', autoGrowLatexInput);
 // Ctrl/Cmd+Enter converts without leaving the text box (documented in the
 // on-page keyboard help and the hint text next to the box).

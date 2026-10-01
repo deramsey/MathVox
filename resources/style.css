@@ -211,6 +211,10 @@ math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
     border-color: var(--blue-text);
 }
 
+#buttons > button[hidden]{
+    display: none;
+}
+
 #buttons > button.secondary:active{
     background-color: var(--blue-text);
     color: var(--panel-bg);

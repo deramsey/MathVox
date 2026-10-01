@@ -127,6 +127,10 @@ multiplication?" choice'.
     the built-in alt text).
   - **SVG + hidden MathML** -- an HTML snippet for web pages/LMS HTML: SVG
     `aria-hidden`, visually hidden MathML beside it for screen readers.
+- **Clear Equation** -- empties the visual field and the LaTeX box and drops
+  the meaning choices (saved state and link too), keeping format, Description
+  style, theme and font. Focus goes to the field; a one-step **Undo Clear**
+  appears until the next edit (MathLive's own undo doesn't cover `setValue`).
 - **Read Equation Aloud** -- Web Speech API with the Description text
   (MathLive's `speak` only as a fallback).
 - **Copy** buttons with spoken + visual confirmation; **shareable link** (URL
