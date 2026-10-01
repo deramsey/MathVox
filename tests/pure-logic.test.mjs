@@ -907,3 +907,25 @@ test('function-or-product: "u(x, y)" as a function drops the point/interval ques
     assert.equal(applyIntents(occs, { 'u(x, y)#1': 'function', '(x, y)#1': 'open-interval' }), 1);
     assert.doesNotMatch(serialize(root), /intent=/);
 });
+
+// --- Description style (MathSpeak / ClearSpeak) -----------------------------
+
+test('description style: ClearSpeak reads naturally and switching back is clean', async () => {
+    const require = createRequire(import.meta.url);
+    const sre = require('speech-rule-engine');
+    const say = (f) => sre.toSpeech(`<math>${cleaned(f).xml}</math>`);
+    const quad = '<mi>x</mi><mo>=</mo><mfrac><mrow><mo>−</mo><mi>b</mi><mo>±</mo><msqrt><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mi>a</mi><mi>c</mi></msqrt></mrow><mrow><mn>2</mn><mi>a</mi></mrow></mfrac>';
+    // Same options script.js's getSreSpeechReady() passes.
+    const ready = (domain) => sre.setupEngine({ modality: 'speech', domain, style: 'default', locale: 'en', markup: 'none' });
+    await ready('clearspeak');
+    assert.equal(say(quad), 'x equals the fraction with numerator negative b plus or minus the square root of b squared minus 4 a c and denominator 2 a');
+    assert.equal(say('<mo>|</mo><mi>x</mi><mo>|</mo>'), 'the absolute value of x');
+    await ready('mathspeak');
+    assert.equal(say(quad), 'x equals StartFraction negative b plus or minus StartRoot b squared minus 4 a c EndRoot Over 2 a EndFraction');
+});
+
+test('description style: the vendored English rules include ClearSpeak', () => {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const maps = JSON.parse(fs.readFileSync(path.join(here, '..', 'resources', 'vendor', 'speech-rule-engine', 'mathmaps', 'en.json'), 'utf8'));
+    assert.ok(Object.keys(maps).some((k) => /clearspeak/i.test(k)), 'en.json has no ClearSpeak rule sets');
+});

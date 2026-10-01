@@ -49,7 +49,7 @@ would likely need its own interface rather than another output format.
 - `resources/vendor/` -- **self-hosted copies of every third-party library's
   built files** (see "Why vendoring" below). The single most important
   architectural fact.
-- `tests/pure-logic.test.mjs` -- `npm test` (81 tests, October 1, 2026).
+- `tests/pure-logic.test.mjs` -- `npm test` (83 tests, October 1, 2026).
   `tests/braille-report.mjs` -- `npm run braille-report`. `tests/fixtures/` --
   MathCAT's Nemeth suite (+ its MIT license) and the 315-expression LaTeX
   corpus. See "Testing and QA".
@@ -113,7 +113,13 @@ multiplication?" choice'.
     `|x|` (absolute value / cardinality / determinant), `[a, b]`-style
     intervals (intent by default, opt-out), and letters before parentheses
     (function or multiplication). Choices persist and travel in links.
-  - **Description** -- SRE MathSpeak text.
+  - **Description** -- SRE text in the chosen **Description style**:
+    MathSpeak (default; "StartFraction ... EndFraction") or ClearSpeak
+    ("the fraction with numerator ... and denominator ..."). The style picker
+    sits under the format picker and also drives Read Aloud, the SVG
+    `<title>` and the suggested alt text. Saved (`mathvox-speech-style`) and
+    put in shared links as `speech=` only when it isn't MathSpeak; a link
+    without it keeps the viewer's own choice.
   - **Braille (Nemeth)** -- SRE.
   - **Portable SVG** -- MathJax, self-contained, with `<title>`/`role="img"`,
     Download .svg, suggested alt text with Copy, and a Word hint (Word ignores
@@ -215,7 +221,7 @@ tag — a v5 release candidate, not yet a final release; worth checking back on)
 
 ## Testing and QA
 
-- **`npm test`** (`node --test`): 81 unit tests on `pure-logic.js`, built with
+- **`npm test`** (`node --test`): 83 unit tests on `pure-logic.js`, built with
   `@xmldom/xmldom` trees shaped like real MathLive output; several run the real
   SRE from `node_modules` to lock in reading/braille fixes. Also checks that
   `script.js` and `pure-logic.js` parse as ES modules. No CI -- tests run only
@@ -236,7 +242,8 @@ Resolved items and their history are in docs/HISTORY.md ("Open items for next
 session" and the dated sections).
 
 **Needs Derek**
-- **NVDA (or JAWS) listen-through** -- never done. Should cover: MathML with
+- **NVDA (or JAWS) listen-through** -- never done. Should cover: Read Aloud
+  in both Description styles; MathML with
   chosen meanings ("open interval", "absolute value", "y of t"); a few cleanup
   cases (`|x|+|y|`, `f'(x)`, `\{x \mid x>0\}`, `P(A|B)`); the `#output-status`
   announcements and the equation field's label; a pasted "SVG + hidden
@@ -251,8 +258,6 @@ session" and the dated sections).
   after the first tool).
 
 **Next candidates**
-- Description style choice: MathSpeak (current) or ClearSpeak -- built into
-  SRE, no new library.
 - SSML output format -- built into SRE.
 - Report MathLive's export gaps and MathML quirks upstream (the tables in
   docs/HISTORY.md are the repro list).

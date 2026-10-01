@@ -62,6 +62,13 @@
                 <option value="svg-mathml">SVG + hidden MathML (web pages; screen readers can explore it)</option>
             </select>
             <p class="hint">Choose a format before entering your equation below so the output is ready as soon as you're done.</p>
+
+            <label for="speech-style-select" id="speech-style-label">Description style</label>
+            <select id="speech-style-select" aria-describedby="speech-style-hint">
+                <option value="mathspeak" selected>MathSpeak (precise, marks each part’s start and end)</option>
+                <option value="clearspeak">ClearSpeak (natural, like a teacher reading aloud)</option>
+            </select>
+            <p class="hint" id="speech-style-hint">Used for the Description format, Read Equation Aloud, and the SVG alt text. For example, (a+1)/2 is &ldquo;StartFraction a plus 1 Over 2 EndFraction&rdquo; in MathSpeak and &ldquo;the fraction with numerator a plus 1 and denominator 2&rdquo; in ClearSpeak. A screen reader exploring live MathML uses its own reading style.</p>
         </section>
 
         <div id="mf-sizer">

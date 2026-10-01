@@ -27,8 +27,9 @@ import {
 // call is made.
 window.MathfieldElement.computeEngine = new ComputeEngine();
 
-// Use Speech Rule Engine's "mathspeak" rules (the same academic-standard
-// speech rules already used for Braille below, via the same vendored `sre.js`)
+// Use Speech Rule Engine's speech rules (MathSpeak or ClearSpeak, per the
+// Description style picker; the same engine already used for Braille below,
+// via the same vendored `sre.js`)
 // for both the "spoken-text" format and the "Read Equation Aloud" button,
 // instead of MathLive's simpler built-in speech rules. QA found the built-in
 // rules wrap single-letter variables in literal quotes and capitalize them
@@ -37,10 +38,20 @@ window.MathfieldElement.computeEngine = new ComputeEngine();
 // exact thing this tool exists to do. Must be set before any getValue()
 // or 'speak' command.
 window.MathfieldElement.textToSpeechRules = 'sre';
-window.MathfieldElement.textToSpeechRulesOptions = {
-    domain: 'mathspeak',
-    ruleset: 'mathspeak-default'
+// The two "Description style" choices, both Speech Rule Engine domains in
+// the vendored en.json (no extra files): MathSpeak marks structure
+// explicitly ("StartFraction a plus 1 Over 2 EndFraction"), ClearSpeak
+// reads more naturally ("the fraction with numerator a plus 1 and
+// denominator 2"). The person's choice drives everything that speaks:
+// Description, Read Aloud, the SVG <title> and the suggested alt text.
+const SPEECH_STYLES = {
+    mathspeak: { domain: 'mathspeak', ruleset: 'mathspeak-default' },
+    clearspeak: { domain: 'clearspeak', ruleset: 'clearspeak-default' }
 };
+function setMathLiveSpeechStyle(style) {
+    window.MathfieldElement.textToSpeechRulesOptions = Object.assign({}, SPEECH_STYLES[style] || SPEECH_STYLES.mathspeak);
+}
+setMathLiveSpeechStyle('mathspeak');
 
 const mf = document.querySelector('#formula');
 
@@ -62,6 +73,7 @@ function labelMathfieldInput() {
 }
 labelMathfieldInput();
 const formatSelect = document.querySelector('#format-select');
+const speechStyleSelect = document.querySelector('#speech-style-select');
 const formatNameEl = document.querySelector('#format-name');
 const textCont = document.querySelector('#text-cont');
 const copyBtn = document.querySelector('#copy');
@@ -122,6 +134,11 @@ const FORMAT_STORAGE_KEY = 'mathvox-format';
 // someone might paste somewhere.
 const EQ_HASH_PARAM = 'eq';
 const FORMAT_HASH_PARAM = 'format';
+// Description style (see SPEECH_STYLES below). Only put in a shared link
+// when it isn't the default, so ordinary links stay as short as before.
+const SPEECH_STYLE_STORAGE_KEY = 'mathvox-speech-style';
+const SPEECH_STYLE_HASH_PARAM = 'speech';
+const DEFAULT_SPEECH_STYLE = 'mathspeak';
 // Author-chosen MathML intents (see "MathML intent" in pure-logic.js):
 // an object mapping an ambiguous shape's key (e.g. "(0, 5)#1") to the
 // intent concept picked for it (e.g. "open-interval"). Saved alongside the
@@ -473,12 +490,18 @@ function getSreBrailleReady() {
 }
 
 // Matches the exact config verified in a Node sandbox to produce clean,
-// correctly-spaced mathspeak text (e.g. "x equals StartFraction negative b
+// correctly-spaced text (e.g. MathSpeak's "x equals StartFraction negative b
 // plus or minus StartRoot ... EndFraction") -- domain/style names here are
 // SRE's own option names, distinct from (but equivalent to) the
 // domain/ruleset names MathLive's textToSpeechRulesOptions uses above.
+// The domain follows the Description style picker. markup: 'none' is
+// passed every time because SRE options are sticky between setupEngine
+// calls, so plain text is reasserted rather than assumed.
+function getSpeechStyle() {
+    return SPEECH_STYLES[speechStyleSelect.value] ? speechStyleSelect.value : DEFAULT_SPEECH_STYLE;
+}
 function getSreSpeechReady() {
-    return setSreModality('speech', { domain: 'mathspeak', style: 'default', locale: 'en' });
+    return setSreModality('speech', { domain: SPEECH_STYLES[getSpeechStyle()].domain, style: 'default', locale: 'en', markup: 'none' });
 }
 
 // Generates the spoken-language description directly via SRE, rather than
@@ -551,7 +574,7 @@ async function getStandaloneSvg(mathml, spokenText, { decorative = false } = {})
     // an <img> alt attribute; explicit role="img" makes accessible-name
     // computation reliable across browsers/AT rather than depending on
     // SVG's historically inconsistent implicit default role. Reuses the same
-    // spoken-text string (now via SRE's mathspeak rules, see the
+    // spoken-text string (via SRE in the chosen Description style, see the
     // textToSpeechRules config above) already used for the Description
     // format and Read Equation Aloud -- one source of truth, not a second
     // description to keep in sync.
@@ -841,8 +864,8 @@ async function updateOutput({ announce: shouldAnnounce = false } = {}) {
 }
 
 async function speakEquation() {
-    // Reads the same verified text the Description format shows (SRE
-    // mathspeak over the cleaned-up MathML -- see getCleanMathml), via the
+    // Reads the same verified text the Description format shows (SRE, in
+    // the chosen Description style, over the cleaned-up MathML -- see getCleanMathml), via the
     // browser's own Web Speech API. MathLive's built-in "speak" command
     // sends MathLive's raw MathML to SRE, so it would still say "times"
     // inside every typed "|x|"; it's kept only as a fallback for browsers
@@ -931,6 +954,9 @@ function updateUrlHash() {
             params.set(EQ_HASH_PARAM, latex);
         }
         params.set(FORMAT_HASH_PARAM, formatSelect.value);
+        if (getSpeechStyle() !== DEFAULT_SPEECH_STYLE) {
+            params.set(SPEECH_STYLE_HASH_PARAM, getSpeechStyle());
+        }
         if (Object.keys(intentChoices).length) {
             params.set(INTENT_HASH_PARAM, JSON.stringify(intentChoices));
         }
@@ -948,6 +974,7 @@ function updateUrlHash() {
 function saveEquationState() {
     storageSet(LATEX_STORAGE_KEY, mf.getValue('latex') || '');
     storageSet(FORMAT_STORAGE_KEY, formatSelect.value);
+    storageSet(SPEECH_STYLE_STORAGE_KEY, getSpeechStyle());
     storageSet(INTENT_STORAGE_KEY, JSON.stringify(intentChoices));
     updateUrlHash();
 }
@@ -955,12 +982,23 @@ function saveEquationState() {
 // A shared link (equation/format in the URL hash) takes priority over
 // locally saved state -- that's the point of following one. Falls back to
 // the locally saved equation only when there's nothing in the hash.
+function setSpeechStyle(style) {
+    if (!SPEECH_STYLES[style]) return false;
+    speechStyleSelect.value = style;
+    setMathLiveSpeechStyle(style);
+    return true;
+}
+
 function restoreEquationState() {
     let restoredFromLink = false;
+    // The Description style is a reading preference: a shared link that
+    // names one applies it, otherwise the person's own saved choice stays.
+    let styleFromLink = false;
     try {
         const hashParams = new URLSearchParams(location.hash.slice(1));
         const hashFormat = hashParams.get(FORMAT_HASH_PARAM);
         const hashLatex = hashParams.get(EQ_HASH_PARAM);
+        styleFromLink = setSpeechStyle(hashParams.get(SPEECH_STYLE_HASH_PARAM));
         if (hashFormat && FORMAT_LABELS[hashFormat]) {
             formatSelect.value = hashFormat;
             restoredFromLink = true;
@@ -976,6 +1014,10 @@ function restoreEquationState() {
         }
     } catch (err) {
         console.warn('Could not parse the shared link', err);
+    }
+
+    if (!styleFromLink) {
+        setSpeechStyle(storageGet(SPEECH_STYLE_STORAGE_KEY));
     }
 
     if (!restoredFromLink) {
@@ -1091,6 +1133,11 @@ mf.addEventListener('input', debounce(() => {
     saveEquationState();
 }, 300));
 formatSelect.addEventListener('change', () => {
+    updateOutput({ announce: true });
+    saveEquationState();
+});
+speechStyleSelect.addEventListener('change', () => {
+    setSpeechStyle(speechStyleSelect.value);
     updateOutput({ announce: true });
     saveEquationState();
 });
