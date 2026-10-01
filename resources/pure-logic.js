@@ -97,7 +97,7 @@ export function findBraceImbalance(rawLatex) {
 
 // --- MathML semantic ambiguity audit ------------------------------------
 //
-// Flags two known-ambiguous MathML shapes (see MATHML_SEMANTIC_LINT_PLAN.md
+// Flags two known-ambiguous MathML shapes (see docs/MATHML_SEMANTIC_LINT_PLAN.md
 // for the full design rationale on why only these two, and why auto-fixing
 // isn't attempted): a bare parenthesized comma-group ("(a, b)" -- point?
 // interval? gcd?) and a pair of vertical bars ("|x|" -- absolute value?
@@ -105,7 +105,7 @@ export function findBraceImbalance(rawLatex) {
 //
 // Redesigned September 2026 after a real-browser QA pass confirmed the
 // original version never actually fired against real MathLive output (see
-// PROJECT_NOTES.md, "Open items for next session"). Two structural bugs,
+// docs/HISTORY.md, "Open items for next session"). Two structural bugs,
 // both fixed here:
 //
 // 1. Point-or-interval never matched because MathLive wraps a
@@ -139,7 +139,8 @@ const FUNCTION_APPLICATION = '\u2061'; // MathLive's invisible "function applica
 const AMBIGUITY_NOTES = {
     'point-or-interval': 'This expression contains "(a, b)" — a shape that could mean a point, an open interval, a greatest common divisor, or something else depending on context. Without an "intent" attribute (new in MathML 4) saying which one you mean, screen readers have to guess.',
     'absolute-value-or-set-builder': 'This expression contains a pair of vertical bars ("|...|") — commonly absolute value, but the same shape is also used for the number of elements in a set (cardinality) or the determinant of a matrix. Without an "intent" attribute saying which one you mean, screen readers have to guess.',
-    'bracketed-interval': 'This expression contains interval notation with a square bracket (like "[a, b]" or "(a, b]"). MathVox marks it as an interval with an "intent" attribute automatically, so screen readers don\u2019t have to work it out \u2014 change it below if it means something else (for example a commutator).'
+    'bracketed-interval': 'This expression contains interval notation with a square bracket (like "[a, b]" or "(a, b]"). MathVox marks it as an interval with an "intent" attribute automatically, so screen readers don\u2019t have to work it out \u2014 change it below if it means something else (for example a commutator).',
+    'function-or-product': 'This expression has a letter right before parentheses (like "y(t)") — that can mean a function ("y of t") or multiplication ("y times t"). MathVox treats it as multiplication unless you choose otherwise below; screen readers follow whichever the MathML says.'
 };
 
 // Invisible operators MathLive inserts between tokens. U+2061 FUNCTION
@@ -353,11 +354,20 @@ export function normalizeFenceBars(root) {
 // --- Other MathLive MathML cleanups --------------------------------------
 //
 // Found September 2026 by running real MathLive output through both Speech
-// Rule Engine and MathCAT (see tests/braille-report.mjs and PROJECT_NOTES.md).
+// Rule Engine and MathCAT (see tests/braille-report.mjs and docs/HISTORY.md, "Ideas borrowed from MathCAT").
 // Each one fixes MathML that MathLive gets wrong, not a reading preference.
 
 const PRIMES = /^[′″‴⁗]+$/;
-const PREFIX_SYMBOLS = new Set(['∠', '∡', '∢']); // angle, measured angle, spherical angle
+// Angles and shapes that name a figure by the letters after them (∠ABC,
+// □ABCD, △ABC): grouped with those letters, see groupAngleName.
+const ANGLE_SYMBOLS = new Set(['∠', '∡', '∢', '□', '△', '▱', '▭']);
+// ∂ and ∇ too: as <mi> with invisible times after them, SRE says
+// "partial differential times f" / "nabla times f".
+// ∀/∃ likewise ("there exists times x").
+const PREFIX_SYMBOLS = new Set([...ANGLE_SYMBOLS, '∂', '∇', '∀', '∃', '∄']);
+// Operators MathLive tags as identifiers in some contexts (x^{2/3} -> <mi>/</mi>,
+// read "2 times slash 3"); made <mo> with the invisible times on both sides dropped.
+const INFIX_SYMBOLS = new Set(['/']);
 const POSTFIX_SYMBOLS = new Set(['%', '‰', '‱']); // percent, per mille, per ten thousand
 
 function makeMo(doc, ns, text) {
@@ -410,7 +420,7 @@ function fixPrimeInSuperscript(node) {
     const inner = doc.createElementNS(ns, 'msup');
     node.insertBefore(inner, base);
     inner.appendChild(base);
-    inner.appendChild(makeMo(doc, ns, textOf(parts[0])));
+    inner.appendChild(makeMo(doc, ns, PRIME_RUNS[textOf(parts[0])] || textOf(parts[0])));
     script.removeChild(parts[0]);
     const rest = elementChildren(script);
     if (rest.length === 1) node.replaceChild(rest[0], script);
@@ -430,15 +440,357 @@ function fixAttachedSymbols(node) {
         const t = textOf(child);
         const prefix = PREFIX_SYMBOLS.has(t);
         const postfix = POSTFIX_SYMBOLS.has(t);
-        if (!prefix && !postfix) continue;
+        const infix = INFIX_SYMBOLS.has(t);
+        if (!prefix && !postfix && !infix) continue;
         const mo = makeMo(doc, ns, t);
         node.replaceChild(mo, child);
-        let sib = prefix ? mo.nextSibling : mo.previousSibling;
-        while (sib && sib.nodeType !== 1) sib = prefix ? sib.nextSibling : sib.previousSibling;
-        if (sib && isInvisibleTimes(sib)) node.removeChild(sib);
+        const dirs = infix ? ['nextSibling', 'previousSibling'] : [prefix ? 'nextSibling' : 'previousSibling'];
+        for (const dir of dirs) {
+            let sib = mo[dir];
+            while (sib && sib.nodeType !== 1) sib = sib[dir];
+            if (sib && isInvisibleTimes(sib)) node.removeChild(sib);
+        }
+        if (ANGLE_SYMBOLS.has(t)) groupAngleName(node, mo);
         changed++;
     }
     return changed;
+}
+
+// "m∠ABC" (measure of angle ABC): with ∠ and the letters loose in the row,
+// SRE reads the invisible times between "m" and "∠" as "m times angle"
+// and brailles a multiplication dot. Grouping ∠ with the point letters
+// that follow -- <mrow><mo>∠</mo>A B C</mrow> -- gives "m angle A B C" in
+// SRE (⠍⠫⠪⠀⠠⠁⠠⠃⠠⠉, same as MathCAT) and changes nothing for a bare "∠ABC".
+function groupAngleName(row, angleMo) {
+    if (nameOf(row) !== 'mrow' && nameOf(row) !== 'math' && nameOf(row) !== 'root') return;
+    const parts = [angleMo];
+    let n = angleMo.nextSibling;
+    while (n) {
+        if (n.nodeType !== 1) { n = n.nextSibling; continue; }
+        // point letters (∠ABC), a number (∠1) or a Greek letter (∠θ)
+        const isLetter = (nameOf(n) === 'mi' && /^([A-Za-z]|[\u0391-\u03C9])$/.test(textOf(n))) || nameOf(n) === 'mn';
+        if (!isLetter && !isInvisibleTimes(n)) break;
+        parts.push(n);
+        n = n.nextSibling;
+    }
+    while (parts.length > 1 && isInvisibleTimes(parts[parts.length - 1])) parts.pop();
+    if (parts.length < 2) return;
+    const kids = elementChildren(row);
+    if (nameOf(row) === 'mrow' && kids.length === parts.length) return; // already its own group
+    const doc = row.ownerDocument;
+    const group = doc.createElementNS(row.namespaceURI || null, 'mrow');
+    row.insertBefore(group, angleMo);
+    for (const p of parts) group.appendChild(p);
+}
+
+// "90^\circ": MathLive writes the degree as <mo>∘</mo> (U+2218 RING
+// OPERATOR, i.e. function composition). SRE reads it "90 Superscript
+// ring"; with the real degree sign U+00B0 it says "90 degree" (MathCAT
+// says "degrees" either way). Only when ∘ is the entire superscript.
+function fixDegreeSign(node) {
+    if (nameOf(node) !== 'msup') return 0;
+    const script = elementChildren(node)[1];
+    if (!script || nameOf(script) !== 'mo' || textOf(script) !== '∘') return 0;
+    script.textContent = '°';
+    return 1;
+}
+
+// A function-application operator (U+2061) with nothing to apply to:
+// MathLive leaves one after "f" in "\partial f", "\nabla f" and
+// "\frac{\partial f}{\partial x}" -- MathCAT then says "f of", as if a
+// "(x)" were coming. Dropped when it ends its row or is followed by an
+// ordinary operator rather than an argument.
+function dropDanglingFunctionApplication(node) {
+    let changed = 0;
+    for (const child of elementChildren(node)) {
+        if (nameOf(child) !== 'mo' || textOf(child) !== FUNCTION_APPLICATION) continue;
+        let next = child.nextSibling;
+        while (next && next.nodeType !== 1) next = next.nextSibling;
+        const isArgument = next && !(nameOf(next) === 'mo' && !['(', '[', '{', '|', '‖', '⟨'].includes(textOf(next)));
+        if (!isArgument) {
+            node.removeChild(child);
+            changed++;
+        }
+    }
+    return changed;
+}
+
+// Set-builder "{x | x > 0}": MathLive writes the separator as
+// <mo>∣</mo> (\mid) or, when typed, <mi>∣</mi> with invisible times. MathCAT
+// reads both as "divides" ("open brace, x divides x is greater than 0");
+// with a plain <mo>|</mo> it reads "the set of all x such that x is greater
+// than 0" and brailles the Nemeth "such that" bar with spaces.
+//
+// Runs before normalizeFenceBars: in "{x \mid |x| < 1}" the separator and
+// the absolute-value bars are all loose in one row, so the bar pairing
+// alone can't tell them apart. When there's more than one bar, the
+// separator is the one whose removal leaves the rest pairable (a \mid
+// <mo> is tried first), and each side of it gets its own <mrow> so the
+// |x| pair can then be grouped normally.
+// --- HTML entities in MathLive's MathML ------------------------------------
+//
+// MathLive's exporter writes a few HTML named entities -- "&ne;" for \ne /
+// \neq, "&nbsp;" for "\ " -- which aren't defined in XML. Parsing then
+// fails, so (before this fix) every cleanup and the intent picker were
+// silently skipped for any equation containing ≠ or a "\ " space, and the
+// MathML format exported "&ne;" as-is (fine in HTML, an error in XHTML or
+// any XML tool). This swaps them for the characters themselves. The table
+// is every named entity found in the vendored mathlive.js (September 2026).
+const HTML_ENTITIES = {
+    ne: '≠', nbsp: ' ', infin: '∞', times: '×', divide: '÷', InvisibleTimes: '⁢',
+    alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', zeta: 'ζ', eta: 'η', theta: 'θ', iota: 'ι',
+    kappa: 'κ', lambda: 'λ', mu: 'μ', nu: 'ν', xi: 'ξ', omicron: 'ο', pi: 'π', rho: 'ρ',
+    sigma: 'σ', tau: 'τ', upsilon: 'υ', chi: 'χ', psi: 'ψ', omega: 'ω'
+};
+
+export function normalizeHtmlEntities(mathml) {
+    return (mathml || '').replace(/&([A-Za-z][A-Za-z0-9]*);/g, (m, name) =>
+        Object.prototype.hasOwnProperty.call(HTML_ENTITIES, name) ? HTML_ENTITIES[name] : m);
+}
+
+const TOKEN_ELEMENTS = new Set(['mi', 'mn', 'mo', 'mtext', 'ms', 'annotation']);
+
+// "\ " comes out as a bare no-break-space text node between elements
+// (<mrow>…,&nbsp;<msup>…), which isn't valid MathML. Make it an <mspace>.
+function fixLooseSpaces(node) {
+    if (TOKEN_ELEMENTS.has(nameOf(node))) return 0;
+    let changed = 0;
+    for (const t of Array.from(node.childNodes)) {
+        if (t.nodeType !== 3 || !t.data.includes(' ') || t.data.replace(/[\s ]/g, '') !== '') continue;
+        const sp = node.ownerDocument.createElementNS(node.namespaceURI || null, 'mspace');
+        sp.setAttribute('width', '0.25em');
+        node.replaceChild(sp, t);
+        changed++;
+    }
+    return changed;
+}
+
+// h(x), F(x), P(A), E[X]: MathLive treats only f and g as function names --
+// every other letter before parentheses gets invisible *multiplication*,
+// so MathCAT reads "cap p times, open paren, cap a ..." and SRE's braille
+// can carry a multiplication dot. These letters are almost always
+// functions in the courses MathVox serves (h(x); F(b) - F(a) for an
+// antiderivative; P(A) for probability; E[X] for expected value), so
+// switch them to function application. Other letters (a(b+c), x(x+1),
+// y(t)) stay multiplication -- that's genuinely ambiguous and is left to
+// the author. P gets one guard: "P(1 + rt)" (principal times ...) has a
+// top-level + or - and stays multiplication. Also treated as functions:
+// multi-letter names (\operatorname{tr}(A), \mathrm{rank}(A)), styled
+// letters (\mathcal{P}(S)), a letter right after "~" (X ~ N(0,1)),
+// composition ((f∘g)(x)) and d/dx applied to what follows.
+const FUNCTION_LETTERS = new Set(['h', 'F', 'G', 'H', 'P', 'E']);
+
+function isParenGroup(n) {
+    const first = n && nameOf(n) === 'mrow' ? elementChildren(n)[0] : n;
+    return Boolean(first && nameOf(first) === 'mo' && ['(', '['].includes(textOf(first)));
+}
+
+// Top-level + or − inside a parenthesized group: "P(1 + rt)" (principal
+// times ...) is multiplication; "P(A ∩ B)", "P(X = k)" are probabilities.
+function hasTopLevelPlusMinus(group) {
+    const inner = elementChildren(group).slice(1, -1);
+    const items = inner.length === 1 && nameOf(inner[0]) === 'mrow' ? elementChildren(inner[0]) : inner;
+    return items.some((n) => nameOf(n) === 'mo' && ['+', '−', '-', '±'].includes(textOf(n)));
+}
+
+function isDerivativeOperator(n) {
+    // d/dx, d^2/dx^2, ∂/∂x as an operator fraction
+    if (!n || nameOf(n) !== 'mfrac') return false;
+    const [num, den] = elementChildren(n);
+    const lead = (x) => (nameOf(x) === 'msup' ? elementChildren(x)[0] : x);
+    const firstOf = (x) => (nameOf(x) === 'mrow' ? elementChildren(x)[0] : x);
+    const isD = (x) => x && ['d', '∂'].includes(textOf(lead(x)).trim()) && !elementChildren(lead(x)).length;
+    return isD(num) && isD(firstOf(den));
+}
+
+// Is `name` (followed by a parenthesized group) a function rather than a
+// factor? See the comment above FUNCTION_LETTERS.
+function looksLikeFunctionName(name, group, prev) {
+    const t = textOf(name);
+    if (nameOf(name) === 'mi') {
+        if (FUNCTION_LETTERS.has(t)) return t !== 'P' || !hasTopLevelPlusMinus(group);
+        // multi-letter operator names: \operatorname{tr}(A), \mathrm{rank}(A), \mathrm{Re}(z)
+        if (/^[A-Za-z]{2,}$/.test(t)) return true;
+        // styled letters: \mathcal{P}(S) (power set), \mathscr{L}\{f\} etc.
+        if (/^[\u{1D400}-\u{1D7FF}ℂ-⅏]$/u.test(t)) return true;
+        // a distribution after "~": X ~ N(0, 1), X ~ B(n, p)
+        if (/^[A-Za-z]$/.test(t) && prev && nameOf(prev) === 'mo' && ['∼', '~'].includes(textOf(prev))) return true;
+        return false;
+    }
+    // (f ∘ g)(x)
+    if (nameOf(name) === 'mrow' && isParenGroup(name)) {
+        return elementChildren(name).some((c) => (nameOf(c) === 'mrow' ? elementChildren(c) : [c]).some((x) => nameOf(x) === 'mo' && textOf(x) === '∘'));
+    }
+    return false;
+}
+
+function fixFunctionLetters(node) {
+    const kids = elementChildren(node);
+    let changed = 0;
+    for (let i = 0; i < kids.length - 1; i++) {
+        const name = kids[i];
+        const op = kids[i + 1];
+        // d/dx followed directly by what it applies to (\frac{d}{dx}\sin x,
+        // \frac{d}{dx}[f(x)]): MathCAT otherwise reads "times"
+        if (isDerivativeOperator(name)) {
+            if (isInvisibleTimes(op)) {
+                op.textContent = FUNCTION_APPLICATION;
+                changed++;
+            } else if (!(nameOf(op) === 'mo' && !/[A-Za-z]/.test(textOf(op)) && !['(', '['].includes(textOf(op))) && !isInvisibleOp(op)) {
+                node.insertBefore(makeMo(node.ownerDocument, node.namespaceURI || null, FUNCTION_APPLICATION), op);
+                changed++;
+            }
+            continue;
+        }
+        const arg = kids[i + 2];
+        if (!arg || !isInvisibleTimes(op) || !isParenGroup(arg)) continue;
+        if (!looksLikeFunctionName(name, arg, kids[i - 1])) continue;
+        op.textContent = FUNCTION_APPLICATION;
+        changed++;
+    }
+    return changed;
+}
+
+// "z^*", "t^*": MathLive uses U+2217 ASTERISK OPERATOR, which MathCAT reads
+// as "z superscript times". The plain asterisk reads "z star" (MathCAT) /
+// "z Superscript asterisk" (SRE), with the same braille.
+function fixSuperscriptStar(node) {
+    if (nameOf(node) !== 'msup') return 0;
+    const s = elementChildren(node)[1];
+    if (!s || nameOf(s) !== 'mo' || textOf(s) !== '∗') return 0;
+    s.textContent = '*';
+    return 1;
+}
+
+// "{}_nC_r", "_{n}P_{r}": with an empty base, MathLive exports the
+// pre-subscript as a one-child <msub> (invalid -- MathCAT errors out and
+// the conversion warning fires). Rebuild it as the MathML for
+// prescripts, <mmultiscripts>, which MathCAT reads as "n choose r" /
+// "r permutations of n". Same for a lone pre-superscript ({}^{14}C).
+function fixEmptyBaseScripts(node) {
+    const kids = elementChildren(node);
+    let changed = 0;
+    for (let i = 0; i < kids.length - 1; i++) {
+        const pre = kids[i];
+        const kind = nameOf(pre);
+        if ((kind !== 'msub' && kind !== 'msup') || elementChildren(pre).length !== 1) continue;
+        const next = kids[i + 1];
+        const doc = node.ownerDocument;
+        const ns = node.namespaceURI || null;
+        const none = () => doc.createElementNS(ns, 'none');
+        const multi = doc.createElementNS(ns, 'mmultiscripts');
+        let base = next;
+        let postSub = none();
+        let postSup = none();
+        if ((nameOf(next) === 'msub' || nameOf(next) === 'msup') && elementChildren(next).length === 2) {
+            const [b, s] = elementChildren(next);
+            base = b;
+            if (nameOf(next) === 'msub') postSub = s; else postSup = s;
+        } else if (!['mi', 'mn', 'mrow'].includes(nameOf(next))) {
+            continue;
+        }
+        const preScript = elementChildren(pre)[0];
+        node.insertBefore(multi, pre);
+        multi.appendChild(base);
+        multi.appendChild(postSub);
+        multi.appendChild(postSup);
+        multi.appendChild(doc.createElementNS(ns, 'mprescripts'));
+        if (kind === 'msub') { multi.appendChild(preScript); multi.appendChild(none()); }
+        else { multi.appendChild(none()); multi.appendChild(preScript); }
+        node.removeChild(pre);
+        if (next.parentNode === node) node.removeChild(next);
+        changed++;
+        i++;
+    }
+    return changed;
+}
+
+// "f''(x)": MathLive writes the superscript as <mi>′′</mi> -- two prime
+// characters as one identifier. SRE says "f Superscript prime prime
+// Baseline"; MathCAT reads the raw characters ("f ′′, of x"). The single
+// double-prime character as an operator gives "f double prime" in both.
+const PRIME_RUNS = { '′′': '″', '′′′': '‴', '′′′′': '⁗' };
+
+function fixPrimeRuns(node) {
+    if (nameOf(node) !== 'mi' && nameOf(node) !== 'mo') return 0;
+    const t = textOf(node);
+    if (!PRIME_RUNS[t]) return 0;
+    const mo = makeMo(node.ownerDocument, node.namespaceURI || null, PRIME_RUNS[t]);
+    node.parentNode.replaceChild(mo, node);
+    return 1;
+}
+
+function isSingleBar(n) {
+    return (nameOf(n) === 'mo' || nameOf(n) === 'mi') && (textOf(n) === '∣' || textOf(n) === '|');
+}
+
+function fixSetBuilderBar(node) {
+    const kids = elementChildren(node);
+    if (kids.length < 3 || nameOf(kids[0]) !== 'mo' || nameOf(kids[kids.length - 1]) !== 'mo') return 0;
+    const open = textOf(kids[0]);
+    const close = textOf(kids[kids.length - 1]);
+    // {x | x > 0} (set-builder, "such that") and P(A | B) (conditional
+    // probability, "given") -- MathCAT reads a plain <mo>|</mo> as either,
+    // from the brackets around it.
+    if (!((open === '{' && close === '}') || (open === '(' && close === ')'))) return 0;
+    // MathLive keeps {…} contents flat but wraps (…) contents in one <mrow>.
+    let content = node;
+    let inner = kids.slice(1, -1);
+    if (inner.length === 1 && nameOf(inner[0]) === 'mrow') {
+        content = inner[0];
+        inner = elementChildren(content);
+    }
+    if (inner.length < 3) return 0;
+    const bars = inner.filter(isSingleBar);
+    if (!bars.length || bars.length % 2 === 0) return 0;
+
+    let sep = null;
+    if (bars.length === 1) {
+        sep = bars[0];
+    } else {
+        const candidates = [...bars.filter((b) => nameOf(b) === 'mo'), ...bars.filter((b) => nameOf(b) !== 'mo')];
+        sep = candidates.find((b) => {
+            const i = inner.indexOf(b);
+            return pairBars(inner.slice(0, i)) !== null && pairBars(inner.slice(i + 1)) !== null;
+        }) || null;
+    }
+    if (!sep) return 0;
+    const si = inner.indexOf(sep);
+    const meaningful = (list) => list.some((n) => !isInvisibleOp(n));
+    if (!meaningful(inner.slice(0, si)) || !meaningful(inner.slice(si + 1))) return 0;
+    const sideCount = (list) => list.filter((n) => !isInvisibleOp(n)).length;
+    if (nameOf(sep) === 'mo' && textOf(sep) === '|' && bars.length === 1 &&
+        sideCount(inner.slice(0, si)) <= 1 && sideCount(inner.slice(si + 1)) <= 1) return 0; // already right
+
+    const doc = node.ownerDocument;
+    const ns = node.namespaceURI || null;
+    const mo = makeMo(doc, ns, '|');
+    content.replaceChild(mo, sep);
+    for (const dir of ['previousSibling', 'nextSibling']) {
+        let s = mo[dir];
+        while (s && s.nodeType !== 1) s = s[dir];
+        if (s && isInvisibleOp(s)) content.removeChild(s);
+    }
+    {
+        // Group each side: normalizeFenceBars then sees |x| on its own, and
+        // MathCAT needs the condition as one unit when it contains a comma
+        // ("{x | x ∈ ℤ, x > 0}" otherwise reads "x divides ...").
+        const stop = new Set(content === node ? [kids[0], kids[kids.length - 1]] : []);
+        for (const side of ['left', 'right']) {
+            const parts = [];
+            let n = side === 'left' ? mo.previousSibling : mo.nextSibling;
+            while (n && !stop.has(n)) {
+                if (n.nodeType === 1) parts.push(n);
+                n = side === 'left' ? n.previousSibling : n.nextSibling;
+            }
+            if (parts.length < 2) continue;
+            if (side === 'left') parts.reverse();
+            const g = doc.createElementNS(ns, 'mrow');
+            content.insertBefore(g, parts[0]);
+            for (const p of parts) g.appendChild(p);
+        }
+    }
+    return 1;
 }
 
 function isFence(node) {
@@ -517,6 +869,7 @@ const EXPORT_ACCENTS = {
     underleftarrow: { pos: 'under', ch: '←' },
     underleftrightarrow: { pos: 'under', ch: '↔' },
     overrightharpoon: { pos: 'over', ch: '⇀' },
+    overleftrightharpoon: { pos: 'over', ch: '⥊' },
     overleftharpoon: { pos: 'over', ch: '↼' },
     overbrace: { pos: 'over', ch: '⏞', label: 'sup' },
     underbrace: { pos: 'under', ch: '⏟', label: 'sub' },
@@ -559,7 +912,9 @@ const EXTENSIBLE_ARROWS = {
 // Plain renames: same meaning, a command MathLive does export. \\mathcal
 // otherwise exports as a plain letter (the script style is lost), so use
 // \\mathscr's script letters (U+1D49C...) -- read as "script A".
-const RENAMES = { iff: 'Longleftrightarrow', stackrel: 'overset', mathcal: 'mathscr' };
+// \boldsymbol / \bm / \pmb export with the bold dropped (\boldsymbol{\beta}
+// -> plain β); \mathbf keeps it (mathvariant="bold", read "bold beta").
+const RENAMES = { iff: 'Longleftrightarrow', stackrel: 'overset', mathcal: 'mathscr', boldsymbol: 'mathbf', bm: 'mathbf', pmb: 'mathbf' };
 // Reads one LaTeX argument starting at i (after optional spaces): a {...}
 // group (balanced, honouring \{ and \}), a \command, or one character.
 // Returns { text, end } with text excluding the outer braces, or null.
@@ -810,6 +1165,14 @@ export function cleanUpMathLiveMathml(root, placeholders) {
     for (const n of all) changed += mergeDigitGroups(n);
     for (const n of all) changed += fixBinomialTable(n);
     for (const n of all) changed += fixCombiningVectorArrow(n);
+    for (const n of all) changed += fixDegreeSign(n);
+    for (const n of all) changed += dropDanglingFunctionApplication(n);
+    for (const n of all) changed += fixSetBuilderBar(n);
+    for (const n of all) changed += fixLooseSpaces(n);
+    for (const n of all) changed += fixFunctionLetters(n);
+    for (const n of all) changed += fixSuperscriptStar(n);
+    for (const n of all) changed += fixEmptyBaseScripts(n);
+    for (const n of all) if (n.parentNode) changed += fixPrimeRuns(n);
     changed += normalizeFenceBars(root);
     return changed;
 }
@@ -961,10 +1324,45 @@ export function findAmbiguousOccurrences(root) {
             }
         }
 
+        // A letter right before parentheses that the cleanup left as
+        // multiplication -- "y(t)", "p(x)", "u(x, y)": a function or a
+        // product? (Letters the cleanup already made functions -- h, F, P,
+        // ... see fixFunctionLetters -- carry U+2061 instead and aren't
+        // flagged.) Only when the parentheses hold a single term: "a(b + c)",
+        // "x(x + 1)" are near-certainly multiplication and asking about every
+        // one would bury the real questions.
+        for (let i = 0; i + 2 < children.length; i++) {
+            const [nm, op, grp] = [children[i], children[i + 1], children[i + 2]];
+            if (nameOf(nm) !== 'mi' || !/^([A-Za-z]|[\u0391-\u03C9\u03D5])$/.test(textOf(nm))) continue;
+            if (!isInvisibleTimes(op) || nameOf(grp) !== 'mrow') continue;
+            const first = elementChildren(grp)[0];
+            if (!first || nameOf(first) !== 'mo' || textOf(first) !== '(') continue;
+            if (hasTopLevelPlusMinus(grp)) continue;
+            found.push({
+                kind: 'function-or-product',
+                parent: node,
+                members: [nm, op, grp],
+                operands: [],
+                operandParent: null,
+                fixable: !fixedArity,
+                op,
+                group: grp
+            });
+        }
+
         children.forEach((child, i) => walk(child, i > 0 ? children[i - 1] : null));
     }
 
     walk(root, null);
+
+    // "u(x, y)" also looks like a bare "(a, b)" point/interval. If the author
+    // says u is a function, that second question goes away (see
+    // isSuppressedOccurrence).
+    for (const occ of found) {
+        if (occ.kind !== 'point-or-interval') continue;
+        const owner = found.find((o) => o.kind === 'function-or-product' && o.group === occ.parent);
+        if (owner) occ.ifNotFunction = owner;
+    }
 
     const seen = new Map();
     for (const occ of found) {
@@ -1012,6 +1410,11 @@ export const INTENT_MEANINGS = {
         { value: 'absolute-value', label: 'Absolute value', minArgs: 1, maxArgs: 1 },
         { value: 'cardinality', label: 'Cardinality (number of elements in a set)', minArgs: 1, maxArgs: 1 },
         { value: 'determinant', label: 'Determinant of a matrix', minArgs: 1, maxArgs: 1 }
+    ],
+    // Not an intent: "function" switches the invisible operator from times
+    // (U+2062) to function application (U+2061); see applyIntents.
+    'function-or-product': [
+        { value: 'function', label: 'A function ("of")', minArgs: 0 }
     ],
     // Only the one matching the brackets is offered (see meaningsFor).
     'bracketed-interval': [
@@ -1145,10 +1548,17 @@ function subtreeSize(el) {
 // outer shape first would move the inner shape's elements out from under
 // the row they were found in. E.g. "|(a, b)|" in one flat row -- the paren
 // group gets its own <mrow> first, then the bar group wraps around it.
+// True when an occurrence no longer applies given the other choices -- a
+// "(x, y)" point/interval question inside "u(x, y)" once u is a function.
+export function isSuppressedOccurrence(occurrence, choices) {
+    const owner = occurrence && occurrence.ifNotFunction;
+    return Boolean(owner && choices && choices[owner.key] === 'function');
+}
+
 export function applyIntents(occurrences, choices) {
     if (!occurrences || !choices) return 0;
     const ordered = occurrences
-        .filter((occ) => choices[occ.key])
+        .filter((occ) => choices[occ.key] && !isSuppressedOccurrence(occ, choices))
         .map((occ) => ({ occ, size: occ.members.reduce((s, m) => s + subtreeSize(m), 0) }))
         .sort((a, b) => a.size - b.size)
         .map((x) => x.occ);
@@ -1163,6 +1573,11 @@ export function applyIntents(occurrences, choices) {
     for (const occ of ordered) {
         const meaning = meaningsFor(occ).find((m) => m.value === choices[occ.key]);
         if (!meaning) continue;
+        if (occ.kind === 'function-or-product') {
+            occ.op.textContent = FUNCTION_APPLICATION;
+            applied++;
+            continue;
+        }
         const group = wrapRange(occ.parent, occ.members, true);
         if (!group || group.getAttribute('intent')) continue;
         const operandParent = occ.operandParent || group;
@@ -1176,4 +1591,36 @@ export function applyIntents(occurrences, choices) {
         applied++;
     }
     return applied;
+}
+
+// --- "SVG + hidden MathML" snippet ----------------------------------------
+//
+// For pasting into HTML (a web page, an LMS page's HTML view): the SVG is
+// what sighted readers see, marked aria-hidden so screen readers skip it,
+// and a visually hidden copy of the MathML sits beside it for screen
+// readers -- which, unlike an image's alt text, lets NVDA/JAWS (MathCAT)
+// and VoiceOver move through the equation piece by piece. This is the
+// pattern MathJax v3 used by default ("assistive MathML"), built here by
+// hand because MathVox deliberately doesn't load MathJax's accessibility
+// bundle (see docs/MATHJAX_SVG_IMPLEMENTATION_PLAN.md).
+//
+// Everything is inline (no stylesheet travels with a paste). The hiding
+// style is the standard "visually hidden" recipe: still in the
+// accessibility tree, unlike display:none / visibility:hidden.
+export const VISUALLY_HIDDEN_STYLE =
+    'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;' +
+    'clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0';
+
+// svgMarkup: a decorative SVG (aria-hidden, no <title>/role) from
+// MathJax. presentation: the cleaned-up presentation MathML (with any
+// chosen intents), without the <math> wrapper. latex: the original LaTeX,
+// kept as an annotation the same way the MathML format does.
+export function buildAssistiveSnippet(svgMarkup, presentation, latex) {
+    const annotation = latex
+        ? `<annotation encoding="application/x-tex">${escapeXmlText(latex)}</annotation>`
+        : '';
+    const math =
+        `<math xmlns="http://www.w3.org/1998/Math/MathML" display="block" style="${VISUALLY_HIDDEN_STYLE}">` +
+        `<semantics>${presentation}${annotation}</semantics></math>`;
+    return `<span class="mathvox-equation" style="display:inline-block;position:relative">${svgMarkup}${math}</span>`;
 }

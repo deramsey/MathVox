@@ -11,9 +11,12 @@ import {
     findAmbiguousOccurrences,
     meaningsFor,
     applyIntents,
+    isSuppressedOccurrence,
     cleanUpMathLiveMathml,
     rewriteLatexForExport,
     findConversionProblems,
+    normalizeHtmlEntities,
+    buildAssistiveSnippet,
     resolveIntentChoices,
     defaultMeaning,
     suggestMeaning
@@ -80,6 +83,7 @@ const outputStatusEl = document.querySelector('#output-status');
 const codeDetailsEl = document.querySelector('#code-details');
 const codeSummaryEl = document.querySelector('#code-summary');
 const downloadSvgCornerBtn = document.querySelector('#download-svg-corner');
+const snippetHintEl = document.querySelector('#snippet-hint');
 
 // localStorage can be unavailable (private browsing, blocked site data,
 // quota) and then throws on *any* access -- including at startup, where an
@@ -143,7 +147,7 @@ function parseIntentChoices(raw) {
 }
 
 // MathML "semantic ambiguity" audit + author-chosen intent (see
-// MATHML_SEMANTIC_LINT_PLAN.md for background, and PROJECT_NOTES.md for the
+// docs/MATHML_SEMANTIC_LINT_PLAN.md for background, and docs/HISTORY.md for the
 // September 2026 redesign and the intent feature built on top of it). The
 // tree logic lives in pure-logic.js (findAmbiguousOccurrences/applyIntents)
 // so it can be unit-tested in Node against @xmldom/xmldom-built trees; this
@@ -204,7 +208,9 @@ function getRawMathml() {
 // in pure-logic.js). `raw` is the unparsed string, used as-is whenever
 // nothing needed changing.
 function getCleanedTree() {
-    const { mathml, placeholders } = getRawMathml();
+    const { mathml: exported, placeholders } = getRawMathml();
+    // "&ne;", "&nbsp;" etc. aren't valid XML (see normalizeHtmlEntities).
+    const mathml = normalizeHtmlEntities(exported);
     const doc = parseMathmlFragment(mathml);
     if (!doc) return { raw: mathml, doc: null, changed: 0 };
     return { raw: mathml, doc, changed: cleanUpMathLiveMathml(doc.documentElement, placeholders) };
@@ -229,7 +235,7 @@ function getCleanMathml() {
 
 // Formats built from MathML -- the ones a lost piece of the equation would
 // silently break.
-const MATHML_BASED_FORMATS = new Set(['math-ml', 'spoken-text', 'braille', 'svg']);
+const MATHML_BASED_FORMATS = new Set(['math-ml', 'spoken-text', 'braille', 'svg', 'svg-mathml']);
 
 // Shows a warning above the output when the final MathML is visibly
 // missing something (see findConversionProblems), so an incomplete
@@ -307,13 +313,18 @@ function renderIntentPicker(occurrences, suggestions = {}) {
     mathmlNotesEl.textContent = '';
     if (!occurrences.length) return;
 
-    const notes = describeAmbiguities(new Set(occurrences.map((o) => o.kind)));
+    const effective = resolveIntentChoices(occurrences, intentChoices);
+    const live = occurrences.filter((o) => !isSuppressedOccurrence(o, effective));
+    if (!live.length) return;
+    const notes = describeAmbiguities(new Set(live.map((o) => o.kind)));
     const noteEl = document.createElement('p');
     noteEl.className = 'hint';
     noteEl.textContent = `Accessibility note${notes.length > 1 ? 's' : ''}: ${notes.join(' ')}`;
     mathmlNotesEl.append(noteEl);
 
-    const pickable = occurrences.filter((o) => meaningsFor(o).length);
+    // Questions made moot by another answer (the "(x, y)" inside "u(x, y)"
+    // once u is a function) aren't shown -- see `live` above.
+    const pickable = live.filter((o) => meaningsFor(o).length);
     if (!pickable.length) return;
 
     const fieldset = document.createElement('fieldset');
@@ -324,7 +335,7 @@ function renderIntentPicker(occurrences, suggestions = {}) {
 
     const help = document.createElement('p');
     help.className = 'hint';
-    help.textContent = 'Your choice is added to the MathML output as an "intent" attribute, which screen readers using MathCAT (NVDA, JAWS) read instead of guessing. It doesn\u2019t change the Description, Braille, or Read Aloud output.';
+    help.textContent = 'Your choices are written into the MathML output (as an "intent" attribute, or for a function, as the marker that says "of"), which screen readers using MathCAT (NVDA, JAWS) read instead of guessing. They don\u2019t change the Description, Braille, or Read Aloud output.';
     fieldset.append(help);
 
     const status = document.createElement('p');
@@ -351,9 +362,12 @@ function renderIntentPicker(occurrences, suggestions = {}) {
 
         const select = document.createElement('select');
         select.id = id;
+        select.dataset.key = occ.key;
         const none = document.createElement('option');
         none.value = '';
-        none.textContent = hasDefault ? 'Something else (no intent)' : 'Not specified (screen readers guess)';
+        none.textContent = occ.kind === 'function-or-product'
+            ? 'Multiplication ("times") \u2014 default'
+            : hasDefault ? 'Something else (no intent)' : 'Not specified (screen readers guess)';
         select.append(none);
         for (const meaning of meaningsFor(occ)) {
             const opt = document.createElement('option');
@@ -366,15 +380,32 @@ function renderIntentPicker(occurrences, suggestions = {}) {
         select.value = resolveIntentChoices([occ], intentChoices)[occ.key] || '';
         select.addEventListener('change', () => {
             const picked = meaningsFor(occ).find((m) => m.value === select.value);
+            const isFn = occ.kind === 'function-or-product';
+            let message;
             if (picked) {
                 intentChoices[occ.key] = picked.value;
-                status.textContent = `Added intent "${picked.value}" for ${occ.label} to the MathML output.`;
+                message = isFn
+                    ? `Marked ${occ.label} as a function in the MathML output.`
+                    : `Added intent "${picked.value}" for ${occ.label} to the MathML output.`;
             } else {
                 if (hasDefault) intentChoices[occ.key] = '';
                 else delete intentChoices[occ.key];
-                status.textContent = `Removed the intent for ${occ.label}.`;
+                message = isFn ? `${occ.label} is multiplication again.` : `Removed the intent for ${occ.label}.`;
             }
             saveEquationState();
+            if (isFn) {
+                // This answer can add or remove other questions ("u(x, y)"),
+                // so rebuild the panel, then put focus back on this select
+                // and repeat the confirmation in the new live region.
+                updateOutput().then(() => {
+                    const again = Array.from(mathmlNotesEl.querySelectorAll('select')).find((s) => s.dataset.key === occ.key);
+                    if (again) again.focus();
+                    const st = mathmlNotesEl.querySelector('.intent-status');
+                    if (st) st.textContent = message;
+                });
+                return;
+            }
+            status.textContent = message;
             refreshMathmlText();
         });
 
@@ -402,7 +433,8 @@ const FORMAT_LABELS = {
     'math-json': 'MathJSON',
     'spoken-text': 'Description (plain-language text)',
     'braille': 'Braille (Nemeth)',
-    'svg': 'Portable SVG'
+    'svg': 'Portable SVG',
+    'svg-mathml': 'SVG + hidden MathML'
 };
 
 const EMPTY_MESSAGE = 'Enter a math expression above to see it here.';
@@ -470,7 +502,7 @@ function getBraille() {
 runSre(getSreBrailleReady, () => {});
 
 // MathJax (modular input/mml + output/svg only -- see
-// MATHJAX_SVG_IMPLEMENTATION_PLAN.md for why not a combined component) is
+// docs/MATHJAX_SVG_IMPLEMENTATION_PLAN.md for why not a combined component) is
 // only needed for the Portable SVG format. Same lazy-readiness pattern as
 // SRE above: MathJax.mathml2svgPromise doesn't exist as a callable function
 // until MathJax's own startup sequence finishes creating it, so anything
@@ -499,7 +531,11 @@ const SVG_INLINE_CSS = [
     'use[data-c]{stroke-width:3px}'
 ].join('');
 
-async function getStandaloneSvg(mathml, spokenText) {
+// `decorative: true` is for the "SVG + hidden MathML" format, where the
+// hidden MathML beside the SVG is the accessible version: the SVG gets
+// aria-hidden (and no <title>/role), so screen readers skip it instead of
+// reading the equation twice.
+async function getStandaloneSvg(mathml, spokenText, { decorative = false } = {}) {
     await getMathJaxReady();
     const result = await MathJax.mathml2svgPromise(mathml, { display: true });
     const adaptor = MathJax.startup.adaptor;
@@ -519,7 +555,11 @@ async function getStandaloneSvg(mathml, spokenText) {
     // textToSpeechRules config above) already used for the Description
     // format and Read Equation Aloud -- one source of truth, not a second
     // description to keep in sync.
-    if (spokenText) {
+    if (decorative) {
+        adaptor.setAttribute(svg, 'aria-hidden', 'true');
+        adaptor.setAttribute(svg, 'focusable', 'false');
+        adaptor.removeAttribute(svg, 'role');
+    } else if (spokenText) {
         const titleNode = adaptor.node('title', {}, [adaptor.text(spokenText)]);
         const firstChild = adaptor.firstChild(svg);
         if (firstChild) {
@@ -539,8 +579,10 @@ async function getStandaloneSvg(mathml, spokenText) {
     // page, where a hidden MathML sibling is the accessible layer. This is a
     // standalone export with no such sibling, so strip them regardless of
     // whether a title was added above.
-    adaptor.removeAttribute(svg, 'focusable');
-    adaptor.removeAttribute(svg, 'aria-hidden');
+    if (!decorative) {
+        adaptor.removeAttribute(svg, 'focusable');
+        adaptor.removeAttribute(svg, 'aria-hidden');
+    }
 
     // Explicit black: a standalone SVG has no way to know what background
     // it'll be pasted onto, so this (MathJax's own recommended default for
@@ -573,9 +615,14 @@ function setCodeCollapsible(on) {
     updateCodeSummary();
 }
 
+// Formats whose output is long markup, shown collapsed once rendered.
+const COLLAPSIBLE_FORMATS = new Set(['svg', 'svg-mathml']);
+
 function updateCodeSummary() {
-    const size = lastSvgMarkup ? ` (${lastSvgMarkup.length.toLocaleString()} characters)` : '';
-    codeSummaryEl.textContent = `${codeDetailsEl.open ? 'Hide' : 'Show'} SVG code${size}`;
+    const code = codeDetailsEl.classList.contains('collapsible') ? textCont.textContent : '';
+    const size = code ? ` (${code.length.toLocaleString()} characters)` : '';
+    const what = formatSelect.value === 'svg-mathml' ? 'HTML code' : 'SVG code';
+    codeSummaryEl.textContent = `${codeDetailsEl.open ? 'Hide' : 'Show'} ${what}${size}`;
 }
 
 function debounce(fn, delay) {
@@ -616,6 +663,7 @@ async function updateOutput({ announce: shouldAnnounce = false } = {}) {
     downloadSvgBtn.hidden = true;
     downloadSvgCornerBtn.hidden = true;
     lastSvgMarkup = '';
+    snippetHintEl.hidden = true;
     svgAltWrapEl.hidden = true;
     suggestedAltEl.textContent = '';
     lastAltText = '';
@@ -626,7 +674,7 @@ async function updateOutput({ announce: shouldAnnounce = false } = {}) {
     // Only a successfully rendered SVG collapses (see the "svg" branch), so
     // messages like "Generating SVG..." or an error never end up hidden.
     // Left alone while re-rendering an SVG, so the layout doesn't jump.
-    if (format !== 'svg' || !latex) setCodeCollapsible(false);
+    if (!COLLAPSIBLE_FORMATS.has(format) || !latex) setCodeCollapsible(false);
     if (!latex) {
         textCont.textContent = EMPTY_MESSAGE;
         return;
@@ -710,6 +758,33 @@ async function updateOutput({ announce: shouldAnnounce = false } = {}) {
             if (isStale()) return;
             console.error('Spoken-text generation failed', err);
             textCont.textContent = 'Description output is unavailable right now.';
+        }
+        done();
+        return;
+    }
+
+    if (format === 'svg-mathml') {
+        textCont.textContent = 'Generating SVG with hidden MathML…';
+        snippetHintEl.hidden = false;
+        try {
+            // Same cleaned-up MathML (and chosen intents) as the MathML
+            // format, used both to draw the SVG and as the hidden copy.
+            const { markup } = buildIntentMathml();
+            const svgMarkup = await getStandaloneSvg(
+                `<math xmlns="${MATHML_NAMESPACE}">${markup}</math>`, '', { decorative: true });
+            if (isStale()) return;
+            const snippet = buildAssistiveSnippet(svgMarkup, markup, latex);
+            textCont.textContent = snippet;
+            svgPreviewEl.innerHTML = svgMarkup;
+            svgPreviewEl.hidden = false;
+            setCodeCollapsible(true);
+        } catch (err) {
+            if (isStale()) return;
+            console.error('SVG + hidden MathML generation failed', err);
+            textCont.textContent = 'SVG with hidden MathML is unavailable right now.';
+            svgPreviewEl.hidden = true;
+            svgPreviewEl.textContent = '';
+            setCodeCollapsible(false);
         }
         done();
         return;

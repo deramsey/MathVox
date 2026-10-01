@@ -1,2 +1,8 @@
 *.docx
+# Intentional (Derek): Markdown files stay out of git unless added with
+# "git add -f <file>". Files already tracked (PROJECT_NOTES.md) stay tracked;
+# a tracked .md file that is moved or a new one (docs/*.md) needs "git add -f".
 *.md
+# Local-only: nothing at runtime uses node_modules (see "Why vendoring" in
+# PROJECT_NOTES.md); libraries are vendored into resources/vendor/.
+node_modules/

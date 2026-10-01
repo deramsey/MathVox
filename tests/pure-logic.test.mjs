@@ -1,6 +1,6 @@
 // Automated regression tests for the DOM-free logic helpers in
 // resources/pure-logic.js. See that file's header comment for why these
-// were split out, and PROJECT_NOTES.md's "September 2026 real-browser QA
+// were split out, and docs/HISTORY.md's "September 2026 real-browser QA
 // pass" section for the two bugs these specifically guard against. Run with
 // `npm test` (node --test tests/).
 import { test } from 'node:test';
@@ -27,6 +27,7 @@ import {
     findAmbiguousOccurrences,
     meaningsFor,
     applyIntents,
+    isSuppressedOccurrence,
     INTENT_MEANINGS,
     pairBars,
     normalizeFenceBars,
@@ -34,6 +35,9 @@ import {
     rewriteLatexForExport,
     replaceExportPlaceholders,
     findConversionProblems,
+    normalizeHtmlEntities,
+    buildAssistiveSnippet,
+    VISUALLY_HIDDEN_STYLE,
     resolveIntentChoices,
     suggestMeaning
 } from '../resources/pure-logic.js';
@@ -154,7 +158,7 @@ test('regression: resources/pure-logic.js parses cleanly as an ES module', () =>
 // --- findAmbiguousShapes ------------------------------------------------
 //
 // Regression tests for the September 2026 redesign: the original version
-// of this feature (see PROJECT_NOTES.md "September 2026 real-browser QA
+// of this feature (see docs/HISTORY.md "September 2026 real-browser QA
 // pass") never actually fired against real MathLive output, for two
 // structural reasons. These tests build DOM trees with @xmldom/xmldom
 // standing in for the browser's DOMParser -- the same technique the
@@ -204,7 +208,7 @@ test('findAmbiguousShapes does NOT flag a single-argument parenthesized expressi
 });
 
 test('findAmbiguousShapes flags "|x|" -- bars tagged <mi>, not <mo>, as MathLive really emits them', () => {
-    // Confirmed real shape (see PROJECT_NOTES.md): the bars are <mi>
+    // Confirmed real shape (see docs/HISTORY.md): the bars are <mi>
     // U+2223, with U+2062 INVISIBLE TIMES between them and x.
     const root = parseMathMl(
         '<mrow><mi>&#8739;</mi><mo>&#8290;</mo><mi>x</mi><mo>&#8290;</mo><mi>&#8739;</mi></mrow>'
@@ -373,7 +377,9 @@ test('a shape inside a fixed-arity element (e.g. a superscript base) is flagged 
 });
 
 test('INTENT_MEANINGS uses W3C Core concept names', () => {
-    const all = Object.values(INTENT_MEANINGS).flat().map((m) => m.value);
+    // function-or-product isn't an intent (it switches the invisible operator)
+    const all = Object.entries(INTENT_MEANINGS).filter(([k]) => k !== 'function-or-product')
+        .flatMap(([, list]) => list).map((m) => m.value);
     assert.deepEqual(all.sort(), [
         'absolute-value', 'cardinality', 'closed-interval', 'closed-open-interval', 'coordinate',
         'determinant', 'greatest-common-divisor', 'open-closed-interval', 'open-interval'
@@ -718,4 +724,186 @@ test('placeholders: "lim sup" becomes an operator, \\xrightarrow gets its arrow 
     root = parseMathMl('<mover ><mtext >mathvoxph0</mtext><mi>f</mi><mo>&#x2061;</mo></mover>');
     cleanUpMathLiveMathml(root, ph);
     assert.equal(serialize(root), '<mover><mo stretchy="true">→</mo><mi>f</mi></mover>');
+});
+
+// --- buildAssistiveSnippet ("SVG + hidden MathML") ------------------------
+
+test('buildAssistiveSnippet: decorative SVG plus visually hidden MathML, all inline', () => {
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><g></g></svg>';
+    const html = buildAssistiveSnippet(svg, '<mrow><mi>x</mi><mo>&lt;</mo><mn>1</mn></mrow>', 'x<1');
+    const doc = new DOMParser().parseFromString(html, 'text/xml');
+    const wrap = doc.documentElement;
+    assert.equal(wrap.tagName, 'span');
+    assert.match(wrap.getAttribute('style'), /position:relative/);
+    const [svgEl, mathEl] = Array.from(wrap.childNodes).filter((n) => n.nodeType === 1);
+    assert.equal(svgEl.tagName, 'svg');
+    assert.equal(svgEl.getAttribute('aria-hidden'), 'true');
+    assert.equal(mathEl.tagName, 'math');
+    assert.equal(mathEl.getAttribute('xmlns'), 'http://www.w3.org/1998/Math/MathML');
+    assert.equal(mathEl.getAttribute('style'), VISUALLY_HIDDEN_STYLE);
+    // hidden, but NOT removed from the accessibility tree
+    assert.doesNotMatch(VISUALLY_HIDDEN_STYLE, /display:\s*none|visibility:\s*hidden/);
+    // LaTeX kept as an escaped annotation
+    assert.equal(mathEl.getElementsByTagName('annotation')[0].textContent, 'x<1');
+    assert.match(html, /x&lt;1<\/annotation>/);
+});
+
+test('buildAssistiveSnippet keeps intent attributes from the MathML', () => {
+    const html = buildAssistiveSnippet('<svg aria-hidden="true"></svg>',
+        '<mrow intent="open-interval($a1,$a2)"><mo>(</mo><mrow><mn arg="a1">0</mn><mo>,</mo><mn arg="a2">5</mn></mrow><mo>)</mo></mrow>', '(0,5)');
+    assert.match(html, /intent="open-interval\(\$a1,\$a2\)"/);
+});
+
+// --- October 2026 cleanups (degrees, angles, set-builder, ∂/∇, bold) -------
+//
+// Fixtures are real MathLive output.
+
+test('cleanup: "90^\\circ" uses the degree sign, not the ring operator', () => {
+    assert.equal(cleaned('<msup><mn>90</mn><mo>∘</mo></msup>').xml, '<msup><mn>90</mn><mo>°</mo></msup>');
+    // ∘ that isn't the whole superscript (e.g. composition f∘g) is left alone
+    assert.equal(cleaned('<mrow><mi>f</mi><mo>∘</mo><mi>g</mi></mrow>').n, 0);
+});
+
+test('cleanup: "m\\angle ABC" groups the angle with its letters', () => {
+    assert.equal(
+        cleaned('<mrow><mi>m</mi><mo>&#8290;</mo><mi>∠</mi><mo>&#8290;</mo><mi>A</mi><mo>&#8290;</mo><mi>B</mi><mo>&#8290;</mo><mi>C</mi><mo>=</mo><mn>4</mn></mrow>').xml,
+        '<mrow><mi>m</mi><mo>⁢</mo><mrow><mo>∠</mo><mi>A</mi><mo>⁢</mo><mi>B</mi><mo>⁢</mo><mi>C</mi></mrow><mo>=</mo><mn>4</mn></mrow>');
+});
+
+test('cleanup: \\partial and \\nabla become operators; no dangling function application', () => {
+    assert.equal(
+        cleaned('<mfrac><mrow><mi>∂</mi><mo>&#8290;</mo><mi>f</mi><mo>&#x2061;</mo></mrow><mrow><mi>∂</mi><mo>&#8290;</mo><mi>x</mi></mrow></mfrac>').xml,
+        '<mfrac><mrow><mo>∂</mo><mi>f</mi></mrow><mrow><mo>∂</mo><mi>x</mi></mrow></mfrac>');
+    assert.equal(cleaned('<mrow><mi>∇</mi><mo>&#8290;</mo><mi>f</mi><mo>&#x2061;</mo></mrow>').xml, '<mrow><mo>∇</mo><mi>f</mi></mrow>');
+    // a real function application ("f(x)") is kept
+    const fx = '<mrow><mi>f</mi><mo>&#x2061;</mo><mrow><mo>(</mo><mi>x</mi><mo>)</mo></mrow></mrow>';
+    assert.equal(cleaned(fx).n, 0);
+});
+
+test('cleanup: set-builder separator becomes a plain bar (MathCAT: "such that")', () => {
+    assert.equal(cleaned('<mrow><mo>{</mo><mi>x</mi><mo>∣</mo><mi>x</mi><mo>&gt;</mo><mn>0</mn><mo>}</mo></mrow>').xml,
+        '<mrow><mo>{</mo><mi>x</mi><mo>|</mo><mrow><mi>x</mi><mo>&gt;</mo><mn>0</mn></mrow><mo>}</mo></mrow>');
+    // typed "|" version, with invisible times
+    assert.equal(cleaned('<mrow><mo>{</mo><mi>x</mi><mo>&#8290;</mo><mi>∣</mi><mo>&#8290;</mo><mi>x</mi><mo>&gt;</mo><mn>0</mn><mo>}</mo></mrow>').xml,
+        '<mrow><mo>{</mo><mi>x</mi><mo>|</mo><mrow><mi>x</mi><mo>&gt;</mo><mn>0</mn></mrow><mo>}</mo></mrow>');
+    // "{x \\mid |x| < 1}": separator picked out, |x| still paired
+    assert.equal(
+        cleaned('<mrow><mo>{</mo><mi>x</mi><mo>∣</mo><mi>∣</mi><mo>&#8290;</mo><mi>x</mi><mo>&#8290;</mo><mi>∣</mi><mo>&lt;</mo><mn>1</mn><mo>}</mo></mrow>').xml,
+        '<mrow><mo>{</mo><mi>x</mi><mo>|</mo><mrow><mrow><mo>|</mo><mi>x</mi><mo>|</mo></mrow><mo>&lt;</mo><mn>1</mn></mrow><mo>}</mo></mrow>');
+    // a set containing an absolute value is not a set-builder
+    assert.equal(cleaned('<mrow><mo>{</mo><mrow><mo>|</mo><mi>x</mi><mo>|</mo></mrow><mo>}</mo></mrow>').n, 0);
+});
+
+test('rewriteLatexForExport keeps bold (\\boldsymbol, \\bm) and the two-way harpoon', () => {
+    assert.equal(rewriteLatexForExport('\\boldsymbol{\\beta}+\\bm{v}').latex, '\\mathbf{\\beta}+\\mathbf{v}');
+    assert.equal(rewriteLatexForExport('\\overleftrightharpoon{AB}').placeholders[0].ch, '⥊');
+});
+
+test('regression: SRE readings after the October 2026 cleanups', async () => {
+    const require = createRequire(import.meta.url);
+    const sre = require('speech-rule-engine');
+    const say = (f) => sre.toSpeech(`<math>${cleaned(f).xml}</math>`);
+    await sre.setupEngine({ modality: 'speech', domain: 'mathspeak', style: 'default', locale: 'en' });
+    await sre.engineReady();
+    assert.equal(say('<msup><mn>90</mn><mo>∘</mo></msup>'), '90 degree');
+    assert.equal(say('<mrow><mi>∇</mi><mo>&#8290;</mo><mi>f</mi><mo>&#x2061;</mo></mrow>'), 'nabla f');
+    assert.doesNotMatch(say('<mrow><mi>m</mi><mo>&#8290;</mo><mi>∠</mi><mo>&#8290;</mo><mi>A</mi><mo>&#8290;</mo><mi>B</mi></mrow>'), /times/);
+});
+
+// --- October 2026 corpus scan fixes ---------------------------------------
+//
+// Found by running ~330 everyday expressions through MathLive and both
+// readers (see docs/HISTORY.md, "MathML cleanup, round 2"). Fixtures are real MathLive output.
+
+test('normalizeHtmlEntities: MathLive\'s &ne; / &nbsp; become characters, so the MathML parses', () => {
+    const raw = '<mrow><mi>a</mi><mo>&ne;</mo><mi>b</mi></mrow>';
+    assert.equal(normalizeHtmlEntities(raw), '<mrow><mi>a</mi><mo>≠</mo><mi>b</mi></mrow>');
+    assert.equal(normalizeHtmlEntities('<mo>&lt;</mo>&amp;'), '<mo>&lt;</mo>&amp;'); // XML entities untouched
+    // "\ " -> a bare no-break space between elements -> an <mspace>
+    const { xml } = cleaned(normalizeHtmlEntities('<mrow><mi>x</mi><mo>,</mo>&nbsp;<mi>y</mi></mrow>'));
+    assert.equal(xml, '<mrow><mi>x</mi><mo>,</mo><mspace width="0.25em"/><mi>y</mi></mrow>');
+});
+
+test('cleanup: h(x), F(b), P(A), E[X] are function applications; a(b+c) and P(1+rt) stay multiplication', () => {
+    const app = (letter, open = '(', close = ')', inner = '<mi>x</mi>') =>
+        cleaned(`<mrow><mi>${letter}</mi><mo>&#8290;</mo><mrow><mo>${open}</mo>${inner}<mo>${close}</mo></mrow></mrow>`).xml.includes('⁡');
+    assert.ok(app('h'));
+    assert.ok(app('F'));
+    assert.ok(app('P', '(', ')', '<mrow><mi>A</mi><mo>∩</mo><mi>B</mi></mrow>'));
+    assert.ok(app('E', '[', ']'));
+    assert.ok(!app('a', '(', ')', '<mrow><mi>b</mi><mo>+</mo><mi>c</mi></mrow>'));
+    assert.ok(!app('P', '(', ')', '<mrow><mn>1</mn><mo>+</mo><mi>r</mi><mo>&#8290;</mo><mi>t</mi></mrow>'));
+    assert.ok(!app('y', '(', ')', '<mi>t</mi>'));
+    // operator names, styled letters, distributions, composition
+    assert.ok(app('tr'));
+    assert.ok(app('𝒫'));
+    assert.ok(cleaned('<mrow><mi>x</mi><mo>∼</mo><mi>N</mi><mo>&#8290;</mo><mrow><mo>(</mo><mrow><mn>0</mn><mo>,</mo><mn>1</mn></mrow><mo>)</mo></mrow></mrow>').xml.includes('⁡'));
+    assert.ok(cleaned('<mrow><mrow><mo>(</mo><mrow><mi>f</mi><mo>∘</mo><mi>g</mi></mrow><mo>)</mo></mrow><mo>&#8290;</mo><mrow><mo>(</mo><mi>x</mi><mo>)</mo></mrow></mrow>').xml.includes('⁡'));
+});
+
+test('cleanup: d/dx applies to what follows', () => {
+    const ddx = '<mfrac><mi>d</mi><mrow><mi>d</mi><mo>&#8290;</mo><mi>x</mi></mrow></mfrac>';
+    assert.ok(cleaned(`<mrow>${ddx}<mo>&#8290;</mo><mrow><mo>[</mo><mi>y</mi><mo>]</mo></mrow></mrow>`).xml.includes(`</mfrac><mo>⁡</mo>`));
+    assert.ok(cleaned(`<mrow>${ddx}<mo>sin</mo><mi>x</mi></mrow>`).xml.includes(`</mfrac><mo>⁡</mo><mo>sin</mo>`));
+    // an ordinary fraction times something is left alone
+    assert.equal(cleaned('<mrow><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>&#8290;</mo><mi>x</mi></mrow>').n, 0);
+});
+
+test('cleanup: empty-base prescripts ({}_nC_r) become <mmultiscripts>', () => {
+    assert.equal(cleaned('<mrow><msub><mi>n</mi></msub><msub><mi>C</mi><mi>r</mi></msub></mrow>').xml,
+        '<mrow><mmultiscripts><mi>C</mi><mi>r</mi><none/><mprescripts/><mi>n</mi><none/></mmultiscripts></mrow>');
+});
+
+test('cleanup: primes, slash, quantifiers, ∠1, P(A|B), z^*', () => {
+    assert.equal(cleaned('<msup><mi>f</mi><mi>′′</mi></msup>').xml, '<msup><mi>f</mi><mo>″</mo></msup>');
+    assert.equal(cleaned('<msup><mi>x</mi><mrow><mn>2</mn><mo>&#8290;</mo><mi>/</mi><mn>3</mn></mrow></msup>').xml,
+        '<msup><mi>x</mi><mrow><mn>2</mn><mo>/</mo><mn>3</mn></mrow></msup>');
+    assert.equal(cleaned('<mrow><mi>∃</mi><mo>&#8290;</mo><mi>x</mi></mrow>').xml, '<mrow><mo>∃</mo><mi>x</mi></mrow>');
+    assert.equal(cleaned('<mrow><mi>m</mi><mo>&#8290;</mo><mi>∠</mi><mo>&#8290;</mo><mn>1</mn></mrow>').xml,
+        '<mrow><mi>m</mi><mo>⁢</mo><mrow><mo>∠</mo><mn>1</mn></mrow></mrow>');
+    assert.equal(
+        cleaned('<mrow><mi>P</mi><mo>&#8290;</mo><mrow><mo>(</mo><mrow><mi>A</mi><mo>&#8290;</mo><mi>∣</mi><mo>&#8290;</mo><mi>B</mi></mrow><mo>)</mo></mrow></mrow>').xml,
+        '<mrow><mi>P</mi><mo>⁡</mo><mrow><mo>(</mo><mrow><mi>A</mi><mo>|</mo><mi>B</mi></mrow><mo>)</mo></mrow></mrow>');
+    assert.equal(cleaned('<msup><mi>z</mi><mo>∗</mo></msup>').xml, '<msup><mi>z</mi><mo>*</mo></msup>');
+});
+
+test('cleanup: set-builder condition with a comma is grouped (MathCAT reads it as one condition)', () => {
+    const { xml } = cleaned('<mrow><mo>{</mo><mi>x</mi><mo>∣</mo><mi>x</mi><mo>∈</mo><mi>ℤ</mi><mo>,</mo><mi>x</mi><mo>&gt;</mo><mn>0</mn><mo>}</mo></mrow>');
+    assert.equal(xml, '<mrow><mo>{</mo><mi>x</mi><mo>|</mo><mrow><mi>x</mi><mo>∈</mo><mi>ℤ</mi><mo>,</mo><mi>x</mi><mo>&gt;</mo><mn>0</mn></mrow><mo>}</mo></mrow>');
+});
+
+// --- Function or multiplication? ("y(t)") ----------------------------------
+
+test('function-or-product: a letter before a one-term parenthesis is flagged; a(b+c) and f(x) are not', () => {
+    const kinds = (f) => findAmbiguousOccurrences(parseMathMl(cleaned(f).xml)).map((o) => [o.kind, o.label]);
+    assert.deepEqual(kinds('<mrow><mi>y</mi><mo>&#8290;</mo><mrow><mo>(</mo><mi>t</mi><mo>)</mo></mrow></mrow>'),
+        [['function-or-product', 'y(t)']]);
+    assert.deepEqual(kinds('<mrow><mi>a</mi><mo>&#8290;</mo><mrow><mo>(</mo><mrow><mi>b</mi><mo>+</mo><mi>c</mi></mrow><mo>)</mo></mrow></mrow>'), []);
+    assert.deepEqual(kinds('<mrow><mi>f</mi><mo>&#x2061;</mo><mrow><mo>(</mo><mi>x</mi><mo>)</mo></mrow></mrow>'), []);
+    // h(x) is already made a function by the cleanup, so it isn't asked about
+    assert.deepEqual(kinds('<mrow><mi>h</mi><mo>&#8290;</mo><mrow><mo>(</mo><mi>x</mi><mo>)</mo></mrow></mrow>'), []);
+    // a number before parentheses is always multiplication
+    assert.deepEqual(kinds('<mrow><mn>3</mn><mo>&#8290;</mo><mrow><mo>(</mo><mi>x</mi><mo>)</mo></mrow></mrow>'), []);
+});
+
+test('function-or-product: choosing "function" switches to function application', () => {
+    const root = parseMathMl('<mrow><mi>y</mi><mo>&#8290;</mo><mrow><mo>(</mo><mi>t</mi><mo>)</mo></mrow></mrow>');
+    const occs = findAmbiguousOccurrences(root);
+    assert.equal(applyIntents(occs, { 'y(t)#1': 'function' }), 1);
+    assert.equal(serialize(root), '<mrow><mi>y</mi><mo>\u2061</mo><mrow><mo>(</mo><mi>t</mi><mo>)</mo></mrow></mrow>');
+    // no choice (or anything else) leaves multiplication alone
+    const r2 = parseMathMl('<mrow><mi>y</mi><mo>&#8290;</mo><mrow><mo>(</mo><mi>t</mi><mo>)</mo></mrow></mrow>');
+    assert.equal(applyIntents(findAmbiguousOccurrences(r2), {}), 0);
+});
+
+test('function-or-product: "u(x, y)" as a function drops the point/interval question', () => {
+    const root = parseMathMl('<mrow><mi>u</mi><mo>&#8290;</mo><mrow><mo>(</mo><mrow><mi>x</mi><mo>,</mo><mi>y</mi></mrow><mo>)</mo></mrow></mrow>');
+    const occs = findAmbiguousOccurrences(root);
+    assert.deepEqual(occs.map((o) => o.kind), ['function-or-product', 'point-or-interval']);
+    const interval = occs[1];
+    assert.equal(isSuppressedOccurrence(interval, {}), false);
+    assert.equal(isSuppressedOccurrence(interval, { 'u(x, y)#1': 'function' }), true);
+    // an interval choice left over from before is not applied once u is a function
+    assert.equal(applyIntents(occs, { 'u(x, y)#1': 'function', '(x, y)#1': 'open-interval' }), 1);
+    assert.doesNotMatch(serialize(root), /intent=/);
 });

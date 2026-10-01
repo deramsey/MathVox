@@ -337,7 +337,7 @@ kbd{
 
 /* Portable SVG preview: deliberately fixed white/light regardless of
    MathVox's own theme. The exported SVG hardcodes black strokes (see
-   MATHJAX_SVG_IMPLEMENTATION_PLAN.md), so previewing it on a dark background
+   docs/MATHJAX_SVG_IMPLEMENTATION_PLAN.md), so previewing it on a dark background
    would make it unreadable in the very panel meant to let you check it
    before copying -- and a light card is also a more honest preview of how
    it'll look pasted into Word/Canvas/a plain web page. */
@@ -404,6 +404,12 @@ kbd{
 
 #svg-alt-wrap[hidden]{
     display: none;
+}
+
+/* Word guidance under the alt-text line + Copy button, on its own row. */
+#svg-word-hint{
+    flex-basis: 100%;
+    margin: 0;
 }
 
 #svg-alt-suggestion{
