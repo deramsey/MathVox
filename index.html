@@ -38,73 +38,93 @@
     <link rel="icon" type="image/png" href="./resources/icons/198.png" />
 </head>
 <body>
-    <a class="skip-link" href="#format-select">Skip to main content</a>
-    <header>
-        <h1 class="sr-only">MathVox — Voice the Equation</h1>
-        <img src="./resources/MathVox_logo.png" alt="Math Vox" title="MathVox" id="logo"/>
-        <div id="a11y-controls">
-            <button id="theme-toggle" type="button" aria-pressed="false">Dark Mode</button>
-            <button id="dyslexia-toggle" type="button" aria-pressed="false">Dyslexia-Friendly Font</button>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="./" class="brand"><img src="./resources/MathVox_logo.png" alt="MathVox home" id="logo"/></a>
+            <nav class="site-nav" aria-label="Main">
+                <a href="./" aria-current="page">Convert</a>
+                <a href="./help.html">Quick-start guide</a>
+                <a href="./privacy.html">Privacy</a>
+            </nav>
+            <div id="a11y-controls">
+                <button id="theme-toggle" class="switch" type="button" aria-pressed="false"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="switch-label">Dark mode</span><span class="switch-track" aria-hidden="true"></span></button>
+                <button id="dyslexia-toggle" class="switch" type="button" aria-pressed="false"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 19l5-14 5 14M5 14h6M14 19l3.5-9 3.5 9M15.2 16h4.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="switch-label">Dyslexia font</span><span class="switch-track" aria-hidden="true"></span></button>
+            </div>
         </div>
     </header>
-    <main>
-        <section id="format-picker">
-            <h2 class="sr-only">Accessible output format</h2>
-            <label for="format-select">Accessible output format</label>
-            <select id="format-select">
-                <option value="latex" selected>LaTeX</option>
-                <option value="ascii-math">ASCII Math</option>
-                <option value="math-ml">MathML</option>
-                <option value="math-json">MathJSON</option>
-                <option value="spoken-text">Description (plain-language text)</option>
-                <option value="braille">Braille (Nemeth)</option>
-                <option value="svg">Portable SVG (an image for slides, Google Docs, other LMSs)</option>
-                <option value="svg-mathml">SVG + hidden MathML (web pages; screen readers can explore it)</option>
-                <option value="word">Word equation (editable in Word; screen readers can explore it)</option>
-            </select>
-            <p class="hint">Choose a format before entering your equation below so the output is ready as soon as you're done. Not sure which one? See <a href="./help.html#which-format">which format to use</a>.</p>
+    <main id="main" tabindex="-1">
+        <div class="page-intro">
+            <h1>Make an equation accessible</h1>
+            <p>Enter it, choose where it&rsquo;s going, then copy the result.</p>
+        </div>
+        <!-- October 2026 redesign: three numbered steps in two columns on
+             wide screens (input left, result right, both in view), stacked
+             in order on narrow ones. -->
+        <div class="workspace">
+            <section class="card step-card" id="step-enter" aria-labelledby="step1-heading">
+                <h2 class="step" id="step1-heading"><span class="step-num" aria-hidden="true">1</span>Enter your equation</h2>
+                <div class="field-head">
+                    <label for="formula" id="formula-label">Your equation</label>
+                    <div class="field-actions">
+                        <!-- Clears the equation, the LaTeX box and any "Say what it
+                             means" choices; keeps the format, reading style and
+                             display settings. Undo Clear appears after a clear and
+                             goes away once the equation is edited again. -->
+                        <button id="clear" type="button" class="text-btn"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Clear</span></button>
+                        <button id="undo-clear" type="button" class="text-btn" hidden>Undo Clear</button>
+                    </div>
+                </div>
+                <!-- aria-label as well as the <label>: <math-field> isn't a native
+                     form control, so label-for doesn't give it (or the editable
+                     element inside its shadow DOM) an accessible name. Keep the
+                     aria-label's wording the same as the visible label so voice
+                     control users can say what they see (WCAG 2.5.3). Clicking
+                     the label focuses the field via script.js. -->
+                <math-field id="formula" aria-label="Your equation"></math-field>
 
-            <label for="speech-style-select" id="speech-style-label">Description style</label>
-            <select id="speech-style-select" aria-describedby="speech-style-hint">
-                <option value="mathspeak" selected>MathSpeak (precise, marks each part’s start and end)</option>
-                <option value="clearspeak">ClearSpeak (natural, like a teacher reading aloud)</option>
-            </select>
-            <p class="hint" id="speech-style-hint">Used for the Description format, Read Equation Aloud, and the SVG alt text. For example, (a+1)/2 is &ldquo;StartFraction a plus 1 Over 2 EndFraction&rdquo; in MathSpeak and &ldquo;the fraction with numerator a plus 1 and denominator 2&rdquo; in ClearSpeak. A screen reader exploring live MathML uses its own reading style.</p>
-        </section>
-
-        <div id="mf-sizer">
-            <h2 class="sr-only">Enter your equation</h2>
-            <label for="formula" id="formula-label">Enter or edit the equation visually</label>
-            <!-- aria-label as well as the <label>: <math-field> isn't a native
-                 form control, so label-for doesn't give it (or the editable
-                 element inside its shadow DOM) an accessible name. Keep the
-                 aria-label's wording the same as the visible label so voice
-                 control users can say what they see (WCAG 2.5.3). Clicking
-                 the label focuses the field via script.js. -->
-            <math-field id="formula" aria-label="Enter or edit the equation visually"></math-field>
-
-            <details id="kbd-help">
-                <summary>Keyboard help for the equation field</summary>
-                <div class="kbd-help-body">
-                    <p>You don't need to reach the small keyboard/menu icons in the corner of the equation field to use them &mdash; the same actions are available as keyboard shortcuts from anywhere inside the field:</p>
+                <!-- Ways to enter the equation: ARIA tabs (setupInputTabs() in
+                     script.js). The field above stays visible whichever is chosen;
+                     the tabs only switch the helper below it. -->
+                <div class="input-tabs">
+                    <div class="tablist" role="tablist" aria-label="Ways to enter the equation">
+                        <button type="button" role="tab" id="tab-type" aria-controls="panel-type" aria-selected="true"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 7h18v10H3zM7 11h.01M11 11h.01M15 11h.01M8 14h8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Type</span></button>
+                        <button type="button" role="tab" id="tab-latex" aria-controls="panel-latex" aria-selected="false" tabindex="-1"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h7M7.5 6v12M13 6l7 12M20 6l-7 12" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>LaTeX</span></button>
+                        <button type="button" role="tab" id="tab-draw" aria-controls="panel-draw" aria-selected="false" tabindex="-1"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20l4-1 11-11-3-3L5 16zM14 6l3 3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Draw</span></button>
+                    </div>
+                    <div class="tabpanel" role="tabpanel" id="panel-type" aria-labelledby="tab-type">
+                        <p class="tip">Type in the box above: <kbd>/</kbd> fraction, <kbd>^</kbd> exponent, <kbd>_</kbd> subscript, <kbd>\</kbd> for a LaTeX command.</p>
+                        <details id="kbd-help">
+                            <summary>All keyboard shortcuts</summary>
+                            <div class="kbd-help-body">
+                    <p>Every action in the field works from the keyboard, including the on-screen math keyboard and the options menu:</p>
                     <ul>
                         <li><kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>Space</kbd> (<kbd>Shift</kbd>+<kbd>Option</kbd>+<kbd>Space</kbd> on Mac) &mdash; show or hide the on-screen math keyboard</li>
                         <li><kbd>Alt</kbd>+<kbd>Space</kbd> (<kbd>Option</kbd>+<kbd>Space</kbd> on Mac) &mdash; open the field's options menu</li>
                         <li><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> &mdash; jump to the next/previous placeholder (e.g. into or out of a fraction)</li>
                         <li>Arrow keys &mdash; move through the expression; <kbd>Space</kbd> moves out of a group (like out of an exponent)</li>
                         <li><kbd>/</kbd> for a fraction, <kbd>^</kbd> for an exponent, <kbd>_</kbd> for a subscript, or type a backslash (<kbd>\</kbd>) to enter raw LaTeX at the cursor</li>
-                        <li><kbd>Alt</kbd>+<kbd>Ctrl</kbd>+<kbd>&darr;</kbd> &mdash; have the whole expression read aloud from inside the field (same as the Read Equation Aloud button below)</li>
+                        <li><kbd>Alt</kbd>+<kbd>Ctrl</kbd>+<kbd>&darr;</kbd> &mdash; have the whole expression read aloud from inside the field (same as Listen below)</li>
                     </ul>
-                    <p>Prefer not to use the visual editor at all? Type or paste LaTeX directly into the text box below and select Convert &mdash; that loads it into the equation field and updates every output format.</p>
+                    
                 </div>
-            </details>
-
-            <!-- Handwriting input (resources/handwriting.js). Nothing loads
-                 until this is opened; recognition runs on this device. -->
-            <details id="draw-panel">
-                <summary>Draw the equation by hand</summary>
-                <div class="draw-body">
-                    <p class="hint" id="draw-hint">Draw with a mouse, pen or finger in the box below. MathVox recognizes it on this device after you pause, then shows what it read so you can check it before adding it. Drawing needs a pointer; with a keyboard, use the equation field or the LaTeX box.</p>
+                        </details>
+                    </div>
+                    <div class="tabpanel" role="tabpanel" id="panel-latex" aria-labelledby="tab-latex" hidden>
+                        <section id="latex-editor">
+                            <label for="latex-input">Enter or edit the equation as LaTeX</label>
+                            <textarea id="latex-input" rows="2" spellcheck="false" autocomplete="off" aria-describedby="latex-hint"></textarea>
+                            <p class="hint" id="latex-hint">Example: <code>e=mc^2</code>. Handy for pasting LaTeX or fixing braces. Select Convert (or press Ctrl+Enter) to apply it.</p>
+                            <p id="latex-error" class="error-text" role="alert"></p>
+                            <button id="convert" type="button" class="btn">Convert</button>
+                        </section>
+                    </div>
+                    <div class="tabpanel" role="tabpanel" id="panel-draw" aria-labelledby="tab-draw" hidden>
+                        <!-- Handwriting input (resources/handwriting.js). Nothing loads
+                             until this tab is first shown; recognition runs on this device. -->
+                        <div id="draw-panel">
+                        <div class="draw-body">
+                    <p class="hint" id="draw-hint">Draw with a mouse, pen or finger. When you pause, MathVox shows what it read so you can check it, then Insert into Equation adds it at the cursor. Drawing needs a pointer; with a keyboard, type in the field above or use the LaTeX tab.</p>
                     <canvas id="draw-canvas" role="img" aria-label="Handwriting drawing area" aria-describedby="draw-hint"></canvas>
                     <div class="draw-buttons">
                         <button id="draw-undo" type="button" class="secondary-btn" disabled>Undo Stroke</button>
@@ -121,39 +141,109 @@
                         <button id="draw-insert" type="button" disabled>Insert into Equation</button>
                     </div>
                 </div>
-            </details>
+                        </div>
+                    </div>
+                </div>
 
-            <section id="latex-editor">
-                <label for="latex-input">Enter or edit the equation as LaTeX text</label>
-                <textarea id="latex-input" rows="2" spellcheck="false" autocomplete="off"></textarea>
-                <p class="hint">Example: <code>e=mc^2</code>. Useful for fixing things like braces that are hard to edit in the visual field above. Select Convert (or press Ctrl+Enter) to apply it.</p>
-                <p id="latex-error" class="error-text" role="alert"></p>
+                <!-- What a listener gets: the cleaned-up reading in the chosen
+                     style (refreshFieldName() in script.js keeps it current).
+                     Not a live region; Listen reads it aloud on request. -->
+                <section class="hear" aria-labelledby="hear-heading">
+                    <div class="hear-top">
+                        <h3 id="hear-heading">Screen readers will hear</h3>
+                        <fieldset class="segmented" id="speech-style">
+                            <legend class="sr-only">Reading style</legend>
+                            <label><input type="radio" name="speech-style" value="clearspeak"><span>ClearSpeak</span></label>
+                            <label><input type="radio" name="speech-style" value="mathspeak" checked><span>MathSpeak</span></label>
+                        </fieldset>
+                    </div>
+                    <p id="hear-text" class="hear-text">Enter an equation to see how it will be read.</p>
+                    <div class="hear-actions">
+                        <button id="read" type="button" class="btn"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5l11 7-11 7z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Listen</span></button>
+                        <p class="hint" id="speech-style-hint">ClearSpeak reads like a teacher would; MathSpeak marks where each part starts and ends. This style is also used for the Description and alt text.</p>
+                    </div>
+                </section>
             </section>
 
-            <section id="buttons">
-                <button id="convert" type="button" class="secondary">Convert</button>
-                <button id="read" type="button">Read Equation Aloud</button>
-                <!-- Clears the equation, the LaTeX box and any "Say what it
-                     means" choices; keeps the format, Description style and
-                     display settings. Undo Clear appears after a clear and
-                     goes away once the equation is edited again. -->
-                <button id="clear" type="button" class="secondary">Clear Equation</button>
-                <button id="undo-clear" type="button" class="secondary" hidden>Undo Clear</button>
-            </section>
-        </div>
+            <section class="card step-card" id="step-output" aria-labelledby="step2-heading">
+                <fieldset class="dest-group" id="format-group">
+                    <legend><h2 class="step" id="step2-heading"><span class="step-num" aria-hidden="true">2</span>Where is it going?</h2></legend>
+                    <div class="dests">
+                        <label class="dest">
+                            <input type="radio" name="format" value="math-ml" checked>
+                            <svg class="dest-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5h16v14H4zM4 9h16M8 13h5M8 16h8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span class="dest-text"><span class="dest-title">Canvas page</span><span class="dest-sub">MathML in the HTML view</span></span>
+                        </label>
+                        <label class="dest">
+                            <input type="radio" name="format" value="word">
+                            <svg class="dest-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12l1.2 5 1.8-4 1.8 4 1.2-5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span class="dest-text"><span class="dest-title">Word document</span><span class="dest-sub">Editable Word equation</span></span>
+                        </label>
+                        <label class="dest">
+                            <input type="radio" name="format" value="svg-mathml">
+                            <svg class="dest-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span class="dest-text"><span class="dest-title">Web page</span><span class="dest-sub">SVG + hidden MathML</span></span>
+                        </label>
+                        <label class="dest">
+                            <input type="radio" name="format" value="svg">
+                            <svg class="dest-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5h16v14H4zM4 16l5-5 4 4 3-3 4 4M15 9.5a1 1 0 1 0 .01 0" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span class="dest-text"><span class="dest-title">Slides or image</span><span class="dest-sub">Picture with alt text</span></span>
+                        </label>
+                        <label class="dest">
+                            <input type="radio" name="format" value="braille">
+                            <svg class="dest-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8.5 6.5a1 1 0 1 0 .01 0M8.5 12a1 1 0 1 0 .01 0M8.5 17.5a1 1 0 1 0 .01 0M15.5 6.5a1 1 0 1 0 .01 0M15.5 12a1 1 0 1 0 .01 0M5 3h14v18H5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span class="dest-text"><span class="dest-title">Braille</span><span class="dest-sub">Nemeth, for a transcriber</span></span>
+                        </label>
+                        <label class="dest">
+                            <input type="radio" name="format" value="spoken-text">
+                            <svg class="dest-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 10v4h4l5 4V6L8 10zM16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span class="dest-text"><span class="dest-title">Read or listen</span><span class="dest-sub">Plain-language description</span></span>
+                        </label>
+                    </div>
+                    <details id="other-formats">
+                        <summary>Other math tools: LaTeX, ASCII Math, MathJSON</summary>
+                        <div class="dests dests-other">
+                            <label class="dest dest-small">
+                                <input type="radio" name="format" value="latex">
+                                <span class="dest-text"><span class="dest-title">LaTeX</span></span>
+                            </label>
+                            <label class="dest dest-small">
+                                <input type="radio" name="format" value="ascii-math">
+                                <span class="dest-text"><span class="dest-title">ASCII Math</span></span>
+                            </label>
+                            <label class="dest dest-small">
+                                <input type="radio" name="format" value="math-json">
+                                <span class="dest-text"><span class="dest-title">MathJSON</span></span>
+                            </label>
+                        </div>
+                    </details>
+                </fieldset>
 
-        <!-- Not aria-live itself: the output can be thousands of characters
-             (SVG path data, full MathML), which a screen reader would read
-             out on every change. #output-status below announces a short
-             summary instead; the output itself stays readable in place. -->
-        <section id="text-output" aria-labelledby="format-name">
-            <h2 id="format-name">LaTeX</h2>
-            <!-- Short announcements: "MathML output updated.", "Copied ...". -->
-            <p id="output-status" class="sr-only" role="status"></p>
-            <!-- Shown when the MathML behind this output is visibly missing part
-                 of the equation (a MathLive exporter gap MathVox couldn't work
-                 around) -- see updateConversionWarning() in script.js. -->
-            <p id="conversion-warning" class="error-text" role="status"></p>
+                <!-- Not aria-live itself: the output can be thousands of characters
+                     (SVG path data, full MathML), which a screen reader would read
+                     out on every change. #output-status below announces a short
+                     summary instead; the output itself stays readable in place. -->
+                <section id="text-output" aria-labelledby="step3-heading">
+                    <h2 class="step" id="step3-heading"><span class="step-num" aria-hidden="true">3</span>Copy it</h2>
+                    <p id="format-name" class="format-name">MathML for a Canvas page</p>
+                    <!-- Short announcements: "Copied ...", "Output updated: ...". -->
+                    <p id="output-status" class="sr-only" role="status"></p>
+                    <!-- Shown when the MathML behind this output is visibly missing part
+                         of the equation (a MathLive exporter gap MathVox couldn't work
+                         around) -- see updateConversionWarning() in script.js. -->
+                    <p id="conversion-warning" class="error-text" role="status"></p>
+                    <div class="output-actions">
+                        <!-- Download the exported SVG as a standalone .svg file (Slides
+                             or image only, where it's the main action). -->
+                        <button id="download-svg" type="button" class="btn btn-primary" hidden><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Download .svg image</span></button>
+                        <button id="copy" type="button" class="btn btn-primary"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 9h11v11H9zM5 15H4V4h11v1" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Copy for Canvas</span></button>
+                        <!-- Shareable link: copies the current page URL, whose hash
+                             already encodes the equation and chosen format (kept in
+                             sync as you type/pick a format -- see updateUrlHash() in
+                             script.js), so following the link reproduces this exact
+                             equation/format instead of the blank app. -->
+                        <button id="share-link" type="button" class="btn"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 14a4 4 0 0 0 5.6 0l3-3a4 4 0 0 0-5.6-5.6l-1 1M14 10a4 4 0 0 0-5.6 0l-3 3a4 4 0 0 0 5.6 5.6l1-1" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Copy share link</span></button>
+                    </div>
             <!-- Decorative preview of the rendered SVG (Portable SVG format only).
                  aria-hidden because the accessible representation of the equation
                  is already handled by the Description/Braille/Read Aloud features
@@ -163,11 +253,20 @@
                  black strokes (see docs/MATHJAX_SVG_IMPLEMENTATION_PLAN.md), so this
                  mirrors how it'll actually look pasted into an external document. -->
             <div id="svg-preview" aria-hidden="true" hidden></div>
-            <!-- Download the exported SVG as a standalone .svg file -- for
-                 anyone who wants an actual image file (to attach, upload to
-                 an LMS, etc.) rather than pasting the raw markup shown below.
-                 Shown/hidden together with #svg-preview in updateOutput(). -->
-            <button id="download-svg" type="button" hidden><svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 1.5v8m0 0-2.75-2.75M8 9.5l2.75-2.75M2.5 11v1.5A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Download as .svg file</span></button>
+            <!-- Portable SVG only: size and colors for large-print handouts
+                 and slides (options filled in from SVG_SIZES and
+                 SVG_COLOR_SCHEMES in pure-logic.js). -->
+            <div id="svg-options" hidden>
+                <div class="svg-option">
+                    <label for="svg-size">Image size</label>
+                    <select id="svg-size"></select>
+                </div>
+                <div class="svg-option">
+                    <label for="svg-colors">Colors</label>
+                    <select id="svg-colors"></select>
+                </div>
+                <p class="hint">For large-print handouts and slides. The preview below shrinks to fit this page; the copied or downloaded image is full size.</p>
+            </div>
             <!-- SVG has no "alt" attribute of its own (that's an <img>-only
                  HTML attribute) -- the <title> baked into the SVG source above
                  covers pasting it as inline markup. If someone instead saves it
@@ -181,27 +280,12 @@
                 <button id="copy-alt-text" type="button" aria-label="Copy suggested alt text"><svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="5.5" y="5.5" width="8.5" height="8.5" rx="1.3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M3 10.5H2.3A1.3 1.3 0 0 1 1 9.2V2.3A1.3 1.3 0 0 1 2.3 1h6.9A1.3 1.3 0 0 1 10.5 2.3V3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Copy</span></button>
                 <!-- Confirmed September 2026: Word ignores the alt text built into
                      the .svg (its <title>), so this step is required there. -->
-                <p id="svg-word-hint" class="hint"><strong>Using Word?</strong> Word doesn’t pick up the alt text built into the .svg. After inserting it (Insert &gt; Pictures), right-click the image, choose <strong>View Alt Text</strong> (or <strong>Edit Alt Text</strong>), and paste the copied text in. For an editable equation that screen readers can explore, use the <strong>Word equation</strong> format instead.</p>
+                <p id="svg-word-hint" class="hint"><strong>Using Word?</strong> Right-click the inserted image, choose <strong>View Alt Text</strong>, and paste. For an editable equation that screen readers can explore, choose <strong>Word document</strong> in step 2 instead.</p>
             </div>
-            <!-- "SVG + hidden MathML" format only: where the snippet works and
-                 where it doesn't. -->
-            <p id="snippet-hint" class="hint" hidden>Paste this into an HTML editor (a web page, or your LMS page's HTML view). Sighted readers see the image; screen readers skip it and read the hidden MathML instead, which they can explore piece by piece. Any meanings you chose in the MathML format are included. If the destination removes MathML or inline styles, or you're using Word, use Portable SVG instead.</p>
-            <!-- "Word equation" format only. Word converts MathML pasted as
-                 plain text into a native equation (see wrapWordMathml in
-                 pure-logic.js). -->
-            <div id="word-hint" class="hint" hidden>
-                <p><strong>To use it:</strong> select Copy below, click in your Word document where the equation should go, and paste (Ctrl+V, or Cmd+V on a Mac). Word turns it into an editable equation that JAWS and NVDA can read and explore, so no alt text is needed.</p>
-                <p>If you see code instead of an equation, undo, then use <strong>Paste Special</strong> &gt; <strong>Unformatted Text</strong>, or paste into an empty equation (Insert &gt; Equation). To put it inside a line of text, select the equation and choose <strong>Inline</strong> from its menu. Meanings chosen in the MathML format are kept only for functions (like "y of t"); Word equations have no place for the others.</p>
-            </div>
-            <!-- Collapsible only for Portable SVG and SVG + hidden MathML (class "collapsible", set in
-                 updateOutput()), whose markup runs to thousands of characters
-                 and pushed the Copy/Link buttons far down the page. Every
-                 other format keeps it open with the summary hidden. Copy
-                 copies the full code either way. -->
-            <details id="code-details" open>
-                <summary id="code-summary">Show SVG code</summary>
-                <div id="text-cont">Enter a math expression above to see it here.</div>
-            </details>
+                    <!-- Quick checks for the chosen destination (renderChecks()). -->
+                    <ul id="output-checks" class="checks"></ul>
+                    <!-- How to use it where it's going (PASTE_HELP in script.js). -->
+                    <div id="paste-help" class="paste-help"></div>
             <!-- MathML format only: flags known-ambiguous notation shapes
                  (e.g. "(a, b)" as point vs. interval vs. GCD) and offers a
                  "what does it mean?" picker for each one, which adds a MathML 4
@@ -209,26 +293,54 @@
                  script.js and docs/MATHML_SEMANTIC_LINT_PLAN.md). Kept in its own
                  element (not appended into #text-cont) so the Copy button still
                  copies clean MathML, not this note along with it. -->
+            <!-- Description format only: the equation in both reading styles,
+                 side by side, so authors can hear how listeners will get it.
+                 Filled in by updateOutput() (renderReadingsCompare). -->
+            <section id="readings-compare" aria-labelledby="readings-heading" hidden>
+                <h3 id="readings-heading" tabindex="-1">Compare reading styles</h3>
+                <p class="hint">Close to what listeners hear; each screen reader words some things a little differently. NVDA and JAWS (both through MathCAT) and Windows Narrator read math in ClearSpeak by default. MathSpeak comes from tools built on Speech Rule Engine and marks exactly where each part starts and ends.</p>
+                <div class="reading-cards">
+                    <div class="reading-card" data-style="mathspeak">
+                        <h4>MathSpeak<span class="reading-current"> (your Description style)</span></h4>
+                        <p class="reading-text"></p>
+                        <div class="reading-actions">
+                            <button type="button" class="reading-listen" aria-label="Listen to the MathSpeak reading">Listen</button>
+                            <button type="button" class="reading-use">Use MathSpeak</button>
+                        </div>
+                    </div>
+                    <div class="reading-card" data-style="clearspeak">
+                        <h4>ClearSpeak<span class="reading-current"> (your Description style)</span></h4>
+                        <p class="reading-text"></p>
+                        <div class="reading-actions">
+                            <button type="button" class="reading-listen" aria-label="Listen to the ClearSpeak reading">Listen</button>
+                            <button type="button" class="reading-use">Use ClearSpeak</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
             <div id="mathml-notes"></div>
-            <!-- Shareable link: copies the current page URL, whose hash
-                 already encodes the equation and chosen format (kept in
-                 sync as you type/pick a format -- see updateUrlHash() in
-                 script.js), so following the link reproduces this exact
-                 equation/format instead of the blank app. -->
-            <!-- Same action as #download-svg above, repeated in the corner
-                 icon row so it sits with Copy/Link. Portable SVG only. -->
-            <button id="download-svg-corner" type="button" title="Download as .svg file" aria-label="Download the equation as an .svg file" hidden><svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 1.5v8m0 0-2.75-2.75M8 9.5l2.75-2.75M2.5 11v1.5A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-            <button id="share-link" title="Copy shareable link" aria-label="Copy a shareable link to this equation and format">🔗</button>
-            <button id="copy" title="Copy to clipboard" aria-label="Copy LaTeX output to clipboard">⎘</button>
-        </section>
+            <!-- Collapsed (class "collapsible", set in updateOutput()) for the
+                 formats whose output is markup -- MathML, Word, SVG, HTML,
+                 MathJSON. Description, Braille, LaTeX and ASCII Math show
+                 their text open, with the summary hidden. Copy copies the
+                 full output either way. -->
+            <details id="code-details" open>
+                <summary id="code-summary">Show the code</summary>
+                <div id="text-cont">Enter an equation in step 1 to see it here.</div>
+            </details>
+                </section>
+            </section>
+        </div>
     </main>
     <footer>
-        <nav aria-label="About MathVox">
-            <a href="./">MathVox</a>
-            <a href="./help.html">Quick-start guide</a>
-            <a href="./privacy.html">Privacy</a>
-            <a href="https://github.com/deramsey/MathVox">Source code (AGPL-3.0)</a>
-        </nav>
+        <div class="footer-inner">
+            <nav aria-label="About MathVox">
+                <a href="./help.html">Quick-start guide</a>
+                <a href="./privacy.html">Privacy</a>
+                <a href="https://github.com/deramsey/MathVox">Source code (AGPL-3.0)</a>
+            </nav>
+            <p class="footer-note">Everything runs in your browser. Nothing is uploaded.</p>
+        </div>
     </footer>
     <script type="module" src="./resources/script.js"></script>
 </body>

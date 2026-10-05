@@ -41,6 +41,9 @@ import {
     markFunctionNamesForWord,
     wrapWordMathml,
     preprocessInk,
+    scaleSvgLength,
+    svgLayoutFor,
+    SVG_COLOR_SCHEMES,
     normalizeRecognizedLatex,
     TEXO_SIZE,
     VISUALLY_HIDDEN_STYLE,
@@ -999,4 +1002,37 @@ test('normalizeRecognizedLatex: tidies Texo spacing and swaps \\dots', () => {
     assert.equal(normalizeRecognizedLatex('\\sin x - \\tan y'), '\\sin x-\\tan y', 'space after a command name kept');
     assert.match(normalizeRecognizedLatex('a _ { 1 } , \\dots , a _ { n }'), /\\ldots/);
     assert.equal(normalizeRecognizedLatex(''), '');
+});
+
+// --- Portable SVG size and colors ---------------------------------------------
+
+test('scaleSvgLength keeps the unit', () => {
+    assert.equal(scaleSvgLength('9.402ex', 2), '18.804ex');
+    assert.equal(scaleSvgLength('-0.566ex', 1.5), '-0.849ex');
+    assert.equal(scaleSvgLength('auto', 2), 'auto');
+});
+
+test('svgLayoutFor: scale only, then scale plus padding', () => {
+    const attrs = { viewBox: '0 -750 4000 1000', width: '9ex', height: '2.25ex', verticalAlign: '-0.5ex' };
+    const big = svgLayoutFor(attrs, { scale: 2 });
+    assert.deepEqual([big.viewBox, big.width, big.height, big.verticalAlign], ['0 -750 4000 1000', '18ex', '4.5ex', '-1ex']);
+    const padded = svgLayoutFor(attrs, { scale: 1, pad: 250 });
+    assert.equal(padded.viewBox, '-250 -1000 4500 1500');
+    assert.equal(padded.width, '10.125ex');       // 9 * 4500/4000
+    assert.equal(padded.height, '3.375ex');       // 2.25 * 1500/1000
+    assert.equal(padded.verticalAlign, '-1.063ex'); // -0.5 - 250 * (2.25/1000)
+    assert.deepEqual(padded.background, { x: -250, y: -1000, width: 4500, height: 1500 });
+});
+
+test('SVG color schemes all reach 7:1 contrast', () => {
+    const lum = (hex) => {
+        const c = hex.replace('#', '').match(/../g).map((h) => parseInt(h, 16) / 255)
+            .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+        return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+    };
+    for (const [key, s] of Object.entries(SVG_COLOR_SCHEMES)) {
+        if (!s.background) continue;
+        const [a, b] = [lum(s.ink), lum(s.background)].sort((x, y) => y - x);
+        assert.ok((a + 0.05) / (b + 0.05) >= 7, `${key} is under 7:1`);
+    }
 });

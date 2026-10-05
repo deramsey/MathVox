@@ -10,11 +10,18 @@
 </head>
 <body class="info-page">
     <a class="skip-link" href="#main-content">Skip to main content</a>
-    <header>
-        <a href="./" id="logo-link"><img src="./resources/MathVox_logo.png" alt="MathVox home" id="logo"/></a>
-        <div id="a11y-controls">
-            <button id="theme-toggle" type="button" aria-pressed="false">Dark Mode</button>
-            <button id="dyslexia-toggle" type="button" aria-pressed="false">Dyslexia-Friendly Font</button>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="./" class="brand"><img src="./resources/MathVox_logo.png" alt="MathVox home" id="logo"/></a>
+            <nav class="site-nav" aria-label="Main">
+                <a href="./">Convert</a>
+                <a href="./help.html" aria-current="page">Quick-start guide</a>
+                <a href="./privacy.html">Privacy</a>
+            </nav>
+            <div id="a11y-controls">
+                <button id="theme-toggle" class="switch" type="button" aria-pressed="false"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="switch-label">Dark mode</span><span class="switch-track" aria-hidden="true"></span></button>
+                <button id="dyslexia-toggle" class="switch" type="button" aria-pressed="false"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 19l5-14 5 14M5 14h6M14 19l3.5-9 3.5 9M15.2 16h4.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="switch-label">Dyslexia font</span><span class="switch-track" aria-hidden="true"></span></button>
+            </div>
         </div>
     </header>
     <main id="main-content" tabindex="-1">
@@ -25,59 +32,62 @@
 
             <h2>In three steps</h2>
             <ol>
-                <li><strong>Pick an output format</strong> for where the equation is going (see the table below).</li>
-                <li><strong>Enter the equation</strong> in the visual editor, type or paste LaTeX into the LaTeX box and select Convert, or draw it by hand.</li>
-                <li><strong>Select Copy</strong> (or Download, for an image) and paste it where it's going.</li>
+                <li><strong>Enter your equation</strong> in the equation box. Below it, the <strong>Type</strong>, <strong>LaTeX</strong> and <strong>Draw</strong> tabs offer other ways in: keyboard tips, a box for pasting LaTeX (then select Convert), or drawing by hand.</li>
+                <li><strong>Choose where it&rsquo;s going</strong>, such as a Canvas page or a Word document (see the table below).</li>
+                <li><strong>Copy it</strong> with the main button (for an image, Download), then follow the short steps shown under it.</li>
             </ol>
 
-            <h2 id="which-format">Which format should I use?</h2>
+            <h2 id="which-format">Which one should I choose?</h2>
             <div class="table-scroll" role="region" aria-labelledby="which-format" tabindex="0">
             <table>
                 <thead>
-                    <tr><th scope="col">Where the equation is going</th><th scope="col">Format</th><th scope="col">How to use it</th></tr>
+                    <tr><th scope="col">Where the equation is going</th><th scope="col">Choose</th><th scope="col">How to use it</th></tr>
                 </thead>
                 <tbody>
-                    <tr><th scope="row">A Canvas page, quiz or discussion</th><td>MathML</td><td>In the editor, open the HTML view (the <code>&lt;/&gt;</code> button), paste where the equation goes, and switch back. Screen readers can explore it piece by piece.</td></tr>
-                    <tr><th scope="row">A Word document</th><td>Word equation</td><td>Paste into Word. It becomes an editable Word equation that JAWS and NVDA can read, with no alt text needed.</td></tr>
-                    <tr><th scope="row">A web page you edit as HTML</th><td>SVG + hidden MathML</td><td>Paste into the HTML. It looks the same in every browser, and screen readers read the hidden MathML.</td></tr>
-                    <tr><th scope="row">Slides, Google Docs, or anywhere that only takes images</th><td>Portable SVG</td><td>Download the .svg file, insert it, and paste the suggested alt text into the image's alt text field.</td></tr>
-                    <tr><th scope="row">A student who reads braille</th><td>Braille (Nemeth)</td><td>Copy the Unicode braille for a braille display or embosser. Have a braille transcriber check it before it reaches a student.</td></tr>
-                    <tr><th scope="row">Something to read or listen to</th><td>Description</td><td>Plain-language text of the equation. Select Read Equation Aloud to hear it.</td></tr>
-                    <tr><th scope="row">Another math tool</th><td>LaTeX, ASCII Math or MathJSON</td><td>Copy the code into the tool that expects it.</td></tr>
+                    <tr><th scope="row">A Canvas page, quiz or discussion</th><td>Canvas page</td><td>In the editor, open the HTML view (the <code>&lt;/&gt;</code> button), paste where the equation goes, and switch back. Screen readers can explore it piece by piece.</td></tr>
+                    <tr><th scope="row">A Word document</th><td>Word document</td><td>Paste into Word. It becomes an editable Word equation that JAWS and NVDA can read, with no alt text needed.</td></tr>
+                    <tr><th scope="row">A web page you edit as HTML</th><td>Web page</td><td>Paste into the HTML. It looks the same in every browser, and screen readers read the hidden MathML.</td></tr>
+                    <tr><th scope="row">Slides, Google Docs, or anywhere that only takes images</th><td>Slides or image</td><td>Download the .svg file, insert it, and paste the suggested alt text into the image's alt text field. For large print, set <strong>Image size</strong> (150% matches 18 pt) and <strong>Colors</strong> (such as yellow on black) first.</td></tr>
+                    <tr><th scope="row">A student who reads braille</th><td>Braille</td><td>Copy the Unicode braille for a braille display or embosser. Have a braille transcriber check it before it reaches a student.</td></tr>
+                    <tr><th scope="row">Something to read or listen to</th><td>Read or listen</td><td>Plain-language text of the equation, with both reading styles side by side to compare.</td></tr>
+                    <tr><th scope="row">Another math tool</th><td>Other math tools</td><td>Copy the code into the tool that expects it.</td></tr>
                 </tbody>
             </table>
             </div>
 
-            <h2>Description style</h2>
-            <p>The Description, Read Aloud and the suggested alt text can use either of two reading styles:</p>
+            <h2 id="reading-styles">Reading styles</h2>
+            <p><strong>Screen readers will hear</strong>, under the equation, shows how it will be read. Switch between two styles there; the choice is also used for the description, Listen and the suggested alt text:</p>
             <ul>
                 <li><strong>MathSpeak</strong> marks exactly where each part starts and ends: "StartFraction a plus 1 Over 2 EndFraction". Precise for complicated equations and familiar to many screen reader users.</li>
                 <li><strong>ClearSpeak</strong> reads more like a teacher would: "the fraction with numerator a plus 1 and denominator 2". Easier to follow for most listeners.</li>
             </ul>
+            <p>Choosing <strong>Read or listen</strong> also shows your equation in both styles side by side, with a Listen button for each. NVDA, JAWS and Windows Narrator read math in ClearSpeak by default, so that column is close to what most screen reader users will hear.</p>
 
             <h2>"Say what it means"</h2>
-            <p>Some notation means different things in different places. (0, 5) can be a point or an interval; |x| can be absolute value or the size of a set; y(t) can be a function or y times t. In the MathML format, MathVox asks about each one it finds. Your answer is written into the MathML, so screen readers that support it (NVDA and JAWS with MathCAT) say "the open interval from 0 to 5" instead of guessing. Function choices also carry over to the Word equation format.</p>
+            <p>Some notation means different things in different places. (0, 5) can be a point or an interval; |x| can be absolute value or the size of a set; y(t) can be a function or y times t. When you choose <strong>Canvas page</strong>, MathVox asks about each one it finds. Your answer is written into the MathML, so screen readers that support it (NVDA and JAWS with MathCAT) say "the open interval from 0 to 5" instead of guessing. Function choices also carry over to <strong>Word document</strong>.</p>
 
             <h2>Drawing by hand</h2>
-            <p>Open <strong>Draw the equation by hand</strong> under the equation field and write with a mouse, pen or finger. When you pause, MathVox shows what it read. Check it, then select <strong>Insert into Equation</strong>; it goes in where your cursor is in the equation field, so you can draw a long equation in parts. Recognition is good but not perfect, especially with look-alike characters (1, l and I; x and X), so fix anything it got wrong in the equation field. The first time, the recognition model takes a moment to download (about 17 MB).</p>
+            <p>Select the <strong>Draw</strong> tab under the equation box and write with a mouse, pen or finger. When you pause, MathVox shows what it read. Check it, then select <strong>Insert into Equation</strong>; it goes in where your cursor is in the equation field, so you can draw a long equation in parts. Recognition is good but not perfect, especially with look-alike characters (1, l and I; x and X), so fix anything it got wrong in the equation field. The first time, the recognition model takes a moment to download (about 17 MB).</p>
 
             <h2>Handy to know</h2>
             <ul>
-                <li><strong>Keyboard:</strong> everything works from the keyboard. Open "Keyboard help for the equation field" under the editor for its shortcuts, such as showing the on-screen math keyboard.</li>
-                <li><strong>Clear Equation</strong> empties both inputs. If you clear by mistake, select <strong>Undo Clear</strong> before typing anything new.</li>
-                <li><strong>Share a link:</strong> the link button next to Copy copies a link that opens MathVox with your equation and format already filled in.</li>
+                <li><strong>Keyboard:</strong> everything works from the keyboard. Open <strong>All keyboard shortcuts</strong> on the Type tab for the full list, such as showing the on-screen math keyboard.</li>
+                <li><strong>Clear</strong> (next to the equation box) empties it. If you clear by mistake, select <strong>Undo Clear</strong> before typing anything new.</li>
+                <li><strong>Share a link:</strong> <strong>Copy share link</strong> copies a link that opens MathVox with your equation and format already filled in.</li>
                 <li><strong>Settings stay:</strong> your last equation, format and display settings are remembered in your browser. See <a href="./privacy.html">Privacy</a>.</li>
                 <li><strong>Display:</strong> Dark Mode and Dyslexia-Friendly Font are at the top of every page. MathVox also follows your system's high contrast settings.</li>
             </ul>
         </article>
     </main>
     <footer>
-        <nav aria-label="About MathVox">
-            <a href="./">MathVox</a>
-            <a href="./help.html" aria-current="page">Quick-start guide</a>
-            <a href="./privacy.html">Privacy</a>
-            <a href="https://github.com/deramsey/MathVox">Source code (AGPL-3.0)</a>
-        </nav>
+        <div class="footer-inner">
+            <nav aria-label="About MathVox">
+                <a href="./help.html" aria-current="page">Quick-start guide</a>
+                <a href="./privacy.html">Privacy</a>
+                <a href="https://github.com/deramsey/MathVox">Source code (AGPL-3.0)</a>
+            </nav>
+            <p class="footer-note">Everything runs in your browser. Nothing is uploaded.</p>
+        </div>
     </footer>
     <script type="module" src="./resources/page.js"></script>
 </body>

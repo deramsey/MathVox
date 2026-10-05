@@ -1,4 +1,4 @@
-// "Draw the equation by hand" panel: a drawing pad whose strokes are
+// The Draw tab ("Ways to enter the equation"): a drawing pad whose strokes are
 // recognized on this device by the Texo model (see handwriting-worker.js).
 // The model (~33MB, ~17MB compressed) only downloads the first time the
 // panel is opened; after that the browser's cache serves it.
@@ -25,7 +25,7 @@ export function setupHandwriting({ onInsert, toSpeech, announce }) {
     const undoBtn = document.querySelector('#draw-undo');
     const clearBtn = document.querySelector('#draw-clear');
     const insertBtn = document.querySelector('#draw-insert');
-    if (!panel || !canvas) return;
+    if (!panel || !canvas) return null;
 
     const ctx = canvas.getContext('2d');
     const strokes = [];        // each stroke: [[x, y], ...] in CSS px
@@ -268,14 +268,17 @@ export function setupHandwriting({ onInsert, toSpeech, announce }) {
         worker.postMessage({ type: 'load' });
     }
 
-    panel.addEventListener('toggle', () => {
-        if (!panel.open) return;
+    // Called when the Draw tab is shown (script.js). Sizes the pad and, the
+    // first time, starts downloading the model.
+    function show() {
         fitCanvas();
         if (modelState === 'idle' || modelState === 'failed') startWorker();
-    });
-    window.addEventListener('resize', () => { if (panel.open) fitCanvas(); });
+    }
+    const visible = () => canvas.getClientRects().length > 0;
+    window.addEventListener('resize', () => { if (visible()) fitCanvas(); });
     // Repaint the ink when Dark Mode or high contrast changes its color.
     new MutationObserver(redraw).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     updateButtons();
+    return { show };
 }
 

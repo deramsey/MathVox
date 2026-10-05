@@ -1,54 +1,65 @@
 @import url("vendor/mathlive/mathlive-fonts.css");
 @import url("vendor/mathlive/mathlive-static.css");
 
+/* ==================================================================
+   MathVox styles -- October 2026 redesign
+   ------------------------------------------------------------------
+   Layout: a compact header, then three numbered steps in white cards
+   (two columns on wide screens, stacked on narrow ones), then the
+   footer. Contrast notes give the measured ratios; every text pair is
+   at least 4.5:1 and every control border / focus ring at least 3:1.
+   ================================================================== */
+
 *{
     box-sizing: border-box;
-    font-family: 'Tahoma', sans-serif;
 }
 
 :root{
+    /* Brand blue. --blue-text: blue for text and outlines on light
+       surfaces (~7.6:1 on white). --blue-solid: fill behind white text. */
     --blue: #235678;
-    /* --blue-text: blue used for text against the page/panel background.
-       --blue-solid: blue used as a solid fill behind white text.
-       In light mode --blue already has enough contrast for both jobs; dark
-       mode needs two different shades (see below) to pass WCAG AA in both
-       directions. */
-    --blue-text: var(--blue);
-    --blue-solid: var(--blue);
-    --bg: #ffffff;
-    --fg: #1a1a1a;
-    --panel-bg: #ffffff;
-    --panel-border: var(--blue);
-    --header-grad-top: #525252;
-    --header-grad-bottom: #404040;
-    /* Full contrast audit (July 2026) found the original single amber focus
-       ring (#ffb703) was only ~1.75:1 against a white background -- well
-       under the 3:1 WCAG needs for a visible focus indicator/UI component.
-       This darker amber is ~6.25:1 against white. */
+    --blue-text: #1d4c6b;
+    --blue-solid: #235678;
+    --tint: #e7f0f6;          /* selected tiles, the "hear" box (blue-text ~6.9:1 on it) */
+    --bg: #f3f5f7;            /* page background */
+    --fg: #16202a;            /* text (~15:1 on the page) */
+    --muted: #46535f;         /* secondary text (~7.4:1 on white, ~6.9:1 on the page) */
+    --panel-bg: #ffffff;      /* cards, inputs */
+    --panel-border: #b9c5cf;  /* card and tile borders (decorative) */
+    --control-border: #6b7b89; /* input/tile borders that must be seen (~4.3:1 on white) */
+    --header-bg: #3b4147;
+    --footer-bg: #2a2f34;
+    --good: #1c6a39;          /* ~6.4:1 on --good-tint */
+    --good-tint: #e4f3e9;
+    --todo: #774700;          /* ~6.8:1 on --todo-tint */
+    --todo-tint: #fdf0d9;
+    /* Darker amber focus ring: ~6.3:1 on white (the original #ffb703 was
+       ~1.75:1 -- July 2026 contrast audit). */
     --focus-ring: #a83e00;
-    /* ~6.5:1 against white -- passes WCAG AA for normal text */
-    --error-text: #b3261e;
+    --error-text: #b3261e;    /* ~6.5:1 on white */
+    --radius: 12px;
+    --font: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Tahoma, Arial, sans-serif;
+    --mono: Consolas, "DejaVu Sans Mono", Menlo, monospace;
 }
 
 html.theme-dark{
-    --bg: #121417;
-    --fg: #f2f2f2;
-    --panel-bg: #1c2024;
-    --panel-border: #6fa8c9;
     --blue: #4a90bf;
-    /* Lighter blue for text/icons on the dark panel background (~9:1 against
-       #1c2024) -- fixes the low-contrast "Dyslexia-Friendly Font" label. */
-    --blue-text: #8ecae6;
-    /* Darker blue for solid button fills behind white text (~5.8:1) -- fixes
-       the "Light Mode" pressed-state button, which previously only passed
-       WCAG AA for large text (~3.5:1). */
-    --blue-solid: #2f6b8f;
-    --header-grad-top: #2c2c2c;
-    --header-grad-bottom: #1a1a1a;
-    /* The original amber (#ffb703) is ~10.5:1 against the dark background --
-       already well past 3:1, so dark mode keeps it as-is. */
-    --focus-ring: #ffb703;
-    /* ~7.2:1 against the dark panel background -- passes WCAG AA */
+    --blue-text: #9ccfee;     /* ~10:1 on the dark card */
+    --blue-solid: #2f6b8f;    /* white on it ~5.8:1 */
+    --tint: #1d3342;
+    --bg: #111417;
+    --fg: #eef1f4;
+    --muted: #b6c1cb;         /* ~9:1 on the dark card */
+    --panel-bg: #1b1f23;
+    --panel-border: #3b464f;
+    --control-border: #8796a3; /* ~5:1 on the dark card */
+    --header-bg: #22272c;
+    --footer-bg: #181b1f;
+    --good: #93dcaa;
+    --good-tint: #163021;
+    --todo: #f3c46d;
+    --todo-tint: #3a2b0e;
+    --focus-ring: #ffb703;    /* ~10.5:1 on the dark page */
     --error-text: #ff8a80;
 }
 
@@ -57,9 +68,23 @@ html, body{
     padding: 0;
     background-color: var(--bg);
     color: var(--fg);
+    font-family: var(--font);
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
-/* Visually hidden until focused: skip link and screen-reader-only labels */
+body{
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+button, input, select, textarea{
+    font: inherit;
+    color: inherit;
+}
+
+/* Visually hidden but read by screen readers */
 .sr-only{
     position: absolute;
     width: 1px;
@@ -76,12 +101,11 @@ html, body{
     position: absolute;
     left: -999px;
     top: 0;
-    /* Solid fill behind white text -- same contrast fix as the other
-       buttons; --blue alone fails WCAG AA here in dark mode. */
     background: var(--blue-solid);
-    color: white;
+    color: #fff;
     padding: .6em 1em;
     z-index: 100;
+    font-weight: 700;
 }
 
 .skip-link:focus{
@@ -94,318 +118,515 @@ html, body{
     outline-offset: 2px;
 }
 
-header, footer{
-    min-height: 10vh;
-    background-color: var(--blue);
+main:focus{
+    outline: none;
 }
 
-header{
-    background: linear-gradient(180deg, var(--header-grad-top) 0%, var(--header-grad-top) 78%, var(--header-grad-bottom) 100%);
-    display: grid;
+.btn-icon{
+    width: 1.25em;
+    height: 1.25em;
+    flex: none;
+}
+
+/* ------------------------------------------------------------------
+   Header (all pages)
+   ------------------------------------------------------------------ */
+.site-header{
+    background-color: var(--header-bg);
+    color: #fff;
+}
+
+.header-inner{
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 8px 32px;
+    display: flex;
     align-items: center;
-    grid-template-columns: 1fr auto;
-    gap: 1em;
-    padding-right: 1.5em;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+}
+
+.brand{
+    display: inline-flex;
+    border-radius: 6px;
+}
+
+#logo{
+    height: 44px;
+    width: auto;
+    display: block;
+}
+
+.site-nav{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+/* White on the header grey: ~10:1 (light), ~15:1 (dark). */
+.site-nav a{
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.site-nav a:hover{
+    text-decoration: underline;
+}
+
+.site-nav a[aria-current="page"]{
+    background-color: rgba(255, 255, 255, .14);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+}
+
+.site-header :focus-visible,
+footer :focus-visible{
+    outline-color: #ffb703;
 }
 
 #a11y-controls{
+    margin-left: auto;
     display: flex;
     flex-wrap: wrap;
-    gap: .5em;
-    justify-content: flex-end;
+    gap: 8px;
 }
 
-#a11y-controls > button{
+/* Dark mode / Dyslexia font: toggle buttons (aria-pressed) drawn as
+   switches. The label stays the same in both states. */
+.switch{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     min-height: 44px;
-    font-size: .95em;
-    font-weight: 600;
-    background-color: var(--panel-bg);
-    color: var(--blue-text);
-    border: 2px solid var(--blue-text);
-    padding: .5em .8em;
-    border-radius: .3em;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, .7);
+    background: transparent;
+    color: #fff;
+    font-weight: 700;
     cursor: pointer;
 }
 
-#a11y-controls > button[aria-pressed="true"]{
-    background-color: var(--blue-solid);
-    border-color: var(--blue-solid);
-    color: white;
+.switch-track{
+    width: 36px;
+    height: 20px;
+    border-radius: 999px;
+    border: 2px solid #fff;
+    position: relative;
+    flex: none;
 }
 
-/* Was background var(--blue) with filter: brightness(35%), which also
-   darkened anything inside the footer -- links would have been unreadable.
-   Same dark grey as the bottom of the header gradient instead. */
+.switch-track::after{
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform .15s;
+}
+
+.switch[aria-pressed="true"] .switch-track{
+    background: #fff;
+}
+
+.switch[aria-pressed="true"] .switch-track::after{
+    background: var(--header-bg);
+    transform: translateX(16px);
+}
+
+@media (prefers-reduced-motion: reduce){
+    .switch-track::after{
+        transition: none;
+    }
+}
+
+/* ------------------------------------------------------------------
+   Footer (all pages). Generous space above it so the last card
+   doesn't run into it.
+   ------------------------------------------------------------------ */
 footer{
-    background-color: var(--header-grad-bottom);
+    margin-top: auto;
+    background-color: var(--footer-bg);
+    color: #fff;
+}
+
+.footer-inner{
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 16px 32px;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: center;
-    padding: 1em 16px;
+    gap: 8px 32px;
 }
 
 footer nav{
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: .5em 2em;
+    gap: 4px 24px;
 }
 
-/* White on #404040 is about 10:1; on the dark theme's #1a1a1a, about 17:1. */
 footer a{
-    color: #ffffff;
-    font-weight: 600;
+    color: #fff;
+    font-weight: 700;
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    padding: 0 .25em;
 }
 
 footer a[aria-current="page"]{
     text-decoration-thickness: 3px;
 }
 
-footer a:focus-visible{
-    outline-color: #ffb703;
+.footer-note{
+    margin: 0 0 0 auto;
 }
 
-/* Quick-start guide and Privacy pages */
-#logo-link{
-    display: inline-block;
-}
-
-.info{
-    max-width: 44em;
-    margin: 0 auto;
-    padding: 1.5em 24px 3em;
-    line-height: 1.6;
-}
-
-.info h1{
-    font-size: 2em;
-    margin: .3em 0 .4em;
-}
-
-.info h2{
-    font-size: 1.35em;
-    margin: 1.8em 0 .5em;
-}
-
-.info .lead{
-    font-size: 1.15em;
-}
-
-.info .updated{
-    font-size: .9em;
-}
-
-.info a,
-#format-picker .hint a{
-    color: var(--blue-text);
-}
-
-.info li{
-    margin-bottom: .4em;
-}
-
-.info code{
-    font-family: "Consolas", monospace;
-}
-
-.table-scroll{
-    overflow-x: auto;
-}
-
-.info table{
-    border-collapse: collapse;
-    width: 100%;
-    min-width: 34em;
-}
-
-.info th,
-.info td{
-    text-align: left;
-    vertical-align: top;
-    padding: .6em .75em;
-    border: 1px solid var(--panel-border);
-}
-
-.info thead th{
-    background-color: var(--panel-bg);
-}
-
-.info tbody th{
-    font-weight: 600;
-}
-
-.info td:nth-child(2){
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-main:focus{
-    outline: none;
-}
-
-#logo{
-    padding: 1rem;
-    max-height: 120px;
-    width: auto;
-    display: block;
-}
-
+/* ------------------------------------------------------------------
+   Main converter page
+   ------------------------------------------------------------------ */
 main{
-    width: 80%;
+    width: 100%;
+    max-width: 1320px;
     margin: 0 auto;
-    border-left: 2px solid var(--panel-border);
-    border-right: 2px solid var(--panel-border);
-    min-height: 80vh;
-    padding: 1px;
-    background-color: var(--bg);
+    padding: 28px 32px 72px;
 }
 
-#mf-sizer{
-    width: 80%;
-    margin: 2em auto;
-    padding: 1px;
-}
-
-math-field{
-    width: 100%;
-    /* Accessibility audit (October 2026): the math rendered at the body
-       text size (about 16px with small superscripts), noticeably smaller
-       than the LaTeX box below it -- hard to check for low-vision users. */
-    font-size: 1.5em;
-    /* Was var(var(--blue)), which is invalid and silently ignored. */
-    --smart-fence-color: var(--blue-text);
-}
-
-/* Focus lands on a textbox inside MathLive's shadow root, so the page's
-   :focus-visible ring never matched the field (Chromium showed only its
-   thin default ring). :focus-within on the host gives it the same 3px ring
-   as every other control. */
-math-field:focus-within{
-    outline: 3px solid var(--focus-ring);
-    outline-offset: 2px;
-}
-
-math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
-    color: var(--blue-text);
-    /* WCAG 2.5.5 target size: at least 44x44 CSS px for icon-only controls.
-       These parts live in MathLive's shadow DOM, so this is best-effort --
-       confirm visually, since internal padding/sizing MathLive applies
-       could still win depending on specificity. */
-    min-width: 44px;
-    min-height: 44px;
-}
-
-#buttons {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: .8em;
-    margin-top: .8em;
-}
-
-#buttons > button{
-    width: 100%;
-    min-height: 44px;
-    font-size: 1.2em;
-    font-weight: 600;
-    background-color: var(--blue-solid);
-    color: white;
-    border: 2px solid var(--blue-solid);
-    padding: .2em;
-    cursor: pointer;
-}
-
-#buttons > button:hover{
-    text-decoration: underline;
-}
-
-#buttons > button:active{
-    background-color: white;
-    color: var(--blue-solid);
-}
-
-/* Convert is a secondary action next to Read Equation Aloud -- outlined
-   instead of solid-filled so the visual hierarchy matches their relative
-   importance, using the same contrast-safe text-blue as the header toggles. */
-#buttons > button.secondary{
-    background-color: var(--panel-bg);
-    color: var(--blue-text);
-    border-color: var(--blue-text);
-}
-
-#buttons > button[hidden]{
-    display: none;
-}
-
-#buttons > button.secondary:active{
-    background-color: var(--blue-text);
-    color: var(--panel-bg);
-}
-
-#format-picker{
-    width: 80%;
-    margin: 2em auto 1.5em auto;
+.page-intro{
     display: flex;
-    flex-direction: column;
-    gap: .4em;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 18px;
+    margin-bottom: 22px;
+}
+
+.page-intro h1{
+    font-size: 2rem;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.page-intro p{
+    margin: 0;
+    color: var(--muted);
+    font-size: 1.1rem;
+}
+
+.workspace{
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.card{
+    background-color: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 14px;
+    padding: 24px 26px 28px;
+    box-shadow: 0 1px 2px rgba(16, 32, 48, .06);
+    min-width: 0;
+}
+
+.step{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 16px;
+    font-size: 1.4rem;
+    line-height: 1.25;
+}
+
+.step-num{
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: var(--blue-solid);
+    color: #fff;
+    display: inline-grid;
+    place-items: center;
+    font-size: 1.05rem;
+    font-weight: 700;
+    flex: none;
 }
 
 .hint{
     margin: 0;
-    font-size: .9em;
-    opacity: .85;
+    font-size: .92rem;
+    color: var(--muted);
 }
 
-.hint code{
-    font-family: "Consolas", monospace;
-}
-
-#kbd-help,
-#draw-panel{
-    margin-top: .8em;
-    border: 1px solid var(--panel-border);
-    border-radius: .3em;
-    padding: .6em .8em;
-    background-color: var(--panel-bg);
-}
-
-#kbd-help summary,
-#draw-panel summary{
-    cursor: pointer;
-    font-weight: 600;
+.hint a,
+.tip a{
     color: var(--blue-text);
-    /* Was an 18px-tall target (under WCAG 2.5.8's 24px); padding grows the
-       clickable row to about 46px while the box looks the same. */
-    line-height: 1.4;
-    padding: .75em 0;
-    margin-top: -.6em;
 }
 
-#kbd-help summary:focus-visible,
-#draw-panel summary:focus-visible{
+code{
+    font-family: var(--mono);
+}
+
+kbd{
+    font-family: var(--mono);
+    font-size: .85em;
+    background-color: var(--panel-bg);
+    border: 1px solid var(--control-border);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    padding: 0 .35em;
+}
+
+/* Buttons */
+.btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 8px 18px;
+    border-radius: 10px;
+    border: 2px solid var(--blue-text);
+    background-color: var(--panel-bg);
+    color: var(--blue-text);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.btn:hover{
+    background-color: var(--tint);
+}
+
+.btn-primary{
+    background-color: var(--blue-solid);
+    border-color: var(--blue-solid);
+    color: #fff;
+    font-size: 1.1rem;
+    min-height: 54px;
+    padding: 10px 24px;
+}
+
+.btn-primary:hover{
+    background-color: var(--blue-solid);
+    text-decoration: underline;
+}
+
+.btn[hidden]{
+    display: none;
+}
+
+.text-btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 8px;
+    background: none;
+    color: var(--blue-text);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.text-btn:hover{
+    text-decoration: underline;
+}
+
+.text-btn[hidden]{
+    display: none;
+}
+
+/* ---- Step 1: the equation ---- */
+.field-head{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+#formula-label{
+    font-weight: 700;
+}
+
+.field-actions{
+    display: flex;
+    gap: 4px;
+}
+
+math-field{
+    display: block;
+    width: 100%;
+    /* Accessibility audit (October 2026): math at body size was smaller
+       than the LaTeX box and hard to check for low-vision users. */
+    font-size: 1.75rem;
+    padding: 14px 12px;
+    min-height: 96px;
+    border: 2px solid var(--control-border);
+    border-radius: var(--radius);
+    background-color: var(--panel-bg);
+    color: var(--fg);
+    --smart-fence-color: var(--blue-text);
+}
+
+/* Focus lands on a textbox inside MathLive's shadow root, so the page's
+   :focus-visible never matches the field; :focus-within on the host gives
+   it the same ring as every other control. */
+math-field:focus-within{
+    border-color: var(--blue-text);
     outline: 3px solid var(--focus-ring);
     outline-offset: 2px;
 }
 
-/* Handwriting panel */
-.draw-body{
-    margin-top: .2em;
+math-field::part(virtual-keyboard-toggle),
+math-field::part(menu-toggle){
+    color: var(--blue-text);
+    min-width: 44px;
+    min-height: 44px;
 }
 
+/* Ways to enter the equation (ARIA tabs) */
+.input-tabs{
+    margin-top: 18px;
+}
+
+.tablist{
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid var(--panel-border);
+}
+
+.tablist [role="tab"]{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 8px 16px;
+    margin-bottom: -2px;
+    border: 2px solid transparent;
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    background: none;
+    color: var(--muted);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.tablist [role="tab"]:hover{
+    color: var(--blue-text);
+    text-decoration: underline;
+}
+
+/* Selected: a joined tab plus a 3px bar, so it doesn't rely on color. */
+.tablist [role="tab"][aria-selected="true"]{
+    color: var(--blue-text);
+    background-color: var(--panel-bg);
+    border-color: var(--panel-border);
+    box-shadow: inset 0 3px 0 var(--blue-text);
+    position: relative;
+}
+
+.tablist [role="tab"][aria-selected="true"]::after{
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 2px;
+    background-color: var(--panel-bg);
+}
+
+.tabpanel{
+    padding-top: 14px;
+}
+
+.tabpanel[hidden]{
+    display: none;
+}
+
+.tip{
+    margin: 0 0 4px;
+    color: var(--muted);
+}
+
+#kbd-help summary{
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--blue-text);
+    padding: 10px 0;
+}
+
+.kbd-help-body p{
+    margin: .2em 0 .5em;
+}
+
+.kbd-help-body ul{
+    margin: 0;
+    padding-left: 1.2em;
+}
+
+.kbd-help-body li{
+    margin-bottom: .45em;
+}
+
+/* LaTeX tab */
+#latex-editor{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+#latex-editor label{
+    font-weight: 700;
+}
+
+#latex-editor textarea{
+    width: 100%;
+    font-family: var(--mono);
+    font-size: 1.1rem;
+    padding: 10px 12px;
+    border: 2px solid var(--control-border);
+    border-radius: 10px;
+    background-color: var(--panel-bg);
+    color: var(--fg);
+    resize: vertical;
+    /* Grows with content (autoGrowLatexInput() in script.js). */
+    overflow: hidden;
+}
+
+.error-text{
+    margin: 0;
+    font-weight: 700;
+    color: var(--error-text);
+}
+
+.error-text:empty{
+    display: none;
+}
+
+/* Draw tab (handwriting.js) */
 .draw-body .hint{
-    margin-bottom: .6em;
+    margin-bottom: 10px;
 }
 
 #draw-canvas{
     display: block;
     width: 100%;
     height: 220px;
-    border: 2px solid var(--panel-border);
-    border-radius: .3em;
-    background-color: var(--bg);
+    border: 2px solid var(--control-border);
+    border-radius: 10px;
+    background-color: var(--panel-bg);
     /* The ink color; handwriting.js reads it. */
     color: var(--fg);
     /* Pen and finger strokes draw instead of scrolling the page. */
@@ -416,17 +637,16 @@ math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
 .draw-buttons{
     display: flex;
     flex-wrap: wrap;
-    gap: .6em;
-    margin-top: .6em;
+    gap: 8px;
+    margin-top: 10px;
 }
 
 .draw-buttons button,
 #draw-insert{
     min-height: 44px;
-    font-size: 1em;
-    font-weight: 600;
-    padding: .4em 1em;
-    border-radius: .3em;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 10px;
     cursor: pointer;
     background-color: var(--panel-bg);
     color: var(--blue-text);
@@ -436,7 +656,7 @@ math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
 #draw-insert{
     background-color: var(--blue-solid);
     border-color: var(--blue-solid);
-    color: #ffffff;
+    color: #fff;
 }
 
 .draw-buttons button:disabled,
@@ -446,11 +666,11 @@ math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
 }
 
 #draw-progress-wrap{
-    margin-top: .6em;
+    margin-top: 10px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: .6em;
+    gap: 10px;
 }
 
 #draw-progress-wrap[hidden]{
@@ -462,124 +682,356 @@ math-field::part(virtual-keyboard-toggle), math-field::part(menu-toggle){
     height: 1em;
 }
 
+#draw-status{
+    margin: 10px 0 0;
+}
+
 #draw-status:empty{
     display: none;
 }
 
 .draw-preview-row{
-    font-size: 1.3em;
-    margin: .4em 0;
+    font-size: 1.3rem;
+    margin: .5em 0 .2em;
+}
+
+.draw-latex-row{
+    margin: 0 0 .6em;
 }
 
 .draw-latex-row code{
-    font-family: "Consolas", monospace;
     word-break: break-all;
 }
 
-.kbd-help-body{
-    margin-top: .6em;
+/* "Screen readers will hear" */
+.hear{
+    margin-top: 22px;
+    border-radius: var(--radius);
+    background-color: var(--tint);
+    padding: 16px 18px 18px;
 }
 
-.kbd-help-body ul{
-    padding-left: 1.2em;
+.hear-top{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
 }
 
-.kbd-help-body li{
-    margin-bottom: .5em;
+.hear h3{
+    margin: 0;
+    font-size: .95rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--blue-text);
 }
 
-kbd{
-    font-family: "Consolas", monospace;
-    font-size: .9em;
-    background-color: var(--bg);
-    border: 1px solid var(--panel-border);
-    border-bottom-width: 2px;
-    border-radius: .25em;
-    padding: .05em .4em;
+.hear-text{
+    margin: 0 0 14px;
+    font-size: 1.15rem;
 }
 
-#latex-editor{
-    margin-top: 1em;
+.hear-actions{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+}
+
+.hear-actions .hint{
+    flex: 1 1 16em;
+}
+
+/* Segmented control: a real radio group, drawn as two joined buttons. */
+.segmented{
+    display: inline-flex;
+    margin: 0;
+    padding: 0;
+    border: 2px solid var(--blue-text);
+    border-radius: 999px;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.segmented label{
+    position: relative;
+    display: inline-flex;
+}
+
+.segmented input{
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+.segmented span{
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 4px 16px;
+    font-weight: 700;
+    color: var(--blue-text);
+    background-color: var(--panel-bg);
+}
+
+.segmented input:checked + span{
+    background-color: var(--blue-solid);
+    color: #fff;
+}
+
+.segmented input:focus-visible + span{
+    outline: 3px solid var(--focus-ring);
+    outline-offset: -5px;
+}
+
+/* ---- Step 2: where is it going? ---- */
+.dest-group{
+    border: none;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+}
+
+.dest-group legend{
+    padding: 0;
+    width: 100%;
+}
+
+.dests{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+/* Each destination is a labelled radio button (native, so arrow keys and
+   screen readers work as usual), drawn as a tile. */
+.dest{
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: .4em;
-}
-
-#latex-editor label{
-    font-weight: bold;
-}
-
-#formula-label{
-    display: block;
-    font-weight: bold;
-    margin-bottom: .4em;
-}
-
-#latex-editor textarea{
-    width: 100%;
-    font-size: 1.1em;
-    font-family: "Consolas", monospace;
-    padding: .5em;
+    gap: 6px;
+    padding: 12px 14px;
+    min-height: 92px;
     border: 2px solid var(--panel-border);
-    border-radius: .3em;
+    border-radius: var(--radius);
     background-color: var(--panel-bg);
-    color: var(--fg);
-    resize: vertical;
-    /* Grows with content (see autoGrowLatexInput() in script.js); hidden
-       overflow avoids a flash of scrollbar while the height catches up. */
-    overflow: hidden;
+    cursor: pointer;
 }
 
-.error-text{
+.dest:hover{
+    border-color: var(--control-border);
+}
+
+.dest input{
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 20px;
+    height: 20px;
     margin: 0;
-    font-weight: 600;
-    color: var(--error-text);
+    accent-color: var(--blue-solid);
+    cursor: pointer;
 }
 
-.error-text:empty{
+.dest-icon{
+    width: 28px;
+    height: 28px;
+    color: var(--blue-text);
+}
+
+.dest-text{
+    display: flex;
+    flex-direction: column;
+    padding-right: 20px;
+}
+
+.dest-title{
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.dest-sub{
+    font-size: .88rem;
+    color: var(--muted);
+    line-height: 1.3;
+    margin-top: 2px;
+}
+
+/* Selected tile: border, tint and a heavier inner ring (not color alone --
+   the radio itself shows the state too). */
+.dest:has(input:checked){
+    border-color: var(--blue-text);
+    background-color: var(--tint);
+    box-shadow: inset 0 0 0 1px var(--blue-text);
+}
+
+.dest:has(input:focus-visible){
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+.dest input:focus-visible{
+    outline: none;
+}
+
+#other-formats{
+    margin-top: 10px;
+}
+
+#other-formats summary{
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--blue-text);
+    padding: 10px 0;
+}
+
+.dests-other{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.dest-small{
+    min-height: 52px;
+    justify-content: center;
+}
+
+/* ---- Step 3: copy it ---- */
+#text-output{
+    margin-top: 22px;
+    padding-top: 22px;
+    border-top: 1px solid var(--panel-border);
+}
+
+.format-name{
+    margin: -6px 0 12px;
+    color: var(--muted);
+    font-weight: 700;
+}
+
+#conversion-warning{
+    margin-bottom: 12px;
+}
+
+.output-actions{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.checks{
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0;
+    display: grid;
+    gap: 8px;
+}
+
+.checks:empty{
     display: none;
 }
 
-#format-picker label{
-    font-weight: bold;
+.checks li{
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid transparent;
 }
 
-#format-picker #speech-style-label{
-    margin-top: .8em;
+.check-ok{
+    background-color: var(--good-tint);
+    color: var(--good);
 }
 
-#format-picker select{
-    font-size: 1.1em;
-    padding: .5em;
-    border: 2px solid var(--blue);
-    border-radius: .3em;
+.check-todo{
+    background-color: var(--todo-tint);
+    color: var(--todo);
+}
+
+.check-mark{
+    font-weight: 700;
+    width: 1.2em;
+    flex: none;
+    text-align: center;
+}
+
+.paste-help{
+    margin-top: 16px;
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+}
+
+.paste-help:empty{
+    display: none;
+}
+
+.paste-help h3{
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+}
+
+.paste-help ol{
+    margin: 0;
+    padding-left: 1.3em;
+}
+
+.paste-help li{
+    margin: 3px 0;
+}
+
+/* Portable SVG size and colors */
+#svg-options{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 24px;
+    align-items: flex-end;
+    margin-top: 18px;
+}
+
+#svg-options[hidden]{
+    display: none;
+}
+
+.svg-option{
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.svg-option label{
+    font-weight: 700;
+}
+
+.svg-option select,
+.intent-row select{
+    min-height: 44px;
+    max-width: 100%;
+    padding: 6px 10px;
+    border: 2px solid var(--control-border);
+    border-radius: 10px;
     background-color: var(--panel-bg);
     color: var(--fg);
 }
 
-#text-output{
-    min-height: 200px;
-    width: 80%;
-    margin: 0 auto;
-    border: 1px solid var(--panel-border);
-    background-color: var(--panel-bg);
-    font-family: "Tahoma", sans-serif !important;
-    padding: .8rem;
-    position: relative;
+#svg-options .hint{
+    flex-basis: 100%;
 }
 
-/* Portable SVG preview: deliberately fixed white/light regardless of
-   MathVox's own theme. The exported SVG hardcodes black strokes (see
-   docs/MATHJAX_SVG_IMPLEMENTATION_PLAN.md), so previewing it on a dark background
-   would make it unreadable in the very panel meant to let you check it
-   before copying -- and a light card is also a more honest preview of how
-   it'll look pasted into Word/Canvas/a plain web page. */
+/* Portable SVG preview: deliberately white whatever the theme -- the
+   export has black ink by default, and this is a preview of how it will
+   look pasted into a document. */
 #svg-preview{
     background-color: #ffffff;
     border: 1px solid var(--panel-border);
-    border-radius: .3em;
-    padding: .75rem;
-    margin-bottom: .8rem;
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 16px;
     overflow-x: auto;
 }
 
@@ -587,123 +1039,145 @@ kbd{
     display: none;
 }
 
-/* Download the exported SVG as a standalone file -- same visual language
-   as the "Convert" secondary button (outlined, contrast-safe text-blue),
-   shown/hidden together with #svg-preview above. */
-.btn-icon{
-    width: 1em;
-    height: 1em;
-    flex-shrink: 0;
-}
-
-/* Shrink-to-fit centered pill (icon + label) rather than a full-width
-   slab, so it reads as a lighter secondary action next to the SVG
-   preview above it -- same outlined, contrast-safe text-blue visual
-   language as the "Convert" secondary button. */
-#download-svg{
-    display: flex;
-    width: fit-content;
-    align-items: center;
-    gap: .5em;
-    margin: 0 auto .8rem auto;
-    font-size: 1em;
-    font-weight: 600;
-    background-color: var(--panel-bg);
-    color: var(--blue-text);
-    border: 2px solid var(--blue-text);
-    border-radius: .3em;
-    padding: .5em 1em;
-    cursor: pointer;
-    min-height: 44px;
-}
-
-#download-svg:active{
-    background-color: var(--blue-text);
-    color: var(--panel-bg);
-}
-
-#download-svg[hidden]{
-    display: none;
+/* Direct child only: MathJax draws stretchy characters as nested <svg>s,
+   and display:block / height:auto on those makes them disappear. */
+#svg-preview > svg{
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
 }
 
 #svg-alt-wrap{
-    margin-bottom: .8rem;
+    margin-top: 16px;
     display: flex;
-    flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
-    gap: .5em;
+    gap: 8px 12px;
 }
 
 #svg-alt-wrap[hidden]{
     display: none;
 }
 
-/* Word guidance under the alt-text line + Copy button, on its own row. */
+#svg-alt-suggestion,
+#svg-word-hint{
+    margin: 0;
+}
+
 #svg-word-hint{
     flex-basis: 100%;
-    margin: 0;
 }
 
-#svg-alt-suggestion{
-    margin: 0;
-}
-
-/* Copies just the suggested alt-text sentence's payload (the description
-   itself, not the "Suggested alt text..." lead-in) -- see copyAltText()
-   in script.js. Sized like the icon buttons (WCAG 2.5.5) but shaped as a
-   small pill rather than a 44x44 square, since it sits inline with text
-   rather than in the corner icon row. */
 #copy-alt-text{
-    font-size: .85em;
-    font-weight: 600;
-    background-color: var(--panel-bg);
-    color: var(--blue-text);
-    border: 1px solid var(--blue-text);
-    border-radius: .3em;
-    padding: .3em .8em;
-    cursor: pointer;
-    min-height: 44px;
     display: inline-flex;
     align-items: center;
-    gap: .4em;
-    flex-shrink: 0;
+    gap: 6px;
+    min-height: 44px;
+    padding: 4px 14px;
+    border: 2px solid var(--blue-text);
+    border-radius: 10px;
+    background-color: var(--panel-bg);
+    color: var(--blue-text);
+    font-weight: 700;
+    cursor: pointer;
+    flex: none;
 }
 
-#copy-alt-text:active{
-    background-color: var(--blue-text);
-    color: var(--panel-bg);
+/* Description: reading styles side by side */
+#readings-compare{
+    margin-top: 18px;
 }
 
+#readings-compare[hidden]{
+    display: none;
+}
+
+#readings-compare h3{
+    font-size: 1.05rem;
+    margin: 0 0 4px;
+}
+
+#readings-compare h3:focus{
+    outline: none;
+}
+
+.reading-cards{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14em, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.reading-card{
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.reading-card.is-current{
+    border: 3px solid var(--blue-text);
+}
+
+.reading-card h4{
+    margin: 0;
+    font-size: 1rem;
+}
+
+.reading-text{
+    margin: 0;
+    flex: 1;
+}
+
+.reading-actions{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.reading-actions button{
+    min-height: 44px;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: var(--panel-bg);
+    color: var(--blue-text);
+    border: 2px solid var(--blue-text);
+}
+
+.reading-actions button[hidden],
+.reading-current[hidden]{
+    display: none;
+}
+
+/* Canvas page (MathML): "Say what it means" */
 #mathml-notes{
-    margin-top: .8rem;
-    margin-bottom: 0;
-    /* Clear the absolutely positioned Share/Copy buttons in the panel's
-       bottom-right corner, which otherwise sit on top of the meaning
-       picker's last row. */
-    padding-bottom: calc(44px + .75rem);
+    margin-top: 18px;
 }
 
 #mathml-notes:empty{
     display: none;
-    margin-top: 0;
 }
 
 .intent-picker{
     /* A <fieldset> defaults to min-width: min-content, which lets a long
        <option> label push it past a narrow panel. */
     min-width: 0;
-    margin: .6rem 0 0 0;
-    padding: .5rem .8rem .7rem .8rem;
+    margin: 10px 0 0;
+    padding: 10px 14px 14px;
     border: 1px solid var(--panel-border);
-    border-radius: .3em;
+    border-radius: var(--radius);
     display: flex;
     flex-direction: column;
-    gap: .5em;
+    gap: 8px;
 }
 
 .intent-picker legend{
-    font-weight: bold;
+    font-weight: 700;
     padding: 0 .3em;
 }
 
@@ -711,22 +1185,7 @@ kbd{
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: .5em;
-}
-
-.intent-row code{
-    font-family: "Consolas", monospace;
-}
-
-.intent-row select{
-    font-size: 1em;
-    padding: .35em;
-    min-height: 44px;
-    max-width: 100%;
-    border: 2px solid var(--blue);
-    border-radius: .3em;
-    background-color: var(--panel-bg);
-    color: var(--fg);
+    gap: 8px;
 }
 
 .intent-status:empty{
@@ -737,226 +1196,196 @@ kbd{
     flex-basis: 100%;
 }
 
-/* Direct child only: MathJax draws stretchy characters (e.g. the bar in
-   \overline{AB}) as nested <svg> elements, and display:block / height:auto
-   on those makes them disappear from the preview. */
-#svg-preview > svg{
-    display: block;
-    max-width: 100%;
-    height: auto;
-    margin: 0 auto;
+/* The output itself: open for text formats, collapsed behind "Show the
+   ... code" for markup (setCodeCollapsible() in script.js). */
+#code-details{
+    margin-top: 16px;
 }
 
-#format-name{
-    margin: 0 0 .5em 0;
-    font-size: 1em;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    color: var(--blue-text);
-}
-
-#text-cont{
-    white-space: pre-wrap;
-    word-break: break-word;
-    padding-bottom: 2.5rem;
-}
-
-/* Braille (Nemeth) output is Unicode braille dot patterns; a larger,
-   generously spaced monospace rendering makes the dot patterns easier
-   to distinguish visually and on braille-capable displays. */
-#text-cont.braille-output{
-    font-size: 1.6rem;
-    letter-spacing: .2em;
-    line-height: 2;
-    font-family: "Consolas", "Cambria Math", monospace, "Tahoma", sans-serif;
-}
-
-/* Sits to the left of #copy with a gap; same 44x44 target-size treatment
-   (WCAG 2.5.5) and visual style as #copy below. */
-#share-link{
-    position: absolute;
-    bottom: .25rem;
-    right: calc(44px + .25rem + .5rem);
-    color: var(--blue-text);
-    background-color: var(--panel-bg);
-    border: 1px solid var(--panel-border);
-    font-size: 1.6rem;
-    cursor: pointer;
-    min-width: 44px;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#share-link:active{
-    color: white;
-    background-color: var(--blue-solid);
-}
-
-#copy{
-    position: absolute;
-    bottom: .25rem;
-    right: .25rem;
-    color: var(--blue-text);
-    background-color: var(--panel-bg);
-    border: 1px solid var(--panel-border);
-    font-size: 2rem;
-    cursor: pointer;
-    /* WCAG 2.5.5 target size: icon-only button, so guarantee a 44x44 CSS px
-       hit area rather than relying on the glyph's own rendered size. */
-    min-width: 44px;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#copy:active{
-    color: white;
-    background-color: var(--blue-solid);
-}
-
-/* Third icon in the corner row, left of #share-link: same look and 44x44
-   target as the other two. Portable SVG only (hidden otherwise). */
-#download-svg-corner{
-    position: absolute;
-    bottom: .25rem;
-    right: calc(2 * (44px + .5rem) + .25rem);
-    color: var(--blue-text);
-    background-color: var(--panel-bg);
-    border: 1px solid var(--panel-border);
-    font-size: 1.6rem;
-    cursor: pointer;
-    min-width: 44px;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#download-svg-corner[hidden]{
-    display: none;
-}
-
-#download-svg-corner:active{
-    color: white;
-    background-color: var(--blue-solid);
-}
-
-/* Output code wrapper: only collapsible (with a visible summary) for
-   Portable SVG -- see setCodeCollapsible() in script.js. For every other
-   format it's always open and the summary is hidden, so it looks exactly
-   like the plain output panel it replaced. */
 #code-details:not(.collapsible) > summary{
     display: none;
 }
 
 #code-details.collapsible > summary{
     cursor: pointer;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--blue-text);
-    margin: .4rem 0;
-    /* Padding rather than min-height/flex, which would drop the native
-       disclosure triangle (matching #kbd-help's), while still giving a
-       roughly 44px-tall click target. */
-    padding: .75em 0;
+    padding: 10px 0;
 }
 
-#code-details.collapsible > summary:focus-visible{
-    outline: 3px solid var(--focus-ring);
-    outline-offset: 2px;
+#text-cont{
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
-/* Collapsed: nothing below the summary but the corner buttons, so the
-   output's usual 2.5rem bottom padding (room for them) moves here. */
-#code-details.collapsible:not([open]){
-    padding-bottom: 2.5rem;
+#code-details.collapsible #text-cont{
+    font-family: var(--mono);
+    font-size: .88rem;
+    max-height: 22em;
+    overflow: auto;
+    padding: 12px 14px;
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    background-color: var(--bg);
 }
 
-/* Dyslexia-friendly font toggle: swaps to a plainer, more open font
-   stack with extra letter/line spacing. This is a reasonable built-in
-   approximation; for true OpenDyslexic support a font file would need
-   to be bundled with the app. */
+#code-details:not(.collapsible) #text-cont{
+    font-size: 1.15rem;
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    background-color: var(--bg);
+}
+
+/* Braille: larger, generously spaced, so the dot patterns are easy to
+   tell apart. */
+#text-cont.braille-output{
+    font-size: 1.75rem;
+    letter-spacing: .2em;
+    line-height: 2;
+    font-family: var(--mono);
+}
+
+/* ------------------------------------------------------------------
+   Quick-start guide and Privacy pages
+   ------------------------------------------------------------------ */
+.info{
+    max-width: 46em;
+    margin: 0 auto;
+    padding: 28px 24px 72px;
+    line-height: 1.65;
+}
+
+.info h1{
+    font-size: 2rem;
+    line-height: 1.2;
+    margin: .3em 0 .4em;
+}
+
+.info h2{
+    font-size: 1.35rem;
+    margin: 1.8em 0 .5em;
+}
+
+.info .lead{
+    font-size: 1.15rem;
+}
+
+.info .updated{
+    font-size: .92rem;
+    color: var(--muted);
+}
+
+.info a{
+    color: var(--blue-text);
+}
+
+.info li{
+    margin-bottom: .4em;
+}
+
+.table-scroll{
+    overflow-x: auto;
+}
+
+.info table{
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 34em;
+    background-color: var(--panel-bg);
+}
+
+.info th,
+.info td{
+    text-align: left;
+    vertical-align: top;
+    padding: .6em .75em;
+    border: 1px solid var(--control-border);
+}
+
+.info tbody th{
+    font-weight: 700;
+}
+
+.info td:nth-child(2){
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------
+   Dyslexia-friendly font: a plainer, more open font stack with extra
+   letter and line spacing.
+   ------------------------------------------------------------------ */
 html.dyslexia-font, html.dyslexia-font *{
-    font-family: "Verdana", "Trebuchet MS", "Tahoma", sans-serif !important;
+    font-family: Verdana, "Trebuchet MS", Tahoma, sans-serif !important;
     letter-spacing: .03em;
     line-height: 1.6;
 }
 
 /* ------------------------------------------------------------------
-   Windows High Contrast Mode (forced-colors) and prefers-contrast
-   (September 2026)
+   Windows High Contrast (forced colors) and "increase contrast"
    ------------------------------------------------------------------
-   These are two different signals and need different treatment:
-
-   - forced-colors: active fires when the OS (Windows High Contrast Mode
-     is the common case, though some other UAs support it too) has
-     replaced the page's authored colors with a small, user-chosen
-     system palette. The browser already swaps out most of this app's
-     colors automatically at that point (backgrounds, text, borders on
-     ordinary elements) -- nothing to do there. Two things still need
-     explicit handling: (1) state that was only distinguishable by an
-     author background/border color -- the pressed a11y-toggle buttons,
-     the button active/press states -- needs to stay distinguishable
-     using the small set of system colors forced-colors mode guarantees
-     it will NOT strip (Highlight/HighlightText); and (2) the Portable
-     SVG preview panel is deliberately fixed white/black regardless of
-     MathVox's own theme (see the comment on #svg-preview above)
-     because it's a preview of an external, unthemed artifact --
-     forced-colors would otherwise recolor that panel to the user's
-     system palette (its hardcoded black SVG strokes could even end up
-     unreadable against a forced-colors dark background) and defeat the
-     whole point of the preview, so it opts out with
-     forced-color-adjust: none.
-
-   - prefers-contrast: more is a *voluntary* signal (mainly macOS
-     "Increase contrast", though some Windows/Firefox setups respect it
-     too) that the user wants more visual definition, without the
-     browser forcing anything. The existing palette already passes WCAG
-     AA (see the July 2026 contrast-audit comments throughout this
-     file), so this is a light touch -- thicker borders and a wider
-     focus ring -- rather than new colors.
-
-   Not verified against real Windows hardware/a VM in High Contrast Mode
-   as part of this pass -- written against the forced-colors spec and
-   MDN's guidance, but worth a manual check next time that's available. */
+   Forced colors replaces most colors itself. What needs help: states
+   shown only by background (the pressed switches, the selected tile and
+   segment, the selected tab), which use system colors with
+   forced-color-adjust: none so the browser's text backplate doesn't hide
+   them (found in the October 2026 audit); and the SVG preview, which
+   opts out entirely because it previews an unthemed image. */
 @media (forced-colors: active){
-    :focus-visible{
+    :focus-visible,
+    math-field:focus-within,
+    .dest:has(input:focus-visible),
+    .segmented input:focus-visible + span{
         outline: 3px solid Highlight;
     }
 
-    #kbd-help summary:focus-visible,
-    #draw-panel summary:focus-visible{
-        outline: 3px solid Highlight;
+    .switch,
+    .btn,
+    .text-btn,
+    .dest,
+    .card,
+    .checks li{
+        border: 2px solid CanvasText;
     }
 
-    /* The pressed/"on" state of Dark Mode and Dyslexia-Friendly Font was
-       previously conveyed only by an author background-color, which
-       forced-colors mode replaces -- fall back to system colors plus a
-       thicker border so pressed vs. unpressed stays visually distinct. */
-    #a11y-controls > button{
-        border-width: 2px;
+    .switch-track{
+        border-color: ButtonText;
     }
 
-    /* forced-color-adjust: none on both: in forced-colors mode the browser
-       paints a Canvas-colored backplate behind text, so HighlightText on a
-       Highlight button came out as dark text on a dark backplate -- the
-       pressed "Dark Mode" button looked like an empty box (found in the
-       October 2026 audit). Opting these out keeps the system colors we set. */
-    #a11y-controls > button[aria-pressed="true"]{
+    .switch[aria-pressed="true"]{
         forced-color-adjust: none;
         background-color: Highlight;
         color: HighlightText;
         border-color: HighlightText;
-        border-width: 3px;
     }
 
-    #buttons > button:active,
-    #share-link:active,
-    #download-svg-corner:active,
-    #copy:active,
-    #download-svg:active,
+    .switch[aria-pressed="true"] .switch-track{
+        background: HighlightText;
+        border-color: HighlightText;
+    }
+
+    .switch[aria-pressed="true"] .switch-track::after{
+        background: Highlight;
+    }
+
+    .dest:has(input:checked){
+        border: 4px solid Highlight;
+    }
+
+    .segmented input:checked + span,
+    .step-num{
+        forced-color-adjust: none;
+        background-color: Highlight;
+        color: HighlightText;
+    }
+
+    .tablist [role="tab"][aria-selected="true"]{
+        border: 2px solid CanvasText;
+        border-bottom: none;
+        box-shadow: none;
+        border-top: 4px solid Highlight;
+    }
+
+    .btn:active,
     #copy-alt-text:active{
         forced-color-adjust: none;
         background-color: Highlight;
@@ -964,16 +1393,6 @@ html.dyslexia-font, html.dyslexia-font *{
         border-color: HighlightText;
     }
 
-    math-field:focus-within{
-        outline-color: Highlight;
-    }
-
-    #buttons > button.secondary{
-        border-width: 2px;
-    }
-
-    /* Deliberately opt this one panel OUT of forced-colors recoloring --
-       see the block comment above for why. */
     #svg-preview,
     #svg-preview svg{
         forced-color-adjust: none;
@@ -981,23 +1400,21 @@ html.dyslexia-font, html.dyslexia-font *{
 }
 
 @media (prefers-contrast: more){
-    main,
-    #kbd-help,
-    #text-output,
-    #svg-preview,
-    #share-link,
-    #download-svg-corner,
-    #copy,
-    #copy-alt-text{
+    .card,
+    .dest,
+    .paste-help,
+    .reading-card,
+    #svg-preview{
         border-width: 2px;
+        border-color: var(--control-border);
     }
 
+    math-field,
     #latex-editor textarea,
-    #format-picker select,
+    .svg-option select,
     .intent-row select,
-    #a11y-controls > button,
-    #buttons > button,
-    #download-svg{
+    .btn,
+    #copy-alt-text{
         border-width: 3px;
     }
 
@@ -1006,43 +1423,92 @@ html.dyslexia-font, html.dyslexia-font *{
     }
 }
 
-/* Phones and narrow windows. At desktop widths the nested 80% columns
-   leave comfortable margins, but at ~360px they compounded down to a
-   ~230px content column, while the logo (no max-width) and the header
-   buttons pushed the page to ~700px wide, forcing horizontal scrolling. */
+/* ------------------------------------------------------------------
+   Narrow screens: one column, steps in order.
+   ------------------------------------------------------------------ */
+@media (max-width: 960px){
+    .workspace{
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
 @media (max-width: 640px){
-    header{
-        grid-template-columns: 1fr;
-        justify-items: center;
-        gap: .25em;
-        padding: 0 16px .75em;
+    .header-inner{
+        padding: 8px 16px;
+        gap: 4px 12px;
     }
 
     #logo{
-        max-width: 100%;
-        height: auto;
-        padding: .75rem 0 .25rem;
+        height: 34px;
     }
 
-    #a11y-controls{
-        justify-content: center;
+    /* Switch labels move to screen-reader-only; the buttons keep their
+       names and stay 44px. */
+    .switch{
+        padding: 6px 10px;
+    }
+
+    .switch-label{
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+    }
+
+    .site-nav{
+        order: 3;
+        width: 100%;
+    }
+
+    .site-nav a{
+        padding: 8px 10px;
     }
 
     main{
+        padding: 18px 16px 56px;
+    }
+
+    .page-intro h1{
+        font-size: 1.6rem;
+    }
+
+    .card{
+        padding: 18px 16px 22px;
+    }
+
+    .step{
+        font-size: 1.25rem;
+    }
+
+    math-field{
+        font-size: 1.45rem;
+    }
+
+    .tablist [role="tab"]{
+        padding: 8px 12px;
+    }
+
+    .dests,
+    .dests-other{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dest{
+        min-height: 0;
+    }
+
+    .output-actions .btn-primary{
         width: 100%;
-        border-left: none;
-        border-right: none;
     }
 
-    #format-picker,
-    #mf-sizer,
-    #text-output{
-        width: auto;
-        margin-left: 16px;
-        margin-right: 16px;
+    .footer-inner{
+        padding: 12px 16px;
     }
 
-    #format-picker select{
-        max-width: 100%;
+    .footer-note{
+        margin-left: 0;
     }
 }

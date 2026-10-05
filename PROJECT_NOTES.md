@@ -58,7 +58,7 @@ would likely need its own interface rather than another output format.
 - `resources/vendor/` -- **self-hosted copies of every third-party library's
   built files** (see "Why vendoring" below). The single most important
   architectural fact.
-- `tests/pure-logic.test.mjs` -- `npm test` (88 tests, October 5, 2026).
+- `tests/pure-logic.test.mjs` -- `npm test` (91 tests, October 5, 2026).
   `tests/braille-report.mjs` -- `npm run braille-report`. `tests/fixtures/` --
   MathCAT's Nemeth suite (+ its MIT license) and the 315-expression LaTeX
   corpus. See "Testing and QA".
@@ -108,6 +108,31 @@ Details, before/after tables and the reasoning for each fix: docs/HISTORY.md,
 MathLive's MathML export gaps", "MathML cleanup, round 2" and '"Function or
 multiplication?" choice'.
 
+## Page layout (October 2026 redesign)
+
+Three numbered steps in white cards: **1 Enter your equation** (left) and
+**2 Where is it going? / 3 Copy it** (right), stacked in order below 960px.
+- Header: small logo, nav (Convert / Quick-start guide / Privacy, also on
+  help.html and privacy.html), Dark mode and Dyslexia font as switch-style
+  toggle buttons (`aria-pressed`; labels become screen-reader-only on phones).
+- Step 1: "Your equation" (the MathLive field, always visible) with Clear /
+  Undo Clear; ARIA tabs **Type / LaTeX / Draw** below it switch the helper
+  (keyboard tips + all shortcuts, the LaTeX box + Convert, the handwriting
+  pad); **Screen readers will hear** shows the cleaned reading in the chosen
+  style with a ClearSpeak/MathSpeak radio switch and Listen.
+- Step 2: destination tiles, a native radio group named `format`: Canvas
+  page (math-ml), Word document (word), Web page (svg-mathml), Slides or
+  image (svg), Braille, Read or listen (spoken-text); LaTeX, ASCII Math and
+  MathJSON under "Other math tools". Default: Canvas page.
+- Step 3: the format name, a primary button worded for the destination
+  ("Copy for Canvas", "Copy for Word"...; for Slides or image, Download is
+  primary), Copy share link, short checks (`renderChecks`), "how to paste"
+  steps (`PASTE_HELP`), then the format's extras (SVG preview/size/colors/alt
+  text, reading comparison, "Say what it means"), and the code collapsed
+  behind "Show ... code" for markup formats.
+- script.js keeps the old `formatSelect` / `speechStyleSelect` interface via
+  `radioGroup()` adapters, so the output logic is unchanged.
+
 ## Current features
 
 - **Input:** MathLive `<math-field>` visual editor (visible label "Enter or
@@ -130,6 +155,11 @@ multiplication?" choice'.
     `<title>` and the suggested alt text. Saved (`mathvox-speech-style`) and
     put in shared links as `speech=` only when it isn't MathSpeak; a link
     without it keeps the viewer's own choice.
+    **Compare reading styles** (Description format only, `#readings-compare`):
+    both readings side by side, the current one marked, each with Listen
+    (Web Speech) and "Use" (switches the style, focus moves to the section
+    heading). Note: NVDA and JAWS (through MathCAT) and Narrator default to
+    ClearSpeak.
   - **Braille (Nemeth)** -- SRE.
   - **Portable SVG** -- MathJax, self-contained, with `<title>`/`role="img"`,
     Download .svg, suggested alt text with Copy, and a Word hint (Word ignores
@@ -140,6 +170,12 @@ multiplication?" choice'.
     (`stripAttributesForWord`), MathLive's `<mo>sin</mo>` rewritten to
     `<mi>sin</mi><mo>U+2061</mo>` (`markFunctionNamesForWord`); function
     choices kept. **Not yet tried in real Word** (Windows, Mac, Word on the web).
+  - Portable SVG **size and colors** (large print): Image size 100-400%
+    (100% matches 12 pt text, 150% = 18 pt) and six color schemes, all at
+    least 7:1 (black/no background default, black on white, white on black,
+    yellow on black, black on yellow, black on cream). A background adds a
+    quarter-em margin. Saved in localStorage (`mathvox-svg-size`,
+    `mathvox-svg-colors`); Portable SVG only.
   - **SVG + hidden MathML** -- an HTML snippet for web pages/LMS HTML: SVG
     `aria-hidden`, visually hidden MathML beside it for screen readers.
 - **Clear Equation** -- empties the visual field and the LaTeX box and drops
@@ -259,7 +295,7 @@ tag — a v5 release candidate, not yet a final release; worth checking back on)
 
 ## Testing and QA
 
-- **`npm test`** (`node --test`): 88 unit tests on `pure-logic.js`, built with
+- **`npm test`** (`node --test`): 91 unit tests on `pure-logic.js`, built with
   `@xmldom/xmldom` trees shaped like real MathLive output; several run the real
   SRE from `node_modules` to lock in reading/braille fixes. Also checks that
   `script.js` and `pure-logic.js` parse as ES modules. No CI -- tests run only
@@ -309,8 +345,6 @@ session" and the dated sections).
 
 **Backlog**
 - Downloadable BRF file for Braille (secondary).
-- More Description languages (Spanish, French, ... -- SRE has them; each needs
-  its mathmaps JSON vendored).
 - Recent-equations list (persistence is single-slot today).
 - Verify focus rings and accessible names on MathLive's shadow-DOM icon
   buttons (virtual keyboard, menu); axe's `nested-interactive` on

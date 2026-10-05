@@ -1798,3 +1798,46 @@ export function normalizeRecognizedLatex(latex) {
     s = s.replace(/\s+/g, ' ').replace(/ ?([=+\-<>]) ?/g, '$1').replace(/\u0000/g, ' ');
     return s.trim();
 }
+
+// --- Portable SVG: size and colors (large print) -----------------------------
+//
+// Options for the Portable SVG format, aimed at low-vision readers of
+// handouts and slides. Every color pair is at least 7:1 (WCAG AAA). "default"
+// keeps the original export: black ink, transparent background.
+export const SVG_SIZES = ['100', '150', '200', '300', '400'];
+export const SVG_COLOR_SCHEMES = {
+    'default': { label: 'Black, no background', ink: 'black', background: null },
+    'black-on-white': { label: 'Black on white', ink: '#000000', background: '#ffffff' },
+    'white-on-black': { label: 'White on black', ink: '#ffffff', background: '#000000' },
+    'yellow-on-black': { label: 'Yellow on black', ink: '#ffff00', background: '#000000' },
+    'black-on-yellow': { label: 'Black on yellow', ink: '#000000', background: '#ffff00' },
+    'black-on-cream': { label: 'Black on cream', ink: '#000000', background: '#fdf6e3' }
+};
+
+// "9.402ex" * 2 -> "18.804ex". Keeps the unit; rounds to 3 decimals the way
+// MathJax writes them. Returns the input unchanged if it isn't a length.
+export function scaleSvgLength(value, factor) {
+    const m = /^(-?\d*\.?\d+)([a-z%]*)$/i.exec(String(value || '').trim());
+    if (!m) return value;
+    return `${+(parseFloat(m[1]) * factor).toFixed(3)}${m[2]}`;
+}
+
+// Works out the new viewBox, width, height and vertical-align for a MathJax
+// SVG when it's scaled and (with a background) given some breathing room.
+// MathJax units are 1000 per em; `pad` is in those units.
+// attrs: { viewBox, width, height, verticalAlign } as MathJax wrote them.
+export function svgLayoutFor(attrs, { scale = 1, pad = 0 } = {}) {
+    const [x, y, w, h] = String(attrs.viewBox).trim().split(/[\s,]+/).map(Number);
+    const viewBox = [x - pad, y - pad, w + 2 * pad, h + 2 * pad].map((n) => +n.toFixed(3)).join(' ');
+    const grow = (len, ratio) => scaleSvgLength(len, ratio * scale);
+    const width = grow(attrs.width, (w + 2 * pad) / w);
+    const height = grow(attrs.height, (h + 2 * pad) / h);
+    let verticalAlign = attrs.verticalAlign;
+    const va = /^(-?\d*\.?\d+)ex$/.exec(String(attrs.verticalAlign || '').trim());
+    const hm = /^(-?\d*\.?\d+)ex$/.exec(String(attrs.height || '').trim());
+    if (va && hm) {
+        const exPerUnit = parseFloat(hm[1]) / h;
+        verticalAlign = `${+((parseFloat(va[1]) - pad * exPerUnit) * scale).toFixed(3)}ex`;
+    }
+    return { viewBox, width, height, verticalAlign, background: { x: x - pad, y: y - pad, width: w + 2 * pad, height: h + 2 * pad } };
+}

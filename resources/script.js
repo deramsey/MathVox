@@ -25,6 +25,7 @@ import {
     suggestMeaning
 } from './pure-logic.js';
 import { setupHandwriting } from './handwriting.js';
+import { SVG_SIZES, SVG_COLOR_SCHEMES, svgLayoutFor } from './pure-logic.js';
 
 // MathLive needs a Compute Engine instance available before it can export
 // the "math-json" format. This must be set before any getValue('math-json')
@@ -87,12 +88,15 @@ function labelMathfieldInput() {
 // equation or the Description style. Runs in the background; a newer call
 // wins if two overlap.
 let fieldNameRequest = 0;
+// Also fills "Screen readers will hear" (#hear-text) with the same reading.
+const HEAR_EMPTY = 'Enter an equation to see how it will be read.';
 async function refreshFieldName() {
     const request = ++fieldNameRequest;
     let name = FIELD_LABEL;
+    let reading = '';
     if ((mf.getValue('latex') || '').trim()) {
         try {
-            const reading = await getSpokenText();
+            reading = await getSpokenText();
             if (reading) name = `${FIELD_LABEL}: ${reading}`;
         } catch (err) {
             // Keep the plain label; the field still has a correct name.
@@ -101,13 +105,40 @@ async function refreshFieldName() {
     if (request !== fieldNameRequest) return;
     fieldName = name;
     if (fieldSink) fieldSink.setAttribute('aria-label', fieldName);
+    document.querySelector('#hear-text').textContent = reading || HEAR_EMPTY;
 }
 labelMathfieldInput();
 // <label for> only focuses native form controls, so clicking the visible
-// "Enter or edit the equation visually" label would otherwise do nothing.
+// "Your equation" label would otherwise do nothing.
 document.querySelector('#formula-label').addEventListener('click', () => mf.focus());
-const formatSelect = document.querySelector('#format-select');
-const speechStyleSelect = document.querySelector('#speech-style-select');
+// The output format and the reading style are radio groups in the
+// redesigned page (destination tiles; a ClearSpeak/MathSpeak switch). These
+// small adapters keep the old <select>-style interface (.value, a 'change'
+// event) so the rest of this file didn't need to change.
+function radioGroup(container, name, onSet) {
+    const radios = () => [...container.querySelectorAll(`input[type="radio"][name="${name}"]`)];
+    return {
+        get value() {
+            const checked = radios().find((r) => r.checked);
+            return checked ? checked.value : '';
+        },
+        set value(v) {
+            const match = radios().find((r) => r.value === v);
+            if (match) match.checked = true;
+            if (onSet) onSet(v);
+        },
+        addEventListener(type, fn) {
+            container.addEventListener(type, fn);
+        }
+    };
+}
+const otherFormatsEl = document.querySelector('#other-formats');
+const formatSelect = radioGroup(document.querySelector('#format-group'), 'format', (v) => {
+    // A saved or linked "other math tool" format opens its section, so the
+    // chosen tile is visible.
+    if (otherFormatsEl.querySelector(`input[value="${v}"]`)) otherFormatsEl.open = true;
+});
+const speechStyleSelect = radioGroup(document.querySelector('#speech-style'), 'speech-style');
 const formatNameEl = document.querySelector('#format-name');
 const textCont = document.querySelector('#text-cont');
 const copyBtn = document.querySelector('#copy');
@@ -130,9 +161,14 @@ const conversionWarningEl = document.querySelector('#conversion-warning');
 const outputStatusEl = document.querySelector('#output-status');
 const codeDetailsEl = document.querySelector('#code-details');
 const codeSummaryEl = document.querySelector('#code-summary');
-const downloadSvgCornerBtn = document.querySelector('#download-svg-corner');
-const snippetHintEl = document.querySelector('#snippet-hint');
-const wordHintEl = document.querySelector('#word-hint');
+const outputChecksEl = document.querySelector('#output-checks');
+const pasteHelpEl = document.querySelector('#paste-help');
+const hearTextEl = document.querySelector('#hear-text');
+const readingsEl = document.querySelector('#readings-compare');
+const readingsHeadingEl = document.querySelector('#readings-heading');
+const svgOptionsEl = document.querySelector('#svg-options');
+const svgSizeSelect = document.querySelector('#svg-size');
+const svgColorsSelect = document.querySelector('#svg-colors');
 
 // localStorage can be unavailable (private browsing, blocked site data,
 // quota) and then throws on *any* access -- including at startup, where an
@@ -165,6 +201,8 @@ function announce(message) {
 
 const MATHML_NAMESPACE = 'http://www.w3.org/1998/Math/MathML';
 const LATEX_STORAGE_KEY = 'mathvox-latex';
+const SVG_SIZE_STORAGE_KEY = 'mathvox-svg-size';
+const SVG_COLORS_STORAGE_KEY = 'mathvox-svg-colors';
 const FORMAT_STORAGE_KEY = 'mathvox-format';
 // URL hash param names for the shareable-link feature (see updateUrlHash()/
 // restoreEquationState() below) -- kept short since they end up in a URL
@@ -377,11 +415,11 @@ function refreshMathmlText() {
 // mean?" <select> for each one that can take an intent.
 function renderIntentPicker(occurrences, suggestions = {}) {
     mathmlNotesEl.textContent = '';
-    if (!occurrences.length) return;
+    if (!occurrences.length) return 0;
 
     const effective = resolveIntentChoices(occurrences, intentChoices);
     const live = occurrences.filter((o) => !isSuppressedOccurrence(o, effective));
-    if (!live.length) return;
+    if (!live.length) return 0;
     const notes = describeAmbiguities(new Set(live.map((o) => o.kind)));
     const noteEl = document.createElement('p');
     noteEl.className = 'hint';
@@ -391,7 +429,7 @@ function renderIntentPicker(occurrences, suggestions = {}) {
     // Questions made moot by another answer (the "(x, y)" inside "u(x, y)"
     // once u is a function) aren't shown -- see `live` above.
     const pickable = live.filter((o) => meaningsFor(o).length);
-    if (!pickable.length) return;
+    if (!pickable.length) return 0;
 
     const fieldset = document.createElement('fieldset');
     fieldset.className = 'intent-picker';
@@ -490,21 +528,81 @@ function renderIntentPicker(occurrences, suggestions = {}) {
 
     fieldset.append(status);
     mathmlNotesEl.append(fieldset);
+    return pickable.length;
 }
 
 const FORMAT_LABELS = {
     'latex': 'LaTeX',
     'ascii-math': 'ASCII Math',
-    'math-ml': 'MathML',
+    'math-ml': 'MathML for a Canvas page',
     'math-json': 'MathJSON',
     'spoken-text': 'Description (plain-language text)',
     'braille': 'Braille (Nemeth)',
-    'svg': 'Portable SVG',
-    'svg-mathml': 'SVG + hidden MathML',
+    'svg': 'Portable SVG image',
+    'svg-mathml': 'SVG + hidden MathML for a web page',
     'word': 'Word equation'
 };
 
-const EMPTY_MESSAGE = 'Enter a math expression above to see it here.';
+// The main button's wording for each destination (step 3).
+const COPY_LABELS = {
+    'latex': 'Copy LaTeX',
+    'ascii-math': 'Copy ASCII Math',
+    'math-ml': 'Copy for Canvas',
+    'math-json': 'Copy MathJSON',
+    'spoken-text': 'Copy description',
+    'braille': 'Copy braille',
+    'svg': 'Copy SVG code',
+    'svg-mathml': 'Copy HTML for your page',
+    'word': 'Copy for Word'
+};
+
+// "How to use it" for each destination, shown under the Copy button.
+// Strings are trusted, fixed HTML written here (no user input).
+const PASTE_HELP = {
+    'math-ml': ['Pasting into Canvas', ['In the page editor, select the <strong>&lt;/&gt;</strong> (HTML editor) button.', 'Paste where the equation goes, then switch back. Screen readers can explore it piece by piece.']],
+    'word': ['Pasting into Word', ['Click where the equation goes and paste (Ctrl+V, or Cmd+V on a Mac). Word turns it into an editable equation; no alt text needed.', 'If you see code instead, undo and use <strong>Paste Special &gt; Unformatted Text</strong>. For an equation inside a sentence, choose <strong>Inline</strong> from the equation&rsquo;s menu.']],
+    'svg-mathml': ['Pasting into a web page', ['Paste into the page&rsquo;s HTML (or your LMS page&rsquo;s HTML view). Sighted readers see the image; screen readers read the hidden MathML instead.', 'If the destination strips MathML or inline styles, use <strong>Slides or image</strong> instead.']],
+    'svg': ['Using the image', ['Download the .svg file and insert it (in Word: Insert &gt; Pictures).', 'Paste the suggested alt text below into the image&rsquo;s alt text field; Word and most apps ignore the one built into the file.']],
+    'braille': ['Using the braille', ['Copy the Unicode braille for a braille display, embosser software, or a document.', 'This is Nemeth Code; UEB isn&rsquo;t available yet.']],
+    'spoken-text': ['Using the description', ['Paste it as alt text, a caption, or a spoken script.', 'Compare both reading styles below, and listen to each.']]
+};
+
+function renderPasteHelp(format) {
+    pasteHelpEl.textContent = '';
+    const help = PASTE_HELP[format];
+    if (!help) return;
+    const heading = document.createElement('h3');
+    heading.textContent = help[0];
+    const list = document.createElement('ol');
+    for (const step of help[1]) {
+        const li = document.createElement('li');
+        li.innerHTML = step;
+        list.append(li);
+    }
+    pasteHelpEl.append(heading, list);
+}
+
+// Short checks for the chosen destination, each "ok" or "todo".
+function renderChecks(items) {
+    outputChecksEl.textContent = '';
+    for (const { ok, text } of items) {
+        const li = document.createElement('li');
+        li.className = ok ? 'check-ok' : 'check-todo';
+        const mark = document.createElement('span');
+        mark.className = 'check-mark';
+        mark.setAttribute('aria-hidden', 'true');
+        mark.textContent = ok ? '\u2713' : '!';
+        const label = document.createElement('span');
+        label.className = 'sr-only';
+        label.textContent = ok ? 'Done: ' : 'To check: ';
+        const body = document.createElement('span');
+        body.textContent = text;
+        li.append(mark, label, body);
+        outputChecksEl.append(li);
+    }
+}
+
+const EMPTY_MESSAGE = 'Enter an equation in step 1 to see it here.';
 
 // Speech Rule Engine (SRE) is a single shared engine with a stateful
 // "modality" (braille vs. speech) -- MathVox uses it both directly (Braille
@@ -550,8 +648,14 @@ function getSreBrailleReady() {
 function getSpeechStyle() {
     return SPEECH_STYLES[speechStyleSelect.value] ? speechStyleSelect.value : DEFAULT_SPEECH_STYLE;
 }
-function getSreSpeechReady() {
-    return setSreModality('speech', { domain: SPEECH_STYLES[getSpeechStyle()].domain, style: 'default', locale: 'en', markup: 'none' });
+function getSreSpeechReady(style = getSpeechStyle()) {
+    return setSreModality('speech', { domain: SPEECH_STYLES[style].domain, style: 'default', locale: 'en', markup: 'none' });
+}
+
+// The cleaned-up MathML read in one particular style, whatever the
+// Description style is set to (for the side-by-side comparison).
+function getSpokenTextIn(style) {
+    return runSre(() => getSreSpeechReady(style), () => SRE.toSpeech(getCleanMathml()) || '');
 }
 
 // Generates the spoken-language description directly via SRE, rather than
@@ -621,7 +725,15 @@ const SVG_INLINE_CSS = [
 // hidden MathML beside the SVG is the accessible version: the SVG gets
 // aria-hidden (and no <title>/role), so screen readers skip it instead of
 // reading the equation twice.
-async function getStandaloneSvg(mathml, spokenText, { decorative = false } = {}) {
+// The Portable SVG's size and colors, from the two selects.
+function getSvgLook() {
+    return {
+        scale: (Number(svgSizeSelect.value) || 100) / 100,
+        scheme: SVG_COLOR_SCHEMES[svgColorsSelect.value] || SVG_COLOR_SCHEMES.default
+    };
+}
+
+async function getStandaloneSvg(mathml, spokenText, { decorative = false, look = null } = {}) {
     await getMathJaxReady();
     const result = await MathJax.mathml2svgPromise(mathml, { display: true });
     const adaptor = MathJax.startup.adaptor;
@@ -674,8 +786,37 @@ async function getStandaloneSvg(mathml, spokenText, { decorative = false } = {})
     // it'll be pasted onto, so this (MathJax's own recommended default for
     // stand-alone images) is the safest universal choice.
     const g = adaptor.tags(svg, 'g')[0];
-    adaptor.setAttribute(g, 'stroke', 'black');
-    adaptor.setAttribute(g, 'fill', 'black');
+    const scheme = (look && look.scheme) || SVG_COLOR_SCHEMES.default;
+    const scale = (look && look.scale) || 1;
+    adaptor.setAttribute(g, 'stroke', scheme.ink);
+    adaptor.setAttribute(g, 'fill', scheme.ink);
+
+    // Large print / colors (Portable SVG options): scale the size, and with
+    // a background, add a quarter-em margin and a rectangle behind the ink.
+    if (scale !== 1 || scheme.background) {
+        const style = adaptor.getAttribute(svg, 'style') || '';
+        const va = /vertical-align:\s*([^;]+)/.exec(style);
+        const layout = svgLayoutFor({
+            viewBox: adaptor.getAttribute(svg, 'viewBox'),
+            width: adaptor.getAttribute(svg, 'width'),
+            height: adaptor.getAttribute(svg, 'height'),
+            verticalAlign: va ? va[1].trim() : ''
+        }, { scale, pad: scheme.background ? 250 : 0 });
+        adaptor.setAttribute(svg, 'viewBox', layout.viewBox);
+        adaptor.setAttribute(svg, 'width', layout.width);
+        adaptor.setAttribute(svg, 'height', layout.height);
+        if (va && layout.verticalAlign) {
+            adaptor.setAttribute(svg, 'style', style.replace(va[0], `vertical-align: ${layout.verticalAlign}`));
+        }
+        if (scheme.background) {
+            const b = layout.background;
+            const rect = adaptor.node('rect', {
+                x: b.x, y: b.y, width: b.width, height: b.height,
+                fill: scheme.background, stroke: 'none'
+            });
+            adaptor.insert(rect, g);
+        }
+    }
 
     return adaptor.outerHTML(svg);
 }
@@ -693,21 +834,22 @@ let lastAltText = '';
 // is remembered for the session, so re-rendering while typing doesn't keep
 // snapping it shut. Every other format shows its output open, with no
 // summary, as before.
-let svgCodeOpen = false;
+let codeOpen = false;
 
 function setCodeCollapsible(on) {
     codeDetailsEl.classList.toggle('collapsible', on);
-    codeDetailsEl.open = on ? svgCodeOpen : true;
+    codeDetailsEl.open = on ? codeOpen : true;
     updateCodeSummary();
 }
 
 // Formats whose output is long markup, shown collapsed once rendered.
-const COLLAPSIBLE_FORMATS = new Set(['svg', 'svg-mathml']);
+const COLLAPSIBLE_FORMATS = new Set(['svg', 'svg-mathml', 'math-ml', 'word', 'math-json']);
+const CODE_NAMES = { 'svg': 'SVG code', 'svg-mathml': 'HTML code', 'math-ml': 'MathML code', 'word': 'MathML code', 'math-json': 'MathJSON' };
 
 function updateCodeSummary() {
     const code = codeDetailsEl.classList.contains('collapsible') ? textCont.textContent : '';
     const size = code ? ` (${code.length.toLocaleString()} characters)` : '';
-    const what = formatSelect.value === 'svg-mathml' ? 'HTML code' : 'SVG code';
+    const what = CODE_NAMES[formatSelect.value] || 'code';
     codeSummaryEl.textContent = `${codeDetailsEl.open ? 'Hide' : 'Show'} ${what}${size}`;
 }
 
@@ -736,10 +878,15 @@ async function updateOutput({ announce: shouldAnnounce = false } = {}) {
     const format = formatSelect.value;
     const label = FORMAT_LABELS[format] || format;
     const done = () => {
-        if (shouldAnnounce && !isStale()) announce(`${label} output updated.`);
+        if (shouldAnnounce && !isStale()) announce(`Output updated: ${label}.`);
     };
     formatNameEl.textContent = label;
-    copyBtn.setAttribute('aria-label', `Copy ${label} output to clipboard`);
+    copyBtn.querySelector('span').textContent = COPY_LABELS[format] || 'Copy';
+    // Slides or image: the download is the main action, Copy the code a
+    // secondary one.
+    copyBtn.classList.toggle('btn-primary', format !== 'svg');
+    renderPasteHelp(format);
+    renderChecks([]);
     textCont.classList.toggle('braille-output', format === 'braille');
 
     // Only the "svg" branch below populates/shows the preview (and the
@@ -748,14 +895,13 @@ async function updateOutput({ announce: shouldAnnounce = false } = {}) {
     svgPreviewEl.hidden = true;
     svgPreviewEl.textContent = '';
     downloadSvgBtn.hidden = true;
-    downloadSvgCornerBtn.hidden = true;
     lastSvgMarkup = '';
-    snippetHintEl.hidden = true;
-    wordHintEl.hidden = true;
+    svgOptionsEl.hidden = format !== 'svg';
     svgAltWrapEl.hidden = true;
     suggestedAltEl.textContent = '';
     lastAltText = '';
     mathmlNotesEl.textContent = '';
+    readingsEl.hidden = true;
     updateConversionWarning(format, label);
 
     const latex = (mf.getValue('latex') || '').trim();
@@ -774,6 +920,7 @@ async function updateOutput({ announce: shouldAnnounce = false } = {}) {
             const braille = await getBraille();
             if (isStale()) return;
             textCont.textContent = braille || 'No Braille output was generated for this expression.';
+            if (braille) renderChecks([{ ok: false, text: 'Have a braille transcriber check it before it reaches a student.' }]);
         } catch (err) {
             if (isStale()) return;
             console.error('Braille generation failed', err);
@@ -802,6 +949,7 @@ async function updateOutput({ announce: shouldAnnounce = false } = {}) {
                 textCont.textContent = `MathJSON couldn't fully represent this expression: it ${reason}.\n\nThe raw (partially broken) MathJSON is shown below for reference:\n\n${JSON.stringify(json, null, 2)}`;
             } else {
                 textCont.textContent = JSON.stringify(json, null, 2);
+                setCodeCollapsible(true);
             }
         } catch (err) {
             console.error('MathJSON generation failed', err);
@@ -827,19 +975,28 @@ async function updateOutput({ announce: shouldAnnounce = false } = {}) {
             occurrences = [];
         }
         textCont.textContent = wrapMathmlDocument(markup, latex);
+        setCodeCollapsible(true);
+        let toChoose = 0;
         try {
-            renderIntentPicker(occurrences, suggestions);
+            toChoose = renderIntentPicker(occurrences, suggestions) || 0;
         } catch (err) {
             console.error('Rendering the MathML meaning picker failed', err);
         }
+        renderChecks([
+            { ok: true, text: 'Screen readers can read and explore it (MathML).' },
+            toChoose
+                ? { ok: false, text: `${toChoose} part${toChoose > 1 ? 's' : ''} could mean more than one thing. Say what ${toChoose > 1 ? 'they mean' : 'it means'} below.` }
+                : { ok: true, text: 'Nothing ambiguous found.' }
+        ]);
         done();
         return;
     }
 
     if (format === 'word') {
-        wordHintEl.hidden = false;
         try {
             textCont.textContent = buildWordMathml();
+            setCodeCollapsible(true);
+            renderChecks([{ ok: true, text: 'Pastes as an editable Word equation that screen readers can explore.' }]);
         } catch (err) {
             console.error('Word equation generation failed', err);
             textCont.textContent = 'Word equation output is unavailable right now.';
@@ -854,6 +1011,12 @@ async function updateOutput({ announce: shouldAnnounce = false } = {}) {
             const spoken = await getSpokenText();
             if (isStale()) return;
             textCont.textContent = spoken || 'No description was generated for this expression.';
+            const readings = {};
+            for (const style of Object.keys(SPEECH_STYLES)) {
+                readings[style] = style === getSpeechStyle() ? spoken : await getSpokenTextIn(style);
+            }
+            if (isStale()) return;
+            renderReadingsCompare(readings);
         } catch (err) {
             if (isStale()) return;
             console.error('Spoken-text generation failed', err);
@@ -865,7 +1028,6 @@ async function updateOutput({ announce: shouldAnnounce = false } = {}) {
 
     if (format === 'svg-mathml') {
         textCont.textContent = 'Generating SVG with hidden MathML…';
-        snippetHintEl.hidden = false;
         try {
             // Same cleaned-up MathML (and chosen intents) as the MathML
             // format, used both to draw the SVG and as the hidden copy.
@@ -878,6 +1040,7 @@ async function updateOutput({ announce: shouldAnnounce = false } = {}) {
             svgPreviewEl.innerHTML = svgMarkup;
             svgPreviewEl.hidden = false;
             setCodeCollapsible(true);
+            renderChecks([{ ok: true, text: 'Screen readers read the hidden MathML and skip the picture.' }]);
         } catch (err) {
             if (isStale()) return;
             console.error('SVG + hidden MathML generation failed', err);
@@ -904,20 +1067,20 @@ async function updateOutput({ announce: shouldAnnounce = false } = {}) {
                 // without an embedded accessible title this one time.
                 console.error('spoken-text generation for SVG title failed', speechErr);
             }
-            const svgMarkup = await getStandaloneSvg(mathmlForConversion, spokenText);
+            const svgMarkup = await getStandaloneSvg(mathmlForConversion, spokenText, { look: getSvgLook() });
             if (isStale()) return;
             textCont.textContent = svgMarkup;
             svgPreviewEl.innerHTML = svgMarkup;
             svgPreviewEl.hidden = false;
             lastSvgMarkup = svgMarkup;
             downloadSvgBtn.hidden = false;
-            downloadSvgCornerBtn.hidden = false;
             setCodeCollapsible(true);
             lastAltText = spokenText || '';
             suggestedAltEl.textContent = spokenText
-                ? `Suggested alt text (if you save this as an image file rather than pasting the markup directly): ${spokenText}`
+                ? `Suggested alt text: ${spokenText}`
                 : '';
             svgAltWrapEl.hidden = !spokenText;
+            if (spokenText) renderChecks([{ ok: true, text: 'Alt text is built into the image, and suggested below for apps that ignore it.' }]);
         } catch (err) {
             if (isStale()) return;
             console.error('SVG generation failed', err);
@@ -925,7 +1088,6 @@ async function updateOutput({ announce: shouldAnnounce = false } = {}) {
             svgPreviewEl.hidden = true;
             svgPreviewEl.textContent = '';
             downloadSvgBtn.hidden = true;
-            downloadSvgCornerBtn.hidden = true;
             lastSvgMarkup = '';
             setCodeCollapsible(false);
             suggestedAltEl.textContent = '';
@@ -1018,6 +1180,47 @@ function convertLatex() {
     syncLatexInputFromField();
     saveEquationState();
 }
+
+// Description format: both reading styles side by side, the current one
+// marked, each with Listen (Web Speech) and "Use" (switches the Description
+// style). See #readings-compare in index.html.
+function renderReadingsCompare(readings) {
+    const current = getSpeechStyle();
+    for (const card of readingsEl.querySelectorAll('.reading-card')) {
+        const style = card.dataset.style;
+        card.querySelector('.reading-text').textContent = readings[style] || '';
+        const isCurrent = style === current;
+        card.classList.toggle('is-current', isCurrent);
+        card.querySelector('.reading-current').hidden = !isCurrent;
+        card.querySelector('.reading-use').hidden = isCurrent;
+        card.querySelector('.reading-listen').hidden = !('speechSynthesis' in window);
+    }
+    readingsEl.hidden = false;
+}
+
+readingsEl.addEventListener('click', async (event) => {
+    const button = event.target.closest('button');
+    if (!button) return;
+    const card = button.closest('.reading-card');
+    const style = card.dataset.style;
+    const name = card.querySelector('h4').firstChild.textContent.trim();
+    if (button.classList.contains('reading-listen')) {
+        const text = card.querySelector('.reading-text').textContent;
+        if (!text || !('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        window.speechSynthesis.speak(utterance);
+    } else if (button.classList.contains('reading-use')) {
+        // The Use button disappears once its style is current, so move focus
+        // to the comparison's heading rather than leave it nowhere.
+        setSpeechStyle(style);
+        saveEquationState();
+        await updateOutput();
+        if (!readingsEl.hidden) readingsHeadingEl.focus();
+        announce(`Description style set to ${name}.`);
+    }
+});
 
 // Handwriting panel (handwriting.js): the recognized LaTeX goes in at the
 // cursor, like typing it, then everything downstream updates as usual.
@@ -1200,10 +1403,14 @@ async function copyWithFeedback(button, text, what) {
         return;
     }
     announce(`Copied the ${what} to the clipboard.`);
-    if (visible.dataset.label === undefined) visible.dataset.label = visible.textContent;
-    visible.textContent = visible === button ? COPIED_MARK : 'Copied';
+    const mark = visible === button ? COPIED_MARK : 'Copied';
+    if (visible.textContent !== mark) visible.dataset.label = visible.textContent;
+    visible.textContent = mark;
     clearTimeout(button.copiedTimer);
-    button.copiedTimer = setTimeout(() => { visible.textContent = visible.dataset.label; }, 1500);
+    button.copiedTimer = setTimeout(() => {
+        // Only put the label back if nothing (a format change) replaced it.
+        if (visible.textContent === mark) visible.textContent = visible.dataset.label;
+    }, 1500);
 }
 
 async function copyOutput() {
@@ -1295,12 +1502,11 @@ readBtn.addEventListener('click', speakEquation);
 copyBtn.addEventListener('click', copyOutput);
 shareBtn.addEventListener('click', copyShareLink);
 downloadSvgBtn.addEventListener('click', downloadSvgFile);
-downloadSvgCornerBtn.addEventListener('click', downloadSvgFile);
 // Record the person's own open/close (click fires before the toggle, and
 // also for Enter/Space on the summary) -- not the 'toggle' event, which
 // also fires for setCodeCollapsible's programmatic changes.
 codeSummaryEl.addEventListener('click', () => {
-    if (codeDetailsEl.classList.contains('collapsible')) svgCodeOpen = !codeDetailsEl.open;
+    if (codeDetailsEl.classList.contains('collapsible')) codeOpen = !codeDetailsEl.open;
 });
 codeDetailsEl.addEventListener('toggle', updateCodeSummary);
 copyAltTextBtn.addEventListener('click', copyAltText);
@@ -1308,7 +1514,60 @@ themeToggle.addEventListener('click', () => setTheme(!document.documentElement.c
 dyslexiaToggle.addEventListener('click', () => setDyslexiaFont(!document.documentElement.classList.contains('dyslexia-font')));
 
 convertBtn.addEventListener('click', convertLatex);
-setupHandwriting({ onInsert: insertRecognizedLatex, toSpeech: speakLatex, announce });
+
+// Portable SVG size/colors: fill the selects, restore the saved choice,
+// and re-render on change (focus stays on the select; updateOutput leaves
+// these controls alone).
+for (const size of SVG_SIZES) {
+    // At 100% the math matches 12 pt (16 px) text, so 150% is the usual
+    // 18 pt large-print size.
+    const pt = (Number(size) * 12) / 100;
+    const note = size === '100' ? 'normal, like 12 pt text' : size === '150' ? `large print, like ${pt} pt text` : `like ${pt} pt text`;
+    svgSizeSelect.append(new Option(`${size}% (${note})`, size));
+}
+for (const [key, s] of Object.entries(SVG_COLOR_SCHEMES)) {
+    svgColorsSelect.append(new Option(s.label, key));
+}
+const savedSvgSize = storageGet(SVG_SIZE_STORAGE_KEY);
+if (SVG_SIZES.includes(savedSvgSize)) svgSizeSelect.value = savedSvgSize;
+const savedSvgColors = storageGet(SVG_COLORS_STORAGE_KEY);
+if (SVG_COLOR_SCHEMES[savedSvgColors]) svgColorsSelect.value = savedSvgColors;
+for (const [select, key] of [[svgSizeSelect, SVG_SIZE_STORAGE_KEY], [svgColorsSelect, SVG_COLORS_STORAGE_KEY]]) {
+    select.addEventListener('change', () => {
+        storageSet(key, select.value);
+        updateOutput({ announce: true });
+    });
+}
+const handwriting = setupHandwriting({ onInsert: insertRecognizedLatex, toSpeech: speakLatex, announce });
+
+// "Ways to enter the equation" tabs (Type / LaTeX / Draw): the ARIA tabs
+// pattern with automatic activation -- arrow keys, Home and End move between
+// tabs and show their panel; only the selected tab is in the Tab order.
+function setupInputTabs() {
+    const tabs = [...document.querySelectorAll('.input-tabs [role="tab"]')];
+    const select = (tab, focus) => {
+        for (const t of tabs) {
+            const on = t === tab;
+            t.setAttribute('aria-selected', String(on));
+            t.tabIndex = on ? 0 : -1;
+            document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+        }
+        if (focus) tab.focus();
+        if (tab.id === 'tab-draw' && handwriting) handwriting.show();
+        if (tab.id === 'tab-latex') autoGrowLatexInput();
+    };
+    for (const tab of tabs) {
+        tab.addEventListener('click', () => select(tab, false));
+        tab.addEventListener('keydown', (event) => {
+            const i = tabs.indexOf(tab);
+            const next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[event.key];
+            if (next === undefined) return;
+            event.preventDefault();
+            select(tabs[(next + tabs.length) % tabs.length], true);
+        });
+    }
+}
+setupInputTabs();
 clearBtn.addEventListener('click', clearEquation);
 undoClearBtn.addEventListener('click', undoClear);
 // Any new edit after a clear makes the new work the thing to keep; an undo
