@@ -44,12 +44,21 @@ would likely need its own interface rather than another output format.
   export gaps, the ambiguity audit and intents, the "SVG + hidden MathML"
   snippet, error-message helpers. Kept separate (and one file, Derek's call)
   so it can be unit-tested in Node.
+- `resources/handwriting.js` + `resources/handwriting-worker.js` -- the
+  "Draw the equation by hand" panel and the Web Worker that runs the Texo
+  model. `resources/page.js` -- theme/font toggles for `help.html` and
+  `privacy.html`.
+- `vercel.json` -- COOP/COEP headers (cross-origin isolation, so the
+  handwriting model can use several threads) and a 30-day cache for the
+  model and ONNX Runtime files.
+- `LICENSE` -- AGPL-3.0 (October 2026, required by Texo). The footer on every
+  page links to the source on GitHub, as AGPL asks.
 - `resources/style.css` -- all styling: light/dark, dyslexia font, forced
   colors / `prefers-contrast`, phone layout.
 - `resources/vendor/` -- **self-hosted copies of every third-party library's
   built files** (see "Why vendoring" below). The single most important
   architectural fact.
-- `tests/pure-logic.test.mjs` -- `npm test` (83 tests, October 1, 2026).
+- `tests/pure-logic.test.mjs` -- `npm test` (88 tests, October 5, 2026).
   `tests/braille-report.mjs` -- `npm run braille-report`. `tests/fixtures/` --
   MathCAT's Nemeth suite (+ its MIT license) and the 315-expression LaTeX
   corpus. See "Testing and QA".
@@ -106,7 +115,7 @@ multiplication?" choice'.
   same text is the accessible name on its inner textbox) and a raw LaTeX box (`#latex-input` + Convert /
   Ctrl+Enter) kept in two-way sync; `#kbd-help` keyboard shortcut panel.
 - **Format picker** (native `<select>`, placed above the input on purpose) with
-  eight formats:
+  nine formats:
   - **LaTeX**, **ASCII Math**, **MathJSON** (via Compute Engine, with a
     plain-language explanation when it can't represent something).
   - **MathML** -- cleaned, with LaTeX annotation and the "Say what it means"
@@ -125,6 +134,12 @@ multiplication?" choice'.
   - **Portable SVG** -- MathJax, self-contained, with `<title>`/`role="img"`,
     Download .svg, suggested alt text with Copy, and a Word hint (Word ignores
     the built-in alt text).
+  - **Word equation** -- one-line MathML (`<math xmlns ... display="block">`)
+    that Word turns into a native, editable equation when pasted as plain
+    text; JAWS/NVDA can explore it. `intent`/`arg` stripped
+    (`stripAttributesForWord`), MathLive's `<mo>sin</mo>` rewritten to
+    `<mi>sin</mi><mo>U+2061</mo>` (`markFunctionNamesForWord`); function
+    choices kept. **Not yet tried in real Word** (Windows, Mac, Word on the web).
   - **SVG + hidden MathML** -- an HTML snippet for web pages/LMS HTML: SVG
     `aria-hidden`, visually hidden MathML beside it for screen readers.
 - **Clear Equation** -- empties the visual field and the LaTeX box and drops
@@ -136,6 +151,22 @@ multiplication?" choice'.
 - **Copy** buttons with spoken + visual confirmation; **shareable link** (URL
   hash carries equation, format and meaning choices); localStorage
   persistence (all access guarded -- the app runs without storage).
+- **Handwriting input:** "Draw the equation by hand" (a `<details>` under
+  the equation field). Strokes are recognized on the device by Texo
+  (8-bit quantized, 20.6MB) through Transformers.js and ONNX Runtime Web in a
+  worker, after a 0.7s pause; the result is shown rendered, as spoken text
+  for screen readers (announced) and as LaTeX, and Insert into Equation puts
+  it at the cursor. Nothing loads until the panel is first opened (~33MB,
+  ~17MB compressed, then cached). About 41% of handwritten CROHME test
+  equations come out exactly right, so the check-then-insert step matters.
+- **Info pages:** `help.html` (quick-start guide: three steps, a "which
+  format for where" table, Description styles, "Say what it means", tips)
+  and `privacy.html` (everything stays in the browser; local storage,
+  shareable links, clipboard, online TTS voices, Vercel hosting, FERPA).
+  Linked from a footer nav on every page and from the format picker hint
+  (`help.html#which-format`). They load only `style.css` and
+  `resources/page.js` (theme/font toggles, same storage keys), not the
+  math libraries. No contact line yet -- Derek to decide who/what.
 - **Accessibility of the app itself:** skip link, `#output-status` live
   region (short announcements, not the whole output), focus rings, 44px
   targets, dark mode, dyslexia-friendly font, forced-colors /
@@ -216,6 +247,8 @@ see the pinned MathCAT item.
 | `speech-rule-engine/` | `sre.js` (UMD, global `SRE`), `mathmaps/base.json`, `mathmaps/en.json`, `mathmaps/nemeth.json` | Trimmed from the full multi-language `mathmaps/` (~4.2MB) down to just what we use (~800KB) |
 | `compute-engine/` | `compute-engine.min.esm.js` | Self-contained ESM bundle from `@cortex-js/compute-engine`, zero external imports — safe to import via relative path with no bundler |
 | `mathjax/` | `core.js`, `startup.js`, `input/mml.js`, `output/svg.js` | Modular components only (not a combined component — see docs/MATHJAX_SVG_IMPLEMENTATION_PLAN.md and docs/HISTORY.md, "MathJax integration for portable SVG output"). `startup.js` is the `<script>` entry point; it dynamically fetches the sibling files relative to its own location, same self-locating pattern as `mathlive/` |
+| `transformers/` | `transformers.min.js` (Transformers.js 3.8.1), `ort-wasm-simd-threaded.mjs` + `.wasm` (ONNX Runtime Web 1.22.0-dev, plain wasm build) | Handwriting only, loaded by the worker. Apache-2.0 / MIT; `SOURCE.txt` and licenses in the folder |
+| `texo/` | Texo model: `config.json`, tokenizer files, `onnx/encoder_model_quantized.onnx` (13.8MB), `onnx/decoder_model_merged_quantized.onnx` (6.8MB) | AGPL-3.0. Quantized by us from Texo-web's fp32 files; how is in `SOURCE.txt` |
 | `mathjax-newcm-font/` | `svg.js` (base glyphs), `svg/dynamic/*.js` (40 files, ~9.6MB, non-Latin scripts) | Only `svg.js` loads upfront; the `dynamic/` files are fetched on demand only if an equation actually uses those characters — vendored anyway so lazy-loading never 404s |
 
 `package.json` versions (for reference/tracking only — not loaded at runtime):
@@ -226,7 +259,7 @@ tag — a v5 release candidate, not yet a final release; worth checking back on)
 
 ## Testing and QA
 
-- **`npm test`** (`node --test`): 83 unit tests on `pure-logic.js`, built with
+- **`npm test`** (`node --test`): 88 unit tests on `pure-logic.js`, built with
   `@xmldom/xmldom` trees shaped like real MathLive output; several run the real
   SRE from `node_modules` to lock in reading/braille fixes. Also checks that
   `script.js` and `pure-logic.js` parse as ES modules. No CI -- tests run only
@@ -238,6 +271,12 @@ tag — a v5 release candidate, not yet a final release; worth checking back on)
   MathCAT command-line tool, with automatic flags for invalid MathML and odd
   readings. The tooling lived in a sandbox, not the repo; re-run it after a
   MathLive upgrade, since the cleanup depends on MathLive's exact output.
+- **Accessibility audit (October 1, 2026)** against WCAG 2.2 AA: axe-core in
+  every format/theme/width, keyboard, names, contrast, 320px reflow, text
+  spacing, target size, forced colors, reduced motion. Six fixes (below in
+  docs/HISTORY.md); full report is a Claude Doc, "MathVox Accessibility
+  Audit" (https://claude.ai/code/artifact/2363601f-b653-4db5-b705-02a9ccb17623),
+  with the NVDA checklist and the user-testing plan.
 - **Browser QA** so far has been headless (Playwright/Chromium, puppeteer +
   axe-core). **No real screen-reader pass yet** -- see open items.
 
@@ -247,7 +286,8 @@ Resolved items and their history are in docs/HISTORY.md ("Open items for next
 session" and the dated sections).
 
 **Needs Derek**
-- **NVDA (or JAWS) listen-through** -- never done. Should cover: Read Aloud
+- **NVDA (or JAWS) listen-through** -- never done; the audit doc's "Needs a
+  human" checklist is the current list. Should cover: Read Aloud
   in both Description styles; MathML with
   chosen meanings ("open interval", "absolute value", "y of t"); a few cleanup
   cases (`|x|+|y|`, `f'(x)`, `\{x \mid x>0\}`, `P(A|B)`); the `#output-status`

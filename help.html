@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick-start guide | MathVox</title>
+    <link rel="stylesheet" href="./resources/style.css" type="text/css"/>
+    <link rel="manifest" href="./resources/manifest.json" />
+    <link rel="icon" type="image/png" href="./resources/icons/198.png" />
+</head>
+<body class="info-page">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header>
+        <a href="./" id="logo-link"><img src="./resources/MathVox_logo.png" alt="MathVox home" id="logo"/></a>
+        <div id="a11y-controls">
+            <button id="theme-toggle" type="button" aria-pressed="false">Dark Mode</button>
+            <button id="dyslexia-toggle" type="button" aria-pressed="false">Dyslexia-Friendly Font</button>
+        </div>
+    </header>
+    <main id="main-content" tabindex="-1">
+        <article class="info">
+            <p class="back-link"><a href="./">Back to MathVox</a></p>
+            <h1>Quick-start guide</h1>
+            <p class="lead">MathVox turns an equation into versions that screen readers, braille readers and listeners can use. Your equation is kept while you read this page.</p>
+
+            <h2>In three steps</h2>
+            <ol>
+                <li><strong>Pick an output format</strong> for where the equation is going (see the table below).</li>
+                <li><strong>Enter the equation</strong> in the visual editor, type or paste LaTeX into the LaTeX box and select Convert, or draw it by hand.</li>
+                <li><strong>Select Copy</strong> (or Download, for an image) and paste it where it's going.</li>
+            </ol>
+
+            <h2 id="which-format">Which format should I use?</h2>
+            <div class="table-scroll" role="region" aria-labelledby="which-format" tabindex="0">
+            <table>
+                <thead>
+                    <tr><th scope="col">Where the equation is going</th><th scope="col">Format</th><th scope="col">How to use it</th></tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row">A Canvas page, quiz or discussion</th><td>MathML</td><td>In the editor, open the HTML view (the <code>&lt;/&gt;</code> button), paste where the equation goes, and switch back. Screen readers can explore it piece by piece.</td></tr>
+                    <tr><th scope="row">A Word document</th><td>Word equation</td><td>Paste into Word. It becomes an editable Word equation that JAWS and NVDA can read, with no alt text needed.</td></tr>
+                    <tr><th scope="row">A web page you edit as HTML</th><td>SVG + hidden MathML</td><td>Paste into the HTML. It looks the same in every browser, and screen readers read the hidden MathML.</td></tr>
+                    <tr><th scope="row">Slides, Google Docs, or anywhere that only takes images</th><td>Portable SVG</td><td>Download the .svg file, insert it, and paste the suggested alt text into the image's alt text field.</td></tr>
+                    <tr><th scope="row">A student who reads braille</th><td>Braille (Nemeth)</td><td>Copy the Unicode braille for a braille display or embosser. Have a braille transcriber check it before it reaches a student.</td></tr>
+                    <tr><th scope="row">Something to read or listen to</th><td>Description</td><td>Plain-language text of the equation. Select Read Equation Aloud to hear it.</td></tr>
+                    <tr><th scope="row">Another math tool</th><td>LaTeX, ASCII Math or MathJSON</td><td>Copy the code into the tool that expects it.</td></tr>
+                </tbody>
+            </table>
+            </div>
+
+            <h2>Description style</h2>
+            <p>The Description, Read Aloud and the suggested alt text can use either of two reading styles:</p>
+            <ul>
+                <li><strong>MathSpeak</strong> marks exactly where each part starts and ends: "StartFraction a plus 1 Over 2 EndFraction". Precise for complicated equations and familiar to many screen reader users.</li>
+                <li><strong>ClearSpeak</strong> reads more like a teacher would: "the fraction with numerator a plus 1 and denominator 2". Easier to follow for most listeners.</li>
+            </ul>
+
+            <h2>"Say what it means"</h2>
+            <p>Some notation means different things in different places. (0, 5) can be a point or an interval; |x| can be absolute value or the size of a set; y(t) can be a function or y times t. In the MathML format, MathVox asks about each one it finds. Your answer is written into the MathML, so screen readers that support it (NVDA and JAWS with MathCAT) say "the open interval from 0 to 5" instead of guessing. Function choices also carry over to the Word equation format.</p>
+
+            <h2>Drawing by hand</h2>
+            <p>Open <strong>Draw the equation by hand</strong> under the equation field and write with a mouse, pen or finger. When you pause, MathVox shows what it read. Check it, then select <strong>Insert into Equation</strong>; it goes in where your cursor is in the equation field, so you can draw a long equation in parts. Recognition is good but not perfect, especially with look-alike characters (1, l and I; x and X), so fix anything it got wrong in the equation field. The first time, the recognition model takes a moment to download (about 17 MB).</p>
+
+            <h2>Handy to know</h2>
+            <ul>
+                <li><strong>Keyboard:</strong> everything works from the keyboard. Open "Keyboard help for the equation field" under the editor for its shortcuts, such as showing the on-screen math keyboard.</li>
+                <li><strong>Clear Equation</strong> empties both inputs. If you clear by mistake, select <strong>Undo Clear</strong> before typing anything new.</li>
+                <li><strong>Share a link:</strong> the link button next to Copy copies a link that opens MathVox with your equation and format already filled in.</li>
+                <li><strong>Settings stay:</strong> your last equation, format and display settings are remembered in your browser. See <a href="./privacy.html">Privacy</a>.</li>
+                <li><strong>Display:</strong> Dark Mode and Dyslexia-Friendly Font are at the top of every page. MathVox also follows your system's high contrast settings.</li>
+            </ul>
+        </article>
+    </main>
+    <footer>
+        <nav aria-label="About MathVox">
+            <a href="./">MathVox</a>
+            <a href="./help.html" aria-current="page">Quick-start guide</a>
+            <a href="./privacy.html">Privacy</a>
+            <a href="https://github.com/deramsey/MathVox">Source code (AGPL-3.0)</a>
+        </nav>
+    </footer>
+    <script type="module" src="./resources/page.js"></script>
+</body>
+</html>

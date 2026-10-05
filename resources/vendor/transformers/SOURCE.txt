@@ -1,0 +1,7 @@
+Transformers.js 3.8.1 (Apache-2.0, LICENSE-transformers.txt)
+  transformers.min.js from npm @huggingface/transformers@3.8.1, dist/.
+ONNX Runtime Web 1.22.0-dev.20250409-89f8206ba4 (MIT, LICENSE-onnxruntime-web.txt)
+  ort-wasm-simd-threaded.mjs and .wasm from npm onnxruntime-web (the version
+  Transformers.js 3.8.1 depends on), dist/. The plain WebAssembly build, not
+  the larger WebGPU "jsep" build.
+Used only by resources/handwriting-worker.js.

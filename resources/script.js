@@ -17,10 +17,14 @@ import {
     findConversionProblems,
     normalizeHtmlEntities,
     buildAssistiveSnippet,
+    stripAttributesForWord,
+    markFunctionNamesForWord,
+    wrapWordMathml,
     resolveIntentChoices,
     defaultMeaning,
     suggestMeaning
 } from './pure-logic.js';
+import { setupHandwriting } from './handwriting.js';
 
 // MathLive needs a Compute Engine instance available before it can export
 // the "math-json" format. This must be set before any getValue('math-json')
@@ -55,21 +59,48 @@ setMathLiveSpeechStyle('mathspeak');
 
 const mf = document.querySelector('#formula');
 
-// MathLive doesn't pass the host's aria-label (or the sr-only <label>) on
-// to the role="textbox" element inside its shadow root that actually takes
-// focus, so screen readers announced an unnamed edit field. MathLive itself
-// sets that element's aria-label to the spoken equation after some edits
-// (its announce hook, "line" action) and leaves it blank otherwise -- so
-// keep its text when there is some, and fill in a real label when blank.
+// MathLive doesn't pass the host's aria-label (or the <label>) on to the
+// role="textbox" element inside its shadow root that actually takes focus,
+// so screen readers announced an unnamed edit field.
+// What the equation field is called, kept in one place. MathLive replaces
+// the inner textbox's name with its own reading of the equation (built from
+// its raw MathML, so it says "times" inside |y|, and before the October 2026
+// audit fix it could even come out as Braille dots). The observer below puts
+// back ours: the visible label first (WCAG 2.5.3), then the same cleaned-up
+// reading the Description shows, in the chosen style --
+// "Enter or edit the equation visually: x squared plus the absolute value of y".
+const FIELD_LABEL = mf.getAttribute('aria-label') || 'Enter or edit the equation visually';
+let fieldName = FIELD_LABEL;
+let fieldSink = null;
+
 function labelMathfieldInput() {
-    const sink = mf.shadowRoot && mf.shadowRoot.querySelector('[role="textbox"]');
-    if (!sink) return;
-    const fallback = mf.getAttribute('aria-label') || 'Enter or edit the equation visually';
-    const ensureLabel = () => {
-        if (!(sink.getAttribute('aria-label') || '').trim()) sink.setAttribute('aria-label', fallback);
+    fieldSink = mf.shadowRoot && mf.shadowRoot.querySelector('[role="textbox"]');
+    if (!fieldSink) return;
+    const keepName = () => {
+        if (fieldSink.getAttribute('aria-label') !== fieldName) fieldSink.setAttribute('aria-label', fieldName);
     };
-    ensureLabel();
-    new MutationObserver(ensureLabel).observe(sink, { attributes: true, attributeFilter: ['aria-label'] });
+    keepName();
+    new MutationObserver(keepName).observe(fieldSink, { attributes: true, attributeFilter: ['aria-label'] });
+}
+
+// Called from updateOutput(), which runs after every change to the
+// equation or the Description style. Runs in the background; a newer call
+// wins if two overlap.
+let fieldNameRequest = 0;
+async function refreshFieldName() {
+    const request = ++fieldNameRequest;
+    let name = FIELD_LABEL;
+    if ((mf.getValue('latex') || '').trim()) {
+        try {
+            const reading = await getSpokenText();
+            if (reading) name = `${FIELD_LABEL}: ${reading}`;
+        } catch (err) {
+            // Keep the plain label; the field still has a correct name.
+        }
+    }
+    if (request !== fieldNameRequest) return;
+    fieldName = name;
+    if (fieldSink) fieldSink.setAttribute('aria-label', fieldName);
 }
 labelMathfieldInput();
 // <label for> only focuses native form controls, so clicking the visible
@@ -101,6 +132,7 @@ const codeDetailsEl = document.querySelector('#code-details');
 const codeSummaryEl = document.querySelector('#code-summary');
 const downloadSvgCornerBtn = document.querySelector('#download-svg-corner');
 const snippetHintEl = document.querySelector('#snippet-hint');
+const wordHintEl = document.querySelector('#word-hint');
 
 // localStorage can be unavailable (private browsing, blocked site data,
 // quota) and then throws on *any* access -- including at startup, where an
@@ -257,7 +289,7 @@ function getCleanMathml() {
 
 // Formats built from MathML -- the ones a lost piece of the equation would
 // silently break.
-const MATHML_BASED_FORMATS = new Set(['math-ml', 'spoken-text', 'braille', 'svg', 'svg-mathml']);
+const MATHML_BASED_FORMATS = new Set(['math-ml', 'spoken-text', 'braille', 'svg', 'svg-mathml', 'word']);
 
 // Shows a warning above the output when the final MathML is visibly
 // missing something (see findConversionProblems), so an incomplete
@@ -316,6 +348,18 @@ function buildIntentMathml() {
 function wrapMathmlDocument(presentation, latex) {
     const annotation = `<annotation encoding="application/x-tex">${escapeXmlText(latex)}</annotation>`;
     return `<math xmlns="${MATHML_NAMESPACE}" display="block">\n  <semantics>\n    ${presentation}\n    ${annotation}\n  </semantics>\n</math>`;
+}
+
+// The Word equation format's text: the same cleaned-up MathML (and the
+// "function" choices, which are characters) as the MathML format, minus
+// what Word can't keep (see stripAttributesForWord in pure-logic.js).
+function buildWordMathml() {
+    const { markup } = buildIntentMathml();
+    const doc = parseMathmlFragment(markup);
+    if (!doc) return wrapWordMathml(markup);
+    stripAttributesForWord(doc.documentElement);
+    markFunctionNamesForWord(doc.documentElement);
+    return wrapWordMathml(serializeChildren(doc.documentElement));
 }
 
 // Re-renders just the MathML text after a picker change -- deliberately
@@ -456,7 +500,8 @@ const FORMAT_LABELS = {
     'spoken-text': 'Description (plain-language text)',
     'braille': 'Braille (Nemeth)',
     'svg': 'Portable SVG',
-    'svg-mathml': 'SVG + hidden MathML'
+    'svg-mathml': 'SVG + hidden MathML',
+    'word': 'Word equation'
 };
 
 const EMPTY_MESSAGE = 'Enter a math expression above to see it here.';
@@ -519,15 +564,28 @@ function getSpokenText() {
     return runSre(getSreSpeechReady, () => SRE.toSpeech(getCleanMathml()) || '');
 }
 
+// After Braille, put SRE back in speech mode before releasing the queue.
+// MathLive builds the equation field's accessible name from the same shared
+// engine whenever it likes, outside runSre, so a leftover braille modality
+// made screen readers announce the field as Braille dot patterns (found in
+// the October 2026 audit: the startup preload below did it on every load).
+async function leaveSreInSpeech() {
+    await getSreSpeechReady();
+}
+
 function getBraille() {
-    return runSre(getSreBrailleReady, () => SRE.toSpeech(getCleanMathml()) || '');
+    return runSre(getSreBrailleReady, async () => {
+        const braille = SRE.toSpeech(getCleanMathml()) || '';
+        await leaveSreInSpeech();
+        return braille;
+    });
 }
 
 // Kick off loading the Nemeth ruleset as soon as the page loads, so the
 // first Braille request doesn't have to wait on the network fetch. The
 // modality is reasserted again immediately before each actual use (above),
 // since it may have been switched to 'speech' in between.
-runSre(getSreBrailleReady, () => {});
+runSre(getSreBrailleReady, leaveSreInSpeech);
 
 // MathJax (modular input/mml + output/svg only -- see
 // docs/MATHJAX_SVG_IMPLEMENTATION_PLAN.md for why not a combined component) is
@@ -673,6 +731,7 @@ let renderId = 0;
 // announced on every pause.
 async function updateOutput({ announce: shouldAnnounce = false } = {}) {
     const myRender = ++renderId;
+    refreshFieldName();
     const isStale = () => myRender !== renderId;
     const format = formatSelect.value;
     const label = FORMAT_LABELS[format] || format;
@@ -692,6 +751,7 @@ async function updateOutput({ announce: shouldAnnounce = false } = {}) {
     downloadSvgCornerBtn.hidden = true;
     lastSvgMarkup = '';
     snippetHintEl.hidden = true;
+    wordHintEl.hidden = true;
     svgAltWrapEl.hidden = true;
     suggestedAltEl.textContent = '';
     lastAltText = '';
@@ -771,6 +831,18 @@ async function updateOutput({ announce: shouldAnnounce = false } = {}) {
             renderIntentPicker(occurrences, suggestions);
         } catch (err) {
             console.error('Rendering the MathML meaning picker failed', err);
+        }
+        done();
+        return;
+    }
+
+    if (format === 'word') {
+        wordHintEl.hidden = false;
+        try {
+            textCont.textContent = buildWordMathml();
+        } catch (err) {
+            console.error('Word equation generation failed', err);
+            textCont.textContent = 'Word equation output is unavailable right now.';
         }
         done();
         return;
@@ -945,6 +1017,25 @@ function convertLatex() {
     updateOutput({ announce: true });
     syncLatexInputFromField();
     saveEquationState();
+}
+
+// Handwriting panel (handwriting.js): the recognized LaTeX goes in at the
+// cursor, like typing it, then everything downstream updates as usual.
+function insertRecognizedLatex(latex) {
+    hideUndoClear();
+    mf.focus();
+    mf.insert(latex, { format: 'latex', insertionMode: 'replaceSelection', selectionMode: 'after' });
+    reportLatexErrors(mf.getValue('latex'));
+    updateOutput();
+    syncLatexInputFromField();
+    saveEquationState();
+}
+
+// Spoken text for the recognized result, in the chosen Description style,
+// so screen reader users hear "x squared plus 1" rather than LaTeX.
+function speakLatex(latex) {
+    return runSre(getSreSpeechReady, () =>
+        SRE.toSpeech(`<math xmlns="${MATHML_NAMESPACE}">${window.MathLive.convertLatexToMathMl(latex)}</math>`) || '');
 }
 
 // Clear Equation: empties both inputs and forgets the meaning choices
@@ -1167,7 +1258,9 @@ function downloadSvgFile() {
 function setTheme(dark) {
     document.documentElement.classList.toggle('theme-dark', dark);
     themeToggle.setAttribute('aria-pressed', String(dark));
-    themeToggle.textContent = dark ? 'Light Mode' : 'Dark Mode';
+    // The name stays "Dark Mode" in both states: with aria-pressed, a name
+    // that flipped to "Light Mode" was announced as "Light Mode, toggle
+    // button, pressed" while dark mode was on -- the opposite of the truth.
     storageSet('mathvox-theme', dark ? 'dark' : 'light');
 }
 
@@ -1215,6 +1308,7 @@ themeToggle.addEventListener('click', () => setTheme(!document.documentElement.c
 dyslexiaToggle.addEventListener('click', () => setDyslexiaFont(!document.documentElement.classList.contains('dyslexia-font')));
 
 convertBtn.addEventListener('click', convertLatex);
+setupHandwriting({ onInsert: insertRecognizedLatex, toSpeech: speakLatex, announce });
 clearBtn.addEventListener('click', clearEquation);
 undoClearBtn.addEventListener('click', undoClear);
 // Any new edit after a clear makes the new work the thing to keep; an undo

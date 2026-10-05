@@ -37,6 +37,12 @@ import {
     findConversionProblems,
     normalizeHtmlEntities,
     buildAssistiveSnippet,
+    stripAttributesForWord,
+    markFunctionNamesForWord,
+    wrapWordMathml,
+    preprocessInk,
+    normalizeRecognizedLatex,
+    TEXO_SIZE,
     VISUALLY_HIDDEN_STYLE,
     resolveIntentChoices,
     suggestMeaning
@@ -928,4 +934,69 @@ test('description style: the vendored English rules include ClearSpeak', () => {
     const here = path.dirname(fileURLToPath(import.meta.url));
     const maps = JSON.parse(fs.readFileSync(path.join(here, '..', 'resources', 'vendor', 'speech-rule-engine', 'mathmaps', 'en.json'), 'utf8'));
     assert.ok(Object.keys(maps).some((k) => /clearspeak/i.test(k)), 'en.json has no ClearSpeak rule sets');
+});
+
+// --- Word equation ---------------------------------------------------------
+
+test('Word equation: intents removed, function marker kept, one-line <math> start', () => {
+    const xml = '<root><mrow><mrow intent="open-interval($a,$b)"><mo>(</mo><mn arg="a">0</mn><mo>,</mo><mn arg="b">5</mn><mo>)</mo></mrow>'
+        + '<mo>+</mo><mi>y</mi><mo>\u2061</mo><mrow><mo>(</mo><mi>t</mi><mo>)</mo></mrow></mrow></root>';
+    const doc = new DOMParser().parseFromString(xml, 'text/xml');
+    assert.equal(stripAttributesForWord(doc.documentElement), 3);
+    const inner = Array.from(doc.documentElement.childNodes).map((n) => new XMLSerializer().serializeToString(n)).join('');
+    assert.doesNotMatch(inner, /intent=|arg=/);
+    assert.match(inner, /\u2061/, 'function application survives');
+    const word = wrapWordMathml(`  ${inner}\n`);
+    assert.match(word, /^<math xmlns="http:\/\/www\.w3\.org\/1998\/Math\/MathML" display="block"><mrow>/);
+    assert.doesNotMatch(word, /semantics|annotation|\n/);
+    assert.ok(new DOMParser().parseFromString(word, 'text/xml').documentElement.tagName === 'math');
+});
+
+test('Word equation: MathLive function names become <mi> + function application', () => {
+    const run = (xml) => {
+        const doc = new DOMParser().parseFromString(`<root>${xml}</root>`, 'text/xml');
+        const n = markFunctionNamesForWord(doc.documentElement);
+        return [n, Array.from(doc.documentElement.childNodes).map((c) => new XMLSerializer().serializeToString(c)).join('')];
+    };
+    assert.deepEqual(run('<mrow><mo>sin</mo><mi>θ</mi></mrow>'), [1, '<mrow><mi>sin</mi><mo>\u2061</mo><mi>θ</mi></mrow>']);
+    assert.deepEqual(run('<mrow><msup><mo>sin</mo><mn>2</mn></msup><mi>x</mi></mrow>'), [1, '<mrow><msup><mi>sin</mi><mn>2</mn></msup><mo>\u2061</mo><mi>x</mi></mrow>']);
+    assert.deepEqual(run('<mrow><mo>log</mo><mo>\u2061</mo><mi>x</mi></mrow>'), [1, '<mrow><mi>log</mi><mo>\u2061</mo><mi>x</mi></mrow>'], 'no second marker');
+    assert.deepEqual(run('<mrow><mo>sin</mo><mo>+</mo><mn>1</mn></mrow>'), [1, '<mrow><mi>sin</mi><mo>+</mo><mn>1</mn></mrow>'], 'no argument, no marker');
+    assert.deepEqual(run('<mrow><munder><mo>lim</mo><mi>n</mi></munder><msub><mi>a</mi><mi>n</mi></msub></mrow>')[0], 0, 'limits untouched');
+    assert.deepEqual(run('<mrow><mo>+</mo><mi>x</mi></mrow>')[0], 0);
+});
+
+// --- Handwriting (Texo) ------------------------------------------------------
+
+test('preprocessInk: crops to the ink, centers it on a black 384x384, normalizes', () => {
+    const w = 200, h = 100;
+    const grey = new Uint8ClampedArray(w * h).fill(255);
+    for (let y = 40; y < 60; y++) for (let x = 50; x < 150; x++) grey[y * w + x] = 0; // a 100x20 black bar
+    const px = preprocessInk(grey, w, h);
+    assert.equal(px.length, TEXO_SIZE * TEXO_SIZE);
+    const black = (0 - 0.7931) / 0.1738, white = (1 - 0.7931) / 0.1738;
+    const at = (x, y) => px[y * TEXO_SIZE + x];
+    // A 5:1 crop (the far edges are exclusive, like Texo-web) fills the width:
+    // 384 x ~77, so the top and bottom are black padding and the middle is ink.
+    assert.ok(Math.abs(at(192, 5) - black) < 1e-6, 'padding is black');
+    assert.ok(Math.abs(at(192, 192) - black) < 0.2, 'ink stays dark');
+    assert.ok(at(192, 192) < white);
+});
+
+test('preprocessInk: white-on-black input is inverted; blank input gives null', () => {
+    const w = 60, h = 30;
+    const dark = new Uint8ClampedArray(w * h).fill(0);
+    for (let x = 10; x < 50; x++) dark[15 * w + x] = 255;
+    const light = new Uint8ClampedArray(w * h).fill(255);
+    for (let x = 10; x < 50; x++) light[15 * w + x] = 0;
+    assert.deepEqual(preprocessInk(dark, w, h), preprocessInk(light, w, h));
+    assert.equal(preprocessInk(new Uint8ClampedArray(w * h).fill(255), w, h), null);
+});
+
+test('normalizeRecognizedLatex: tidies Texo spacing and swaps \\dots', () => {
+    assert.equal(normalizeRecognizedLatex('X ^ { 2 } + 1'), 'X^{2}+1');
+    assert.equal(normalizeRecognizedLatex('\\frac { 1 } { \\sqrt { k + 1 } }'), '\\frac{1}{\\sqrt{k+1}}');
+    assert.equal(normalizeRecognizedLatex('\\sin x - \\tan y'), '\\sin x-\\tan y', 'space after a command name kept');
+    assert.match(normalizeRecognizedLatex('a _ { 1 } , \\dots , a _ { n }'), /\\ldots/);
+    assert.equal(normalizeRecognizedLatex(''), '');
 });

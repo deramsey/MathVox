@@ -1624,3 +1624,177 @@ export function buildAssistiveSnippet(svgMarkup, presentation, latex) {
         `<semantics>${presentation}${annotation}</semantics></math>`;
     return `<span class="mathvox-equation" style="display:inline-block;position:relative">${svgMarkup}${math}</span>`;
 }
+
+// --- Word equation ("Copy for Word") ---------------------------------------
+//
+// Word turns MathML pasted as plain text into a native, editable Word
+// equation (its own MathML-to-OMML converter does the work), which JAWS and
+// NVDA can explore. Word has nowhere to keep MathML 4 `intent`/`arg`
+// attributes, so they're removed rather than risk the converter rejecting
+// them; the "function" choice survives because it's a character (U+2061),
+// not an attribute. No <semantics>/<annotation> wrapper either: Word only
+// wants the presentation markup.
+const WORD_DROPPED_ATTRIBUTES = ['intent', 'arg'];
+
+// Removes the attributes above from root and every descendant element.
+// Returns how many were removed.
+export function stripAttributesForWord(root) {
+    let removed = 0;
+    const walk = (el) => {
+        for (const name of WORD_DROPPED_ATTRIBUTES) {
+            if (el.hasAttribute && el.hasAttribute(name)) {
+                el.removeAttribute(name);
+                removed++;
+            }
+        }
+        for (let child = el.firstChild; child; child = child.nextSibling) {
+            if (child.nodeType === 1) walk(child);
+        }
+    };
+    walk(root);
+    return removed;
+}
+
+// MathLive writes function names as operators with no function-application
+// marker after them ("<mo>sin</mo><mi>θ</mi>"). Speech Rule Engine reads
+// that fine, but Word's converter would make "sin" a loose operator rather
+// than a Word function (upright name, argument grouped with it). Rewrite to
+// "<mi>sin</mi><mo>U+2061</mo>" -- the form MathML spells out for functions.
+// "sin^2 x" (the name as a script base) gets the marker after the script.
+// Limits ("lim" under munder) are left alone; Word handles those already.
+// Returns how many names were changed.
+const SCRIPT_PARENTS = new Set(['msub', 'msup', 'msubsup']);
+
+function nextElement(node) {
+    let next = node.nextSibling;
+    while (next && next.nodeType !== 1) next = next.nextSibling;
+    return next;
+}
+
+export function markFunctionNamesForWord(root) {
+    let changed = 0;
+    const names = [];
+    const collect = (el) => {
+        for (const child of elementChildren(el)) {
+            if (nameOf(child) === 'mo' && /^[A-Za-z]{2,}$/.test(textOf(child).trim())) names.push(child);
+            collect(child);
+        }
+    };
+    collect(root);
+    for (const mo of names) {
+        const parent = mo.parentNode;
+        const parentName = parent && parent.nodeType === 1 ? nameOf(parent) : '';
+        if (['munder', 'mover', 'munderover'].includes(parentName)) continue;
+        const asBase = SCRIPT_PARENTS.has(parentName) && elementChildren(parent)[0] === mo;
+        if (SCRIPT_PARENTS.has(parentName) && !asBase) continue;
+        const doc = mo.ownerDocument;
+        const ns = mo.namespaceURI || null;
+        const mi = doc.createElementNS(ns, 'mi');
+        mi.appendChild(doc.createTextNode(textOf(mo).trim()));
+        parent.replaceChild(mi, mo);
+        changed++;
+        // Same "is an argument coming?" test as dropDanglingFunctionApplication.
+        const target = asBase ? parent : mi;
+        const next = nextElement(target);
+        if (!next) continue;
+        if (nameOf(next) === 'mo' && textOf(next) === FUNCTION_APPLICATION) continue;
+        const isArgument = !(nameOf(next) === 'mo' && !['(', '[', '{', '|', '‖', '⟨'].includes(textOf(next)));
+        if (isArgument) target.parentNode.insertBefore(makeMo(doc, ns, FUNCTION_APPLICATION), next);
+    }
+    return changed;
+}
+
+// presentation: the inner presentation MathML (no <math> wrapper). Kept on
+// one line: Word's paste detection looks at the start of the clipboard
+// text, which must be the <math> start tag itself.
+export function wrapWordMathml(presentation) {
+    return `<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">${presentation.trim()}</math>`;
+}
+
+// --- Handwriting input (Texo) ----------------------------------------------
+//
+// Turns a drawing into the 384x384 input the Texo model expects. A port of
+// Texo-web's preprocessImg (github.com/alephpi/Texo-web, AGPL-3.0): invert
+// if the picture is mostly dark, crop to the ink, scale so the shorter side
+// fits (shrinking further if the longer side would overflow), center on a
+// black square, then normalize with the training set's mean/std. Works on a
+// plain greyscale array so it can be tested without a canvas.
+export const TEXO_SIZE = 384;
+const TEXO_MEAN = 0.7931;
+const TEXO_STD = 0.1738;
+
+function bilinearResize(src, sw, sh, dw, dh) {
+    const out = new Uint8ClampedArray(dw * dh);
+    const xRatio = sw / dw, yRatio = sh / dh;
+    for (let y = 0; y < dh; y++) {
+        const sy = Math.min(Math.max((y + 0.5) * yRatio - 0.5, 0), sh - 1);
+        const y0 = Math.floor(sy), y1 = Math.min(y0 + 1, sh - 1), fy = sy - y0;
+        for (let x = 0; x < dw; x++) {
+            const sx = Math.min(Math.max((x + 0.5) * xRatio - 0.5, 0), sw - 1);
+            const x0 = Math.floor(sx), x1 = Math.min(x0 + 1, sw - 1), fx = sx - x0;
+            const top = src[y0 * sw + x0] * (1 - fx) + src[y0 * sw + x1] * fx;
+            const bottom = src[y1 * sw + x0] * (1 - fx) + src[y1 * sw + x1] * fx;
+            out[y * dw + x] = top * (1 - fy) + bottom * fy;
+        }
+    }
+    return out;
+}
+
+// grey: Uint8 values 0-255, row by row (w*h). Returns a Float32Array of
+// TEXO_SIZE*TEXO_SIZE, or null when there is no ink at all.
+export function preprocessInk(grey, w, h) {
+    let g = Uint8ClampedArray.from(grey);
+    let dark = 0;
+    for (const v of g) if (v < 200) dark++;
+    if (dark >= g.length - dark) g = g.map((v) => 255 - v);
+    let min = 255, max = 0;
+    for (const v of g) { if (v < min) min = v; if (v > max) max = v; }
+    if (max === min) return null;
+    let x0 = w, y0 = h, x1 = -1, y1 = -1;
+    for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+            if (((g[y * w + x] - min) / (max - min)) * 255 < 200) {
+                if (x < x0) x0 = x; if (x > x1) x1 = x;
+                if (y < y0) y0 = y; if (y > y1) y1 = y;
+            }
+        }
+    }
+    if (x1 < x0) return null;
+    // Same crop as Texo-web (the far edge is exclusive), at least 1 pixel.
+    const cw = Math.max(x1 - x0, 1), ch = Math.max(y1 - y0, 1);
+    const crop = new Uint8ClampedArray(cw * ch);
+    for (let y = 0; y < ch; y++) crop.set(g.subarray((y + y0) * w + x0, (y + y0) * w + x0 + cw), y * cw);
+    const scale = TEXO_SIZE / Math.min(cw, ch);
+    let nw = Math.round(cw * scale), nh = Math.round(ch * scale);
+    if (nw > TEXO_SIZE || nh > TEXO_SIZE) {
+        const r = Math.min(TEXO_SIZE / nw, TEXO_SIZE / nh);
+        nw = Math.round(nw * r); nh = Math.round(nh * r);
+    }
+    nw = Math.max(nw, 1); nh = Math.max(nh, 1);
+    const resized = bilinearResize(crop, cw, ch, nw, nh);
+    const padX = Math.floor((TEXO_SIZE - nw) / 2), padY = Math.floor((TEXO_SIZE - nh) / 2);
+    const pixels = new Float32Array(TEXO_SIZE * TEXO_SIZE).fill((0 - TEXO_MEAN) / TEXO_STD);
+    for (let y = 0; y < nh; y++) {
+        for (let x = 0; x < nw; x++) {
+            pixels[(y + padY) * TEXO_SIZE + x + padX] = (resized[y * nw + x] / 255 - TEXO_MEAN) / TEXO_STD;
+        }
+    }
+    return pixels;
+}
+
+// Texo writes LaTeX with spaces between tokens ("x ^ { 2 } + 1"), which
+// MathLive reads fine. Tidy it for the LaTeX box, and swap the few commands
+// MathLive doesn't know (found by running Texo's output on the CROHME test
+// set through MathLive: only \dots).
+const RECOGNIZED_RENAMES = [[/\\dots\b/g, '\\ldots']];
+
+export function normalizeRecognizedLatex(latex) {
+    let s = (latex || '').trim();
+    for (const [from, to] of RECOGNIZED_RENAMES) s = s.replace(from, to);
+    // Drop spaces Texo puts around grouping and script characters, but keep
+    // the one after a command name ("\sin x" must not become "\sinx").
+    s = s.replace(/\s*([{}^_])\s*/g, '$1');
+    s = s.replace(/(\\[A-Za-z]+)\s+(?=[A-Za-z])/g, '$1\u0000');
+    s = s.replace(/\s+/g, ' ').replace(/ ?([=+\-<>]) ?/g, '$1').replace(/\u0000/g, ' ');
+    return s.trim();
+}

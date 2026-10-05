@@ -1,0 +1,16 @@
+Texo handwriting/formula recognition model (AGPL-3.0, LICENSE.txt)
+  Author: Sicheng Mao (alephpi). Paper: "Texo: Formula Recognition within 20M
+  Parameters", arXiv 2602.17189. Code: https://github.com/alephpi/Texo
+  Web app the files came from: https://github.com/alephpi/Texo-web,
+  models/model/ at commit 4cff3bcff82846b31d7c1207d883e1b29d2b7db0
+  (same files as Hugging Face alephpi/FormulaNet).
+
+Changes made for MathVox (October 2026):
+  The fp32 ONNX files (encoder 54MB, decoder 26MB) were quantized to 8-bit
+  with onnxruntime.quantization.quantize_dynamic (weight_type QUInt8; the
+  merged decoder with extra_options={"EnableSubgraph": True}). Saved as
+  onnx/encoder_model_quantized.onnx and onnx/decoder_model_merged_quantized.onnx,
+  the names Transformers.js loads for dtype "q8". CROHME 2014 test set exact
+  match: 41.6% fp32, 40.6% quantized.
+  config.json, generation_config.json, tokenizer.json, tokenizer_config.json
+  are unchanged.
